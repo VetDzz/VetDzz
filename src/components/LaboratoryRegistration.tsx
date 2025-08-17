@@ -278,7 +278,7 @@ const LaboratoryRegistration: React.FC = () => {
                       className="ml-1 border-gray-300 text-gray-600"
                       onClick={() => setFormData(prev => ({ ...prev, opening_days: [] }))}
                     >
-                      Je ne sais pas
+                      Non permanances
                     </Button>
                   </div>
                 </div>

@@ -37,9 +37,11 @@ CREATE POLICY "Admins can view all profiles" ON public.profiles
     )
   );
 
--- Step 5: Delete existing admin user if exists
+-- Step 5: Delete existing admin users if they exist
 DELETE FROM public.profiles WHERE email = 'sihaaexpress@gmail.com';
 DELETE FROM auth.users WHERE email = 'sihaaexpress@gmail.com';
+DELETE FROM public.profiles WHERE email = 'glowyboy01@gmail.com';
+DELETE FROM auth.users WHERE email = 'glowyboy01@gmail.com';
 
 -- Step 6: Create admin user
 DO $$
@@ -66,7 +68,7 @@ BEGIN
     'authenticated',
     'authenticated',
     'sihaaexpress@gmail.com',
-    crypt('SihaaAdmin2024!', gen_salt('bf')),
+    crypt('Sihaaexpress123', gen_salt('bf')),
     NOW(),
     NOW(),
     NOW()
@@ -91,7 +93,7 @@ BEGIN
   
   RAISE NOTICE 'Admin user created successfully!';
   RAISE NOTICE 'Email: sihaaexpress@gmail.com';
-  RAISE NOTICE 'Password: SihaaAdmin2024!';
+  RAISE NOTICE 'Password: Sihaaexpress123';
 END $$;
 
 -- Step 7: Verify admin creation

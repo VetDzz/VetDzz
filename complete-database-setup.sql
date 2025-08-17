@@ -342,7 +342,7 @@ DROP POLICY IF EXISTS "Admin can manage deletions" ON deleted_users;
 CREATE POLICY "Admin can manage deletions" ON deleted_users FOR ALL USING (true);
 
 -- Create function to completely delete a user
-CREATE OR REPLACE FUNCTION admin_delete_user(target_user_id UUID, admin_email TEXT DEFAULT 'glowyboy01@gmail.com')
+CREATE OR REPLACE FUNCTION admin_delete_user(target_user_id UUID, admin_email TEXT DEFAULT 'sihaaexpress@gmail.com')
 RETURNS JSON AS $$
 DECLARE
   user_data JSONB;
@@ -350,7 +350,7 @@ DECLARE
   temp_count INTEGER;
 BEGIN
   -- Check if admin
-  IF admin_email != 'glowyboy01@gmail.com' THEN
+  IF admin_email != 'sihaaexpress@gmail.com' THEN
     RETURN json_build_object('success', false, 'error', 'Unauthorized');
   END IF;
 
@@ -425,14 +425,14 @@ CREATE OR REPLACE FUNCTION admin_ban_user(
   target_user_id UUID,
   ban_duration_days INTEGER DEFAULT 30,
   ban_reason TEXT DEFAULT 'Banned by admin',
-  admin_email TEXT DEFAULT 'glowyboy01@gmail.com'
+  admin_email TEXT DEFAULT 'sihaaexpress@gmail.com'
 )
 RETURNS JSON AS $$
 DECLARE
   ban_until TIMESTAMP WITH TIME ZONE;
 BEGIN
   -- Check if admin
-  IF admin_email != 'glowyboy01@gmail.com' THEN
+  IF admin_email != 'sihaaexpress@gmail.com' THEN
     RETURN json_build_object('success', false, 'error', 'Unauthorized');
   END IF;
 
@@ -457,11 +457,11 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Create function to unban a user
-CREATE OR REPLACE FUNCTION admin_unban_user(target_user_id UUID, admin_email TEXT DEFAULT 'glowyboy01@gmail.com')
+CREATE OR REPLACE FUNCTION admin_unban_user(target_user_id UUID, admin_email TEXT DEFAULT 'sihaaexpress@gmail.com')
 RETURNS JSON AS $$
 BEGIN
   -- Check if admin
-  IF admin_email != 'glowyboy01@gmail.com' THEN
+  IF admin_email != 'sihaaexpress@gmail.com' THEN
     RETURN json_build_object('success', false, 'error', 'Unauthorized');
   END IF;
 
@@ -644,13 +644,16 @@ BEGIN
         ALTER TABLE public.PAD_requests ADD COLUMN client_address TEXT;
     END IF;
 
-    -- Add requested_tests as TEXT[] if not exists (selected PAD types)
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns
-        WHERE table_schema='public' AND table_name='PAD_requests' AND column_name='requested_tests'
-    ) THEN
-        ALTER TABLE public.PAD_requests ADD COLUMN requested_tests TEXT[];
-    END IF;
+   IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema='public' AND table_name='pad_requests'
+) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema='public' AND table_name='pad_requests' AND column_name='requested_tests'
+) THEN
+    ALTER TABLE public.pad_requests ADD COLUMN requested_tests TEXT[];
+END IF;
+
 
     -- Handle ALL legacy NOT NULL columns that might cause insert failures
     -- Drop NOT NULL from any problematic columns in laboratory_profiles

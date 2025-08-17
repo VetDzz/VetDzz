@@ -17,8 +17,8 @@ const AdminSetup: React.FC = () => {
     try {
       // Simple admin account creation with email verification
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: 'glowyboy01@gmail.com',
-        password: 'Mindup2019',
+        email: 'sihaaexpress@gmail.com',
+        password: 'Sihaaexpress123',
         options: {
           data: {
             type: 'admin',
@@ -43,7 +43,7 @@ const AdminSetup: React.FC = () => {
 
       toast({
         title: "Compte admin créé!",
-        description: "Vérifiez votre email glowyboy01@gmail.com pour confirmer votre compte.",
+        description: "Vérifiez votre email sihaaexpress@gmail.com pour confirmer votre compte.",
       });
 
       setIsCreated(true);
@@ -110,7 +110,7 @@ const AdminSetup: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-green-800">Compte Admin Créé!</h3>
                   <p className="text-sm text-gray-600">
-                    Vérifiez votre email glowyboy01@gmail.com et cliquez sur le lien de confirmation.
+                    Vérifiez votre email sihaaexpress@gmail.com et cliquez sur le lien de confirmation.
                     Ensuite vous pourrez vous connecter.
                   </p>
                 </div>

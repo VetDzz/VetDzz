@@ -198,7 +198,7 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
                           className="ml-1 border-gray-300 text-gray-600"
                           onClick={() => setOpeningDays([])}
                         >
-                          Je ne sais pas
+                          Non permanances
                         </Button>
                       </div>
                     </div>

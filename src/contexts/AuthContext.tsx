@@ -170,7 +170,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.log('User metadata:', data.user.user_metadata);
 
         // Check if this is the admin account
-        if (data.user.email === 'glowyboy01@gmail.com') {
+        if (data.user.email === 'sihaaexpress@gmail.com') {
           console.log('🔑 ADMIN LOGIN DETECTED - Checking email verification...');
 
           // Check if email is verified
@@ -180,7 +180,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // Send verification email
             await supabase.auth.resend({
               type: 'signup',
-              email: 'glowyboy01@gmail.com',
+              email: 'sihaaexpress@gmail.com',
               options: {
                 emailRedirectTo: getAuthRedirectUrl('/admin')
               }
