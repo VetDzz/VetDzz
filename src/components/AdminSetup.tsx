@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, UserPlus, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { getAuthRedirectUrl } from '@/utils/urlConfig';
 
 const AdminSetup: React.FC = () => {
   const { toast } = useToast();
@@ -23,7 +24,7 @@ const AdminSetup: React.FC = () => {
             type: 'admin',
             full_name: 'SihaaExpress Admin'
           },
-          emailRedirectTo: `${window.location.origin}/admin`
+          emailRedirectTo: getAuthRedirectUrl('/admin')
         }
       });
 

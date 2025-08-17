@@ -1,4 +1,4 @@
--- COMPLETE DATABASE SETUP FOR LABCONNECT
+-- COMPLETE DATABASE SETUP FOR  sihaaexpress
 -- Run this ONE file in your Supabase SQL editor
 -- This will create everything needed and fix all issues
 

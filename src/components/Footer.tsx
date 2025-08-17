@@ -77,7 +77,7 @@ const Footer = () => {
                 <span className="text-white font-bold text-xl">L</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-laboratory-dark">LabConnect</h3>
+                <h3 className="text-xl font-bold text-laboratory-dark"> sihaaexpress</h3>
                 <p className="text-sm text-gray-600">{t('footer.subtitle')}</p>
               </div>
             </div>
@@ -95,7 +95,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center text-gray-600">
                 <Mail className="w-4 h-4 mr-2 text-laboratory-primary" />
-                <span className="text-sm">contact@labconnect.fr</span>
+                <span className="text-sm">contact sihaaexpress@gmail.com</span>
               </div>
             </div>
             <div className="flex space-x-4">
@@ -154,7 +154,7 @@ const Footer = () => {
 
         <div className="pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} LabConnect. {t('footer.rights')}
+            © {new Date().getFullYear()}  sihaaexpress. {t('footer.rights')}
           </p>
           <div className="flex space-x-6">
             <Link to="/privacy-policy" className="text-sm text-gray-500 hover:text-laboratory-dark transition-colors">{t('footer.privacy')}</Link>

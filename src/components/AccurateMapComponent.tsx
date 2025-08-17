@@ -128,19 +128,37 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     setIsGettingLocation(true);
 
     try {
-      // Force fresh permission request and ultra-precise location
-      const ultraPreciseLocation = await getUltraPreciseLocation();
-      if (ultraPreciseLocation) {
-        setUserLocation(ultraPreciseLocation.coords);
-        setLocationAccuracy(ultraPreciseLocation.accuracy);
+      // Import and use ultra-precise location service
+      const { ultraPreciseLocation } = await import('@/utils/ultraPreciseLocation');
+
+      console.log('🎯 Requesting ultra-precise location...');
+      const result = await ultraPreciseLocation.getUltraPreciseLocation();
+
+      if (result) {
+        setUserLocation(result.coords);
+        setLocationAccuracy(result.accuracy);
+
+        toast({
+          title: "📍 Position ultra-précise obtenue!",
+          description: `Précision: ±${Math.round(result.accuracy)}m via ${result.method}`,
+        });
+
+        console.log(`✅ Ultra-precise location: ${result.coords.lat.toFixed(8)}, ${result.coords.lng.toFixed(8)} (±${Math.round(result.accuracy)}m)`);
       } else {
         throw new Error('Ultra-precise location failed');
       }
 
     } catch (error) {
+      console.warn('Ultra-precise location failed, using fallback:', error);
       // Only fallback if absolutely necessary
       setUserLocation({ lat: 35.5559, lng: 6.1743 });
       setLocationAccuracy(null);
+
+      toast({
+        title: "⚠️ Localisation approximative",
+        description: "Impossible d'obtenir une position précise. Position par défaut utilisée.",
+        variant: "destructive"
+      });
     }
 
     setIsGettingLocation(false);

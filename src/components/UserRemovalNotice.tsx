@@ -58,7 +58,7 @@ const UserRemovalNotice = () => {
                   <Mail className="w-5 h-5 text-laboratory-primary flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-800">Email</p>
-                    <p className="text-sm text-gray-600">support@labconnect.fr</p>
+                    <p className="text-sm text-gray-600">support sihaaexpress@gmail.com</p>
                   </div>
                 </div>
                 

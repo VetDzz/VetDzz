@@ -22,8 +22,6 @@ L.Icon.Default.mergeOptions({
 interface LaboratoryData {
   laboratory_name: string;
   address: string;
-  city: string;
-  postal_code: string;
   phone: string;
   email: string;
   description: string;
@@ -70,8 +68,6 @@ const LaboratoryRegistration: React.FC = () => {
   const [formData, setFormData] = useState<LaboratoryData>({
     laboratory_name: '',
     address: '',
-    city: '',
-    postal_code: '',
     phone: '',
     email: '',
     description: '',
@@ -132,8 +128,6 @@ const LaboratoryRegistration: React.FC = () => {
             user_id: user.id,
             laboratory_name: formData.laboratory_name,
             address: formData.address,
-            city: formData.city,
-            postal_code: formData.postal_code,
             phone: formData.phone,
             email: formData.email || user.email,
             description: formData.description,
@@ -213,26 +207,7 @@ const LaboratoryRegistration: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="city">Ville</Label>
-                    <Input
-                      id="city"
-                      value={formData.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
-                      placeholder="Ex: Batna"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="postal_code">Code Postal</Label>
-                    <Input
-                      id="postal_code"
-                      value={formData.postal_code}
-                      onChange={(e) => handleInputChange('postal_code', e.target.value)}
-                      placeholder="Ex: 05000"
-                    />
-                  </div>
-                </div>
+
 
                 <div>
                   <Label htmlFor="phone">Téléphone *</Label>

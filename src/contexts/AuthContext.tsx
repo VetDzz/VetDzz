@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase, signIn, signUp, signOut, getCurrentUser, createClientProfile, createLaboratoryProfile, createNotification, subscribeToUserChanges, checkUserExists } from '@/lib/supabase';
+import { getAuthRedirectUrl } from '@/utils/urlConfig';
 
 export type UserType = 'client' | 'laboratory';
 
@@ -41,8 +42,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           phone: userData.phone || '',
           date_of_birth: userData.dateOfBirth || null,
           address: userData.address || '',
-          city: userData.city || '',
-          postal_code: userData.postalCode || '',
           emergency_contact_name: userData.emergencyContact || ''
         });
 
@@ -56,8 +55,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             phone: userData.phone || '',
             date_of_birth: userData.dateOfBirth || null,
             address: userData.address || '',
-            city: userData.city || '',
-            postal_code: userData.postalCode || '',
             emergency_contact_name: userData.emergencyContact || '',
             is_verified: true
           }], {
@@ -97,8 +94,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (userData.email) labPayload.email = userData.email;
         if (userData.phone) labPayload.phone = userData.phone;
         if (userData.address) labPayload.address = userData.address;
-        if (userData.city) labPayload.city = userData.city;
-        if (userData.postalCode) labPayload.postal_code = userData.postalCode;
+
         if (typeof userData.latitude === 'number') labPayload.latitude = userData.latitude;
         if (typeof userData.longitude === 'number') labPayload.longitude = userData.longitude;
         if (userData.openingHours) labPayload.opening_hours = userData.openingHours;
@@ -186,7 +182,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               type: 'signup',
               email: 'glowyboy01@gmail.com',
               options: {
-                emailRedirectTo: `${window.location.origin}/admin`
+                emailRedirectTo: getAuthRedirectUrl('/admin')
               }
             });
 

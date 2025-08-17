@@ -373,26 +373,7 @@ const AuthSection = () => {
                             className="border-laboratory-muted focus:border-laboratory-primary"
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="clientCity">Ville</Label>
-                            <Input
-                              id="clientCity"
-                              name="city"
-                              placeholder="Paris"
-                              className="border-laboratory-muted focus:border-laboratory-primary"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="clientPostalCode">Code postal</Label>
-                            <Input
-                              id="clientPostalCode"
-                              name="postalCode"
-                              placeholder="75000"
-                              className="border-laboratory-muted focus:border-laboratory-primary"
-                            />
-                          </div>
-                        </div>
+
                         <div className="space-y-2">
                           <Label htmlFor="clientPassword">{t('auth.password')}</Label>
                           <Input
@@ -492,16 +473,7 @@ const AuthSection = () => {
                             required
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="siret">{t('auth.siret')}</Label>
-                          <Input
-                            id="siret"
-                            name="licenseNumber"
-                            placeholder="12345678901234"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
-                            required
-                          />
-                        </div>
+
                         <div className="space-y-2">
                           <Label htmlFor="address">{t('auth.address')}</Label>
                           <Input
@@ -512,28 +484,7 @@ const AuthSection = () => {
                             required
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="city">Ville</Label>
-                            <Input
-                              id="city"
-                              name="city"
-                              placeholder="Paris"
-                              className="border-laboratory-muted focus:border-laboratory-primary"
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="postalCode">Code postal</Label>
-                            <Input
-                              id="postalCode"
-                              name="postalCode"
-                              placeholder="75000"
-                              className="border-laboratory-muted focus:border-laboratory-primary"
-                              required
-                            />
-                          </div>
-                        </div>
+
                         <div className="space-y-2">
                           <Label htmlFor="labPassword">{t('auth.password')}</Label>
                           <Input

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { getAuthRedirectUrl } from '@/utils/urlConfig';
 
 interface AdminAuthGuardProps {
   children: React.ReactNode;
@@ -46,7 +47,7 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({ children }) => {
         type: 'signup',
         email: 'glowyboy01@gmail.com',
         options: {
-          emailRedirectTo: `${window.location.origin}/admin`
+          emailRedirectTo: getAuthRedirectUrl('/admin')
         }
       });
 

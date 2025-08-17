@@ -40,7 +40,7 @@ const BannedPage: React.FC = () => {
   };
 
   const handleContactSupport = () => {
-    window.location.href = 'mailto:support@labconnect.com?subject=Demande de révision de bannissement';
+    window.location.href = 'mailto:support@ sihaaexpress.com?subject=Demande de révision de bannissement';
   };
 
   const handleReturnHome = () => {
@@ -72,7 +72,7 @@ const BannedPage: React.FC = () => {
               Votre compte a été temporairement suspendu
             </p>
             <p className="text-sm text-gray-600">
-              Vous ne pouvez pas accéder à LabConnect pour le moment
+              Vous ne pouvez pas accéder à  sihaaexpress pour le moment
             </p>
           </div>
 
