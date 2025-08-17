@@ -41,7 +41,7 @@ import DatabaseStatus from "./pages/DatabaseStatus";
 
 
 import AdminPage from "./pages/AdminPage";
-import AdminSetupPage from "./pages/AdminSetupPage";
+
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient());
@@ -107,7 +107,7 @@ const App = () => {
                   <Route path="/admin" element={<AdminPage />} />
 
 
-                  <Route path="/admin-setup" element={<AdminSetupPage />} />
+
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
