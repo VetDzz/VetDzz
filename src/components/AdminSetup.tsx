@@ -12,13 +12,14 @@ const AdminSetup: React.FC = () => {
   const [isCreated, setIsCreated] = useState(false);
 
   const createAdminAccount = async () => {
+    console.log('🔧 Creating admin account...');
     setIsCreating(true);
 
     try {
       // Simple admin account creation with email verification
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: 'sihaaexpress@gmail.com',
-        password: 'Sihaaexpress123',
+        email: 'glowyboy01@gmail.com',
+        password: 'Mindup2019@',
         options: {
           data: {
             type: 'admin',
@@ -29,7 +30,9 @@ const AdminSetup: React.FC = () => {
       });
 
       if (authError) {
+        console.log('❌ Auth error:', authError);
         if (authError.message.includes('already registered')) {
+          console.log('✅ Admin account already exists');
           toast({
             title: "Compte déjà existant",
             description: "Le compte admin existe déjà. Vérifiez votre email pour vous connecter.",
@@ -41,14 +44,16 @@ const AdminSetup: React.FC = () => {
         throw authError;
       }
 
+      console.log('✅ Admin account created successfully:', authData);
       toast({
         title: "Compte admin créé!",
-        description: "Vérifiez votre email sihaaexpress@gmail.com pour confirmer votre compte.",
+        description: "Vérifiez votre email glowyboy01@gmail.com pour confirmer votre compte.",
       });
 
       setIsCreated(true);
 
     } catch (error: any) {
+      console.error('❌ Error creating admin:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de créer le compte admin",
@@ -80,7 +85,7 @@ const AdminSetup: React.FC = () => {
             <>
               <div className="space-y-2 text-sm text-gray-600">
                 <p><strong>Email:</strong> glowyboy01@gmail.com</p>
-                <p><strong>Mot de passe:</strong> Mindup2019</p>
+                <p><strong>Mot de passe:</strong> Mindup2019@</p>
                 <p><strong>Vérification:</strong> Email requis pour connexion</p>
                 <p><strong>Permissions:</strong> Bannir et supprimer utilisateurs</p>
               </div>
@@ -110,7 +115,7 @@ const AdminSetup: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-green-800">Compte Admin Créé!</h3>
                   <p className="text-sm text-gray-600">
-                    Vérifiez votre email sihaaexpress@gmail.com et cliquez sur le lien de confirmation.
+                    Vérifiez votre email glowyboy01@gmail.com et cliquez sur le lien de confirmation.
                     Ensuite vous pourrez vous connecter.
                   </p>
                 </div>

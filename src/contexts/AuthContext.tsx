@@ -184,7 +184,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.warn('Admin role check failed:', e);
         }
 
-        if (!isAdmin && data.user.email === 'sihaaexpress@gmail.com') {
+        if (!isAdmin && data.user.email === 'glowyboy01@gmail.com') {
           isAdmin = true;
         }
 
@@ -210,9 +210,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(adminUserData);
           localStorage.setItem('user', JSON.stringify(adminUserData));
 
-          // Redirect (no public /admin route)
+          // Redirect to admin panel
           setTimeout(() => {
-            window.location.href = '/';
+            window.location.href = '/admin';
           }, 100);
 
           return { success: true, userType: 'admin' as any };

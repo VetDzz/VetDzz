@@ -39,6 +39,8 @@ import LaboratoryRegistration from "./components/LaboratoryRegistration";
 import LaboratoryHomePage from "./pages/LaboratoryHomePage";
 import DatabaseStatus from "./pages/DatabaseStatus";
 
+
+import AdminPage from "./pages/AdminPage";
 import AdminSetupPage from "./pages/AdminSetupPage";
 
 const App = () => {
@@ -102,6 +104,8 @@ const App = () => {
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPostDetail />} />
                   <Route path="/database-status" element={<DatabaseStatus />} />
+                  <Route path="/admin" element={<AdminPage />} />
+
 
                   <Route path="/admin-setup" element={<AdminSetupPage />} />
                   <Route path="*" element={<NotFound />} />

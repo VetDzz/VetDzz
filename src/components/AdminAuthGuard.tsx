@@ -22,7 +22,7 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({ children }) => {
   }, [user]);
 
   const checkEmailVerification = async () => {
-    if (!user || user.email !== 'sihaaexpress@gmail.com') {
+    if (!user || user.email !== 'glowyboy01@gmail.com') {
       setIsCheckingVerification(false);
       return;
     }
@@ -35,7 +35,7 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({ children }) => {
     if (!emailVerified) {
       toast({
         title: "Vérification email requise",
-        description: "Vérifiez votre email sihaaexpress@gmail.com pour accéder au panneau admin.",
+        description: "Vérifiez votre email glowyboy01@gmail.com pour accéder au panneau admin.",
         variant: "destructive"
       });
     }
@@ -45,7 +45,7 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({ children }) => {
     try {
       const { error } = await supabase.auth.resend({
         type: 'signup',
-        email: 'sihaaexpress@gmail.com',
+        email: 'glowyboy01@gmail.com',
         options: {
           emailRedirectTo: getAuthRedirectUrl('/admin')
         }
@@ -55,7 +55,7 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({ children }) => {
 
       toast({
         title: "Email envoyé",
-        description: "Un nouvel email de vérification a été envoyé à sihaaexpress@gmail.com",
+        description: "Un nouvel email de vérification a été envoyé à glowyboy01@gmail.com",
       });
     } catch (error: any) {
       toast({
@@ -95,7 +95,7 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({ children }) => {
   }
 
   // Wrong email
-  if (user?.email !== 'sihaaexpress@gmail.com') {
+  if (user?.email !== 'glowyboy01@gmail.com') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
@@ -111,7 +111,7 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({ children }) => {
           <CardContent className="space-y-4">
             <div className="text-sm text-gray-600 text-center">
               <p>Compte actuel: {user?.email}</p>
-              <p>Compte requis: sihaaexpress@gmail.com</p>
+              <p>Compte requis: glowyboy01@gmail.com</p>
             </div>
             <Button onClick={goToLogin} className="w-full">
               Se Connecter avec le Bon Compte
@@ -150,7 +150,7 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({ children }) => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm text-gray-600 text-center">
-              <p><strong>Email:</strong> sihaaexpress@gmail.com</p>
+              <p><strong>Email:</strong> glowyboy01@gmail.com</p>
               <p>Vérifiez votre boîte mail et cliquez sur le lien de confirmation.</p>
             </div>
             
@@ -180,7 +180,7 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({ children }) => {
         <div className="flex items-center gap-2 text-green-800">
           <CheckCircle className="w-4 h-4" />
           <span className="text-sm font-medium">
-            Connecté en tant qu'administrateur: sihaaexpress@gmail.com
+            Connecté en tant qu'administrateur: glowyboy01@gmail.com
           </span>
         </div>
       </div>

@@ -127,7 +127,7 @@ const AdminPanel: React.FC = () => {
 
       // Filter out admin users and format
       const filteredUsers = authUsers
-        .filter((user: any) => user.user_metadata?.role !== 'admin' && user.email !== 'sihaaexpress@gmail.com')
+        .filter((user: any) => user.user_metadata?.role !== 'admin' && user.email !== 'glowyboy01@gmail.com')
         .map((user: any) => ({
           id: user.id,
           email: user.email,
@@ -229,7 +229,7 @@ const AdminPanel: React.FC = () => {
         target_user_id: userId,
         ban_duration_days: duration,
         ban_reason: `Banni pour ${duration} jours par admin`,
-        admin_email: 'sihaaexpress@gmail.com'
+        admin_email: 'glowyboy01@gmail.com'
       });
 
       console.log('Ban function response:', { data, error });
@@ -251,7 +251,7 @@ const AdminPanel: React.FC = () => {
             {
               user_id: userId,
               banned_until: banUntil.toISOString(),
-              banned_by: 'sihaaexpress@gmail.com',
+              banned_by: 'glowyboy01@gmail.com',
               reason: `Banni pour ${duration} jours par admin`
             }
           ])
@@ -434,7 +434,7 @@ const AdminPanel: React.FC = () => {
       // Try the database function first
       const { data, error } = await supabase.rpc('admin_unban_user', {
         target_user_id: userId,
-        admin_email: 'sihaaexpress@gmail.com'
+        admin_email: 'glowyboy01@gmail.com'
       });
 
       console.log('Unban function response:', { data, error });
