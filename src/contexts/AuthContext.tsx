@@ -169,8 +169,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.log('User not banned, setting up session...');
         console.log('User metadata:', data.user.user_metadata);
 
-        // Check if this is the admin account
-        if (data.user.email === 'sihaaexpress@gmail.com') {
+        // Check if this is an admin (prefer role from profiles; fallback to specific email)
+        let isAdmin = false;
+        try {
+          const { data: profileRow, error: profileErr } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', data.user.id)
+            .maybeSingle();
+          if (!profileErr && profileRow?.role === 'admin') {
+            isAdmin = true;
+          }
+        } catch (e) {
+          console.warn('Admin role check failed:', e);
+        }
+
+        if (!isAdmin && data.user.email === 'sihaaexpress@gmail.com') {
+          isAdmin = true;
+        }
+
+        if (isAdmin) {
           console.log('🔑 ADMIN LOGIN DETECTED - Checking email verification...');
 
           // Check if email is verified
@@ -180,21 +198,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // Send verification email
             await supabase.auth.resend({
               type: 'signup',
-              email: 'sihaaexpress@gmail.com',
+              email: data.user.email || 'sihaaexpress@gmail.com',
               options: {
-                emailRedirectTo: getAuthRedirectUrl('/admin')
+                emailRedirectTo: getAuthRedirectUrl('/auth/callback')
               }
             });
 
             // Sign out and show verification message
             await supabase.auth.signOut();
 
-            alert('Vérification email requise!\n\nUn email de vérification a été envoyé à glowyboy01@gmail.com.\nVeuillez vérifier votre email avant de vous connecter en tant qu\'administrateur.');
+            alert(`Vérification email requise!\n\nUn email de vérification a été envoyé à ${data.user.email || 'sihaaexpress@gmail.com'}.\nVeuillez vérifier votre email avant de vous connecter en tant qu'administrateur.`);
 
             return { success: false };
           }
 
-          console.log('✅ Admin email verified - proceeding to admin panel...');
+          console.log('✅ Admin email verified - proceeding...');
 
           const adminUserData: User = {
             id: data.user.id,
@@ -208,9 +226,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(adminUserData);
           localStorage.setItem('user', JSON.stringify(adminUserData));
 
-          // Redirect to admin panel immediately
+          // Redirect (no public /admin route)
           setTimeout(() => {
-            window.location.href = '/admin';
+            window.location.href = '/';
           }, 100);
 
           return { success: true, userType: 'admin' as any };
