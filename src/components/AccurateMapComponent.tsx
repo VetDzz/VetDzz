@@ -128,43 +128,73 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     setIsGettingLocation(true);
 
     try {
-      // Use external geolocation services (completely different approach)
-      const { getAveragedExternalLocation, getCombinedLocation } = await import('@/utils/externalGeoLocation');
+      // Use the EXACT method that was working before - direct browser geolocation with high precision
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error('Geolocation not supported'));
+          return;
+        }
 
-      // Try combined approach first (external + browser)
-      let result = await getCombinedLocation();
+        const options: PositionOptions = {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        };
 
-      // If that fails, try averaged external services
-      if (!result) {
-        result = await getAveragedExternalLocation();
-      }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            console.log('🎯 EXACT LOCATION FOUND:');
+            console.log(`   Latitude: ${pos.coords.latitude.toFixed(10)}`);
+            console.log(`   Longitude: ${pos.coords.longitude.toFixed(10)}`);
+            console.log(`   Accuracy: ±${Math.round(pos.coords.accuracy)}m`);
+            console.log(`   Altitude: ${pos.coords.altitude}m`);
+            console.log(`   Speed: ${pos.coords.speed} m/s`);
+            console.log(`   Heading: ${pos.coords.heading}°`);
+            console.log(`   Timestamp: ${new Date(pos.timestamp).toLocaleString()}`);
+            resolve(pos);
+          },
+          (error) => {
+            console.error('Geolocation error:', error);
+            reject(error);
+          },
+          options
+        );
+      });
 
-      if (result) {
-        setUserLocation(result.coords);
-        setLocationAccuracy(result.accuracy);
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
 
-        const accuracyText = result.accuracy <= 500 ? 'PRÉCISE' :
-                           result.accuracy <= 1000 ? 'BONNE' : 'APPROXIMATIVE';
+      setUserLocation({ lat, lng });
+      setLocationAccuracy(accuracy);
 
-        const locationText = result.city ? `${result.city}, ${result.country}` : 'Votre position';
+      // Show the EXACT coordinates like before
+      const preciseCoords = `${lat.toFixed(8)}, ${lng.toFixed(8)}`;
+      const accuracyText = accuracy <= 10 ? '🔥 EXTRÊME' :
+                         accuracy <= 50 ? '🎯 TRÈS PRÉCISE' :
+                         accuracy <= 200 ? '📍 PRÉCISE' : '📌 BONNE';
 
-        toast({
-          title: `🌍 Position ${accuracyText}`,
-          description: `${locationText} - ${result.provider} - ±${Math.round(result.accuracy)}m`,
-        });
+      toast({
+        title: `${accuracyText} Position trouvée!`,
+        description: `${preciseCoords} - Précision: ±${Math.round(accuracy)}m`,
+      });
 
-      } else {
-        throw new Error('All external location services failed');
-      }
+      // Log the exact location details like before
+      console.log('✅ LOCATION DETAILS:');
+      console.log(`   Exact coordinates: ${preciseCoords}`);
+      console.log(`   Accuracy: ±${Math.round(accuracy)}m`);
+      console.log(`   Method: Direct Browser Geolocation`);
 
     } catch (error) {
+      console.error('Location failed:', error);
+
       // Fallback to default location
       setUserLocation({ lat: 35.5559, lng: 6.1743 });
       setLocationAccuracy(50000);
 
       toast({
         title: "📍 Position par défaut",
-        description: "Impossible d'obtenir votre position via les services externes.",
+        description: "Impossible d'obtenir votre position exacte.",
         variant: "destructive"
       });
     }
