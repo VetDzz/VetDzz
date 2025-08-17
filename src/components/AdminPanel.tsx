@@ -572,14 +572,17 @@ const AdminPanel: React.FC = () => {
           className="space-y-4 sm:space-y-6"
         >
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
-            <div className="flex items-center gap-3">
-              <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Panneau d'Administration</h1>
-                <p className="text-gray-600 text-sm sm:text-base">Gestion des utilisateurs et modération</p>
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 mb-8 border border-green-200 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <Shield className="w-8 h-8 text-green-600" />
+                </div>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Panneau d'Administration</h1>
+                  <p className="text-gray-600 text-sm sm:text-base mt-1">Gestion des utilisateurs et modération</p>
+                </div>
               </div>
-            </div>
             <Button
               onClick={async () => {
                 console.log('🚪 Admin logout - clearing all data...');
@@ -599,34 +602,40 @@ const AdminPanel: React.FC = () => {
                 window.location.href = '/auth';
               }}
               variant="outline"
-              size="sm"
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300 w-fit"
+              size="lg"
+              className="flex items-center gap-2 px-6 py-3 bg-red-50 hover:bg-red-100 border-red-300 text-red-700 hover:text-red-800 font-medium shadow-sm hover:shadow-md transition-all duration-200"
             >
-              🚪 Déconnexion
+              <span className="text-lg">🚪</span>
+              <span>Déconnexion</span>
             </Button>
+            </div>
           </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <Card>
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <Users className="w-8 h-8 text-blue-600" />
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Users className="w-6 h-6 text-blue-600" />
+                  </div>
                   <div>
-                    <p className="text-sm text-gray-600">Total Utilisateurs</p>
-                    <p className="text-2xl font-bold">{users.length}</p>
+                    <p className="text-sm text-gray-600 font-medium">Total Utilisateurs</p>
+                    <p className="text-2xl font-bold text-blue-700">{users.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-sm hover:shadow-md transition-all duration-200">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <Users className="w-8 h-8 text-green-600" />
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Users className="w-6 h-6 text-green-600" />
+                  </div>
                   <div>
-                    <p className="text-sm text-gray-600">Clients</p>
-                    <p className="text-2xl font-bold">{clientProfiles.length}</p>
+                    <p className="text-sm text-gray-600 font-medium">Clients</p>
+                    <p className="text-2xl font-bold text-green-700">{clientProfiles.length}</p>
                   </div>
                 </div>
               </CardContent>
@@ -691,69 +700,72 @@ const AdminPanel: React.FC = () => {
                   const isBanned = isUserBanned(user);
 
                   return (
-                    <div key={user.id} className="border rounded-lg p-3 sm:p-4 space-y-3 bg-white shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                        <div className="space-y-2 flex-1">
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                            <div className="flex items-center gap-2">
-                              {isLab ? <Building2 className="w-4 h-4 text-blue-600" /> : <Users className="w-4 h-4 text-green-600" />}
-                              <span className="font-medium text-sm sm:text-base">
-                                {profile?.full_name || (profile as LabProfile)?.lab_name || 'Nom non disponible'}
-                              </span>
-                            </div>
-                            <Badge variant={isLab ? "secondary" : "default"} className="text-xs">
-                              {isLab ? 'Laboratoire' : 'Client'}
+                    <div key={user.id} className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-all duration-200 hover:border-green-300">
+                      {/* User Info Section */}
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                          <div className="flex items-center gap-2">
+                            {isLab ? <Building2 className="w-5 h-5 text-blue-600" /> : <Users className="w-5 h-5 text-green-600" />}
+                            <span className="font-semibold text-base sm:text-lg text-gray-800">
+                              {profile?.full_name || (profile as LabProfile)?.lab_name || 'Nom non disponible'}
+                            </span>
+                          </div>
+                          <Badge variant={isLab ? "secondary" : "default"} className="text-xs font-medium">
+                            {isLab ? 'Laboratoire' : 'Client'}
+                          </Badge>
+                          {isBanned && (
+                            <Badge variant="destructive" className="text-xs font-medium animate-pulse">
+                              <Ban className="w-3 h-3 mr-1" />
+                              Banni
                             </Badge>
-                            {isBanned && (
-                              <Badge variant="destructive" className="text-xs">
-                                <Ban className="w-3 h-3 mr-1" />
-                                Banni
-                              </Badge>
-                            )}
-                          </div>
-
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                              <span className="truncate">{user.email}</span>
-                            </div>
-                            {profile?.phone && (
-                              <div className="flex items-center gap-2">
-                                <Phone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                <span>{profile.phone}</span>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                              <span>Inscrit: {new Date(user.created_at).toLocaleDateString('fr-FR')}</span>
-                            </div>
-                            {profile?.address && (
-                              <div className="flex items-center gap-2">
-                                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                <span className="truncate">{profile.address}</span>
-                              </div>
-                            )}
-                          </div>
+                          )}
                         </div>
 
-                        <div className="flex items-center justify-end gap-2 flex-shrink-0">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            <Mail className="w-4 h-4 flex-shrink-0 text-blue-500" />
+                            <span className="truncate font-medium">{user.email}</span>
+                          </div>
+                          {profile?.phone && (
+                            <div className="flex items-center gap-2">
+                              <Phone className="w-4 h-4 flex-shrink-0 text-green-500" />
+                              <span className="font-medium">{profile.phone}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 flex-shrink-0 text-purple-500" />
+                            <span>Inscrit: {new Date(user.created_at).toLocaleDateString('fr-FR')}</span>
+                          </div>
+                          {profile?.address && (
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 flex-shrink-0 text-red-500" />
+                              <span className="truncate">{profile.address}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons Section - New Line */}
+                      <div className="mt-4 pt-3 border-t border-gray-100">
+                        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => fetchUserDetails(user.id)}
-                            className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
+                            className="flex items-center gap-2 px-4 py-2 h-9 bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800 transition-all duration-200"
                           >
-                            <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span className="hidden sm:inline ml-2">Voir</span>
+                            <Eye className="w-4 h-4" />
+                            <span>Voir Détails</span>
                           </Button>
 
                           {isBanned ? (
                             <Button
                               size="sm"
                               onClick={() => unbanUser(user.id)}
-                              className="bg-green-400 hover:bg-green-500 text-white h-8 px-2 sm:h-9 sm:px-3 text-xs sm:text-sm"
+                              className="flex items-center gap-2 px-4 py-2 h-9 bg-green-400 hover:bg-green-500 text-white transition-all duration-200 shadow-sm hover:shadow-md"
                             >
-                              <span className="hidden sm:inline">✅ </span>Débannir
+                              <span>✅</span>
+                              <span>Débannir</span>
                             </Button>
                           ) : (
                             <AlertDialog>
@@ -761,10 +773,10 @@ const AdminPanel: React.FC = () => {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="text-orange-600 hover:text-orange-700 h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
+                                  className="flex items-center gap-2 px-4 py-2 h-9 bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700 hover:text-orange-800 transition-all duration-200"
                                 >
-                                  <Ban className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  <span className="hidden sm:inline ml-2">Bannir</span>
+                                  <Ban className="w-4 h-4" />
+                                  <span>Bannir</span>
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
@@ -793,10 +805,10 @@ const AdminPanel: React.FC = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="text-red-600 hover:text-red-700 h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
+                                className="flex items-center gap-2 px-4 py-2 h-9 bg-red-50 hover:bg-red-100 border-red-200 text-red-700 hover:text-red-800 transition-all duration-200"
                               >
-                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                                <span className="hidden sm:inline ml-2">Supprimer</span>
+                                <Trash2 className="w-4 h-4" />
+                                <span>Supprimer</span>
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
