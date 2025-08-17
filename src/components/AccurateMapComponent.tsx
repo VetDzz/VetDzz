@@ -128,28 +128,48 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     setIsGettingLocation(true);
 
     try {
-      // Import and use ultra-precise location service
-      const { ultraPreciseLocation } = await import('@/utils/ultraPreciseLocation');
+      // Import and use EXTREME precision location service
+      const { extremeLocation } = await import('@/utils/extremeLocationService');
 
-      console.log('🎯 Requesting ultra-precise location...');
-      const result = await ultraPreciseLocation.getUltraPreciseLocation();
+      console.log('🔥 Requesting HOUSE-LEVEL precision location...');
+      const result = await extremeLocation.getHouseLevelLocation();
 
       if (result) {
         setUserLocation(result.coords);
         setLocationAccuracy(result.accuracy);
 
+        const confidenceEmoji = result.confidence === 'HIGH' ? '🎯' : result.confidence === 'MEDIUM' ? '📍' : '📌';
+        const accuracyText = result.accuracy <= 5 ? 'MAISON-NIVEAU' : result.accuracy <= 20 ? 'TRÈS PRÉCISE' : 'PRÉCISE';
+
         toast({
-          title: "📍 Position ultra-précise obtenue!",
+          title: `${confidenceEmoji} Position ${accuracyText}!`,
           description: `Précision: ±${Math.round(result.accuracy)}m via ${result.method}`,
         });
 
-        console.log(`✅ Ultra-precise location: ${result.coords.lat.toFixed(8)}, ${result.coords.lng.toFixed(8)} (±${Math.round(result.accuracy)}m)`);
+        console.log(`🔥 EXTREME location: ${result.coords.lat.toFixed(8)}, ${result.coords.lng.toFixed(8)} (±${Math.round(result.accuracy)}m) - ${result.confidence}`);
+
+        // If accuracy is not house-level, try continuous monitoring
+        if (result.accuracy > 10) {
+          console.log('🔄 Starting continuous monitoring for better accuracy...');
+          extremeLocation.startContinuousAccuracy((betterResult) => {
+            if (betterResult.accuracy < result.accuracy) {
+              setUserLocation(betterResult.coords);
+              setLocationAccuracy(betterResult.accuracy);
+
+              toast({
+                title: "🎯 Précision améliorée!",
+                description: `Nouvelle précision: ±${Math.round(betterResult.accuracy)}m`,
+              });
+            }
+          });
+        }
+
       } else {
-        throw new Error('Ultra-precise location failed');
+        throw new Error('Extreme precision location failed');
       }
 
     } catch (error) {
-      console.warn('Ultra-precise location failed, using fallback:', error);
+      console.warn('Extreme precision location failed, using fallback:', error);
       // Only fallback if absolutely necessary
       setUserLocation({ lat: 35.5559, lng: 6.1743 });
       setLocationAccuracy(null);
