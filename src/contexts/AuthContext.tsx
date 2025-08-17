@@ -191,28 +191,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (isAdmin) {
           console.log('🔑 ADMIN LOGIN DETECTED - Checking email verification...');
 
-          // Check if email is verified
+          // Bypass email verification for admin to reduce friction
           if (!data.user.email_confirmed_at) {
-            console.log('❌ Admin email not verified - requiring verification');
-
-            // Send verification email
-            await supabase.auth.resend({
-              type: 'signup',
-              email: data.user.email || 'sihaaexpress@gmail.com',
-              options: {
-                emailRedirectTo: getAuthRedirectUrl('/auth/callback')
-              }
-            });
-
-            // Sign out and show verification message
-            await supabase.auth.signOut();
-
-            alert(`Vérification email requise!\n\nUn email de vérification a été envoyé à ${data.user.email || 'sihaaexpress@gmail.com'}.\nVeuillez vérifier votre email avant de vous connecter en tant qu'administrateur.`);
-
-            return { success: false };
+            console.log('⚠️ Admin email not verified - bypassing check for admin login');
           }
 
-          console.log('✅ Admin email verified - proceeding...');
+          console.log('✅ Admin proceeding...');
 
           const adminUserData: User = {
             id: data.user.id,
