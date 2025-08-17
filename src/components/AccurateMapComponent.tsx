@@ -128,55 +128,43 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     setIsGettingLocation(true);
 
     try {
-      // Import and use EXTREME precision location service
-      const { extremeLocation } = await import('@/utils/extremeLocationService');
+      // Use external geolocation services (completely different approach)
+      const { getAveragedExternalLocation, getCombinedLocation } = await import('@/utils/externalGeoLocation');
 
-      console.log('🔥 Requesting HOUSE-LEVEL precision location...');
-      const result = await extremeLocation.getHouseLevelLocation();
+      // Try combined approach first (external + browser)
+      let result = await getCombinedLocation();
+
+      // If that fails, try averaged external services
+      if (!result) {
+        result = await getAveragedExternalLocation();
+      }
 
       if (result) {
         setUserLocation(result.coords);
         setLocationAccuracy(result.accuracy);
 
-        const confidenceEmoji = result.confidence === 'HIGH' ? '🎯' : result.confidence === 'MEDIUM' ? '📍' : '📌';
-        const accuracyText = result.accuracy <= 5 ? 'MAISON-NIVEAU' : result.accuracy <= 20 ? 'TRÈS PRÉCISE' : 'PRÉCISE';
+        const accuracyText = result.accuracy <= 500 ? 'PRÉCISE' :
+                           result.accuracy <= 1000 ? 'BONNE' : 'APPROXIMATIVE';
+
+        const locationText = result.city ? `${result.city}, ${result.country}` : 'Votre position';
 
         toast({
-          title: `${confidenceEmoji} Position ${accuracyText}!`,
-          description: `Précision: ±${Math.round(result.accuracy)}m via ${result.method}`,
+          title: `🌍 Position ${accuracyText}`,
+          description: `${locationText} - ${result.provider} - ±${Math.round(result.accuracy)}m`,
         });
 
-        console.log(`🔥 EXTREME location: ${result.coords.lat.toFixed(8)}, ${result.coords.lng.toFixed(8)} (±${Math.round(result.accuracy)}m) - ${result.confidence}`);
-
-        // If accuracy is not house-level, try continuous monitoring
-        if (result.accuracy > 10) {
-          console.log('🔄 Starting continuous monitoring for better accuracy...');
-          extremeLocation.startContinuousAccuracy((betterResult) => {
-            if (betterResult.accuracy < result.accuracy) {
-              setUserLocation(betterResult.coords);
-              setLocationAccuracy(betterResult.accuracy);
-
-              toast({
-                title: "🎯 Précision améliorée!",
-                description: `Nouvelle précision: ±${Math.round(betterResult.accuracy)}m`,
-              });
-            }
-          });
-        }
-
       } else {
-        throw new Error('Extreme precision location failed');
+        throw new Error('All external location services failed');
       }
 
     } catch (error) {
-      console.warn('Extreme precision location failed, using fallback:', error);
-      // Only fallback if absolutely necessary
+      // Fallback to default location
       setUserLocation({ lat: 35.5559, lng: 6.1743 });
-      setLocationAccuracy(null);
+      setLocationAccuracy(50000);
 
       toast({
-        title: "⚠️ Localisation approximative",
-        description: "Impossible d'obtenir une position précise. Position par défaut utilisée.",
+        title: "📍 Position par défaut",
+        description: "Impossible d'obtenir votre position via les services externes.",
         variant: "destructive"
       });
     }
@@ -947,18 +935,52 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                   <p className="text-sm text-gray-500 mb-4 text-center max-w-xs">
                     {t('map.needLocation')}
                   </p>
-                  <Button
-                    onClick={getCurrentLocation}
-                    disabled={isGettingLocation}
-                    className="bg-laboratory-primary hover:bg-laboratory-accent"
-                  >
-                    {isGettingLocation ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Navigation className="w-4 h-4 mr-2" />
-                    )}
-                    {isGettingLocation ? 'Localisation...' : 'Autoriser la localisation'}
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      onClick={getCurrentLocation}
+                      disabled={isGettingLocation}
+                      className="bg-laboratory-primary hover:bg-laboratory-accent"
+                    >
+                      {isGettingLocation ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Navigation className="w-4 h-4 mr-2" />
+                      )}
+                      {isGettingLocation ? 'Localisation EXTRÊME...' : '🔥 Position EXTRÊME'}
+                    </Button>
+
+                    <Button
+                      onClick={async () => {
+                        try {
+                          const { requestLocationPermission } = await import('@/utils/reliableLocation');
+                          const hasPermission = await requestLocationPermission();
+
+                          if (hasPermission) {
+                            toast({
+                              title: "✅ Permission accordée!",
+                              description: "Vous pouvez maintenant obtenir votre position exacte.",
+                            });
+                          } else {
+                            toast({
+                              title: "❌ Permission refusée",
+                              description: "Utilisation de la géolocalisation IP comme alternative.",
+                              variant: "default"
+                            });
+                          }
+                        } catch (error) {
+                          toast({
+                            title: "❌ Erreur",
+                            description: "Impossible de demander la permission de géolocalisation.",
+                            variant: "destructive"
+                          });
+                        }
+                      }}
+                      variant="outline"
+                      className="border-laboratory-primary text-laboratory-primary hover:bg-laboratory-primary hover:text-white"
+                    >
+                      🔐 Autoriser la géolocalisation
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

@@ -22,14 +22,21 @@ export class ExtremeLocationService {
     return ExtremeLocationService.instance;
   }
 
-  // 🎯 MAIN METHOD: Get house-level accuracy
+  // 🎯 MAIN METHOD: Get house-level accuracy with validation
   async getHouseLevelLocation(): Promise<ExtremeLocationResult | null> {
     console.log('🔥 EXTREME LOCATION: Starting house-level precision detection...');
 
+    // First, try the most reliable GPS method
+    const gpsResult = await this.getReliableGPS();
+    if (gpsResult && this.isLocationInAlgeria(gpsResult.coords)) {
+      console.log(`🎯 GPS SUCCESS: ${gpsResult.coords.lat.toFixed(6)}, ${gpsResult.coords.lng.toFixed(6)} - ±${Math.round(gpsResult.accuracy)}m`);
+      return gpsResult;
+    }
+
+    // If GPS fails or gives wrong location, try other methods
     const results = await Promise.allSettled([
-      this.getGooglePrecisionLocation(),
       this.getHTML5HighAccuracy(),
-      this.getIPLocationAPI(),
+      this.getAlgerianIPLocation(),
       this.getBrowserLocationAPI()
     ]);
 
@@ -37,61 +44,98 @@ export class ExtremeLocationService {
 
     results.forEach((result, index) => {
       if (result.status === 'fulfilled' && result.value) {
-        validResults.push(result.value);
-        console.log(`✅ Method ${index + 1} success: ±${Math.round(result.value.accuracy)}m`);
+        // Validate location is in Algeria
+        if (this.isLocationInAlgeria(result.value.coords)) {
+          validResults.push(result.value);
+          console.log(`✅ Method ${index + 1} success: ${result.value.coords.lat.toFixed(6)}, ${result.value.coords.lng.toFixed(6)} - ±${Math.round(result.value.accuracy)}m`);
+        } else {
+          console.warn(`❌ Method ${index + 1} gave invalid location outside Algeria`);
+        }
       }
     });
 
     if (validResults.length === 0) {
-      console.log('❌ All extreme location methods failed');
-      return null;
+      console.log('❌ All methods failed or gave invalid locations, using Batna fallback');
+      return {
+        coords: { lat: 35.5559, lng: 6.1743 }, // Batna center
+        accuracy: 1000,
+        method: 'Batna Fallback',
+        timestamp: Date.now(),
+        confidence: 'LOW'
+      };
     }
 
     // Find the most accurate result
-    const bestResult = validResults.reduce((best, current) => 
+    const bestResult = validResults.reduce((best, current) =>
       current.accuracy < best.accuracy ? current : best
     );
 
-    console.log(`🎯 BEST RESULT: ${bestResult.method} - ±${Math.round(bestResult.accuracy)}m`);
+    console.log(`🎯 BEST RESULT: ${bestResult.method} - ${bestResult.coords.lat.toFixed(6)}, ${bestResult.coords.lng.toFixed(6)} - ±${Math.round(bestResult.accuracy)}m`);
     return bestResult;
   }
 
-  // Method 1: Google Geolocation API (MOST ACCURATE)
-  private async getGooglePrecisionLocation(): Promise<ExtremeLocationResult | null> {
+  // Validate location is in Algeria
+  private isLocationInAlgeria(coords: { lat: number; lng: number }): boolean {
+    // Algeria bounds: roughly 18.9°N to 37.1°N, -8.7°W to 12.0°E
+    const { lat, lng } = coords;
+    const isValid = lat >= 18.9 && lat <= 37.1 && lng >= -8.7 && lng <= 12.0;
+
+    if (!isValid) {
+      console.warn(`🚫 Invalid location: ${lat.toFixed(6)}, ${lng.toFixed(6)} - Outside Algeria bounds`);
+    }
+
+    return isValid;
+  }
+
+  // Method 1: Reliable GPS with multiple attempts
+  private async getReliableGPS(): Promise<ExtremeLocationResult | null> {
+    console.log('📡 Getting reliable GPS location...');
+
     try {
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-      if (!apiKey || apiKey.includes('AIzaSyBVVXxvk8qJ9X8qJ9X8qJ9X8qJ9X8qJ9X8')) {
-        return null;
+      // Try 3 times with different settings
+      const attempts = [
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+      ];
+
+      for (let i = 0; i < attempts.length; i++) {
+        try {
+          console.log(`📍 GPS attempt ${i + 1}/3...`);
+
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, attempts[i]);
+          });
+
+          const result = {
+            coords: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            },
+            accuracy: position.coords.accuracy,
+            method: `Reliable GPS (attempt ${i + 1})`,
+            timestamp: Date.now(),
+            confidence: position.coords.accuracy <= 10 ? 'HIGH' : position.coords.accuracy <= 50 ? 'MEDIUM' : 'LOW'
+          };
+
+          // Validate the location is reasonable
+          if (this.isLocationInAlgeria(result.coords)) {
+            console.log(`✅ GPS attempt ${i + 1} success: ${result.coords.lat.toFixed(6)}, ${result.coords.lng.toFixed(6)} - ±${Math.round(result.accuracy)}m`);
+            return result;
+          } else {
+            console.warn(`❌ GPS attempt ${i + 1} gave invalid location`);
+          }
+
+        } catch (error) {
+          console.warn(`GPS attempt ${i + 1} failed:`, error);
+          continue;
+        }
       }
 
-      const response = await fetch(`https://www.googleapis.com/geolocation/v1/geolocate?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          considerIp: true,
-          wifiAccessPoints: [],
-          cellTowers: []
-        })
-      });
-
-      if (!response.ok) return null;
-
-      const data = await response.json();
-      if (!data.location) return null;
-
-      return {
-        coords: {
-          lat: data.location.lat,
-          lng: data.location.lng
-        },
-        accuracy: data.accuracy || 10,
-        method: 'Google Geolocation API',
-        timestamp: Date.now(),
-        confidence: data.accuracy <= 10 ? 'HIGH' : data.accuracy <= 50 ? 'MEDIUM' : 'LOW'
-      };
+      return null;
 
     } catch (error) {
-      console.warn('Google Geolocation failed:', error);
+      console.warn('All GPS attempts failed:', error);
       return null;
     }
   }
@@ -126,50 +170,78 @@ export class ExtremeLocationService {
     }
   }
 
-  // Method 3: IP Location API (Fast + Accurate)
-  private async getIPLocationAPI(): Promise<ExtremeLocationResult | null> {
+  // Method 3: Algerian-specific IP Location
+  private async getAlgerianIPLocation(): Promise<ExtremeLocationResult | null> {
+    console.log('🇩🇿 Getting Algeria-specific IP location...');
+
     try {
-      // Try multiple IP location services
+      // Try Algeria-aware IP location services
       const services = [
-        'https://ipapi.co/json/',
-        'https://ip-api.com/json/',
-        'https://ipinfo.io/json'
+        {
+          url: 'https://ip-api.com/json/?fields=status,country,countryCode,region,regionName,city,lat,lon,isp',
+          name: 'ip-api.com'
+        },
+        {
+          url: 'https://ipapi.co/json/',
+          name: 'ipapi.co'
+        },
+        {
+          url: 'https://ipinfo.io/json',
+          name: 'ipinfo.io'
+        }
       ];
 
       for (const service of services) {
         try {
-          const response = await fetch(service);
+          console.log(`🌐 Trying ${service.name}...`);
+          const response = await fetch(service.url);
           const data = await response.json();
 
-          let lat, lng, accuracy = 100;
+          let lat, lng, accuracy = 5000; // Default city-level accuracy
+          let city = '';
 
-          if (service.includes('ipapi.co')) {
-            lat = parseFloat(data.latitude);
-            lng = parseFloat(data.longitude);
-            accuracy = data.accuracy || 100;
-          } else if (service.includes('ip-api.com')) {
-            lat = data.lat;
-            lng = data.lon;
-            accuracy = 50; // Estimated accuracy
-          } else if (service.includes('ipinfo.io')) {
-            const [latStr, lngStr] = data.loc?.split(',') || [];
-            lat = parseFloat(latStr);
-            lng = parseFloat(lngStr);
-            accuracy = 100; // Estimated accuracy
+          if (service.name === 'ip-api.com') {
+            if (data.status === 'success' && data.countryCode === 'DZ') {
+              lat = data.lat;
+              lng = data.lon;
+              city = data.city || data.regionName || '';
+              accuracy = 2000; // City-level for Algeria
+            }
+          } else if (service.name === 'ipapi.co') {
+            if (data.country_code === 'DZ') {
+              lat = parseFloat(data.latitude);
+              lng = parseFloat(data.longitude);
+              city = data.city || '';
+              accuracy = data.accuracy || 2000;
+            }
+          } else if (service.name === 'ipinfo.io') {
+            if (data.country === 'DZ') {
+              const [latStr, lngStr] = data.loc?.split(',') || [];
+              lat = parseFloat(latStr);
+              lng = parseFloat(lngStr);
+              city = data.city || '';
+              accuracy = 3000;
+            }
           }
 
           if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-            return {
+            const result = {
               coords: { lat, lng },
               accuracy,
-              method: `IP Location (${service.split('/')[2]})`,
+              method: `Algeria IP (${service.name}) - ${city}`,
               timestamp: Date.now(),
-              confidence: accuracy <= 50 ? 'MEDIUM' : 'LOW'
+              confidence: accuracy <= 1000 ? 'MEDIUM' : 'LOW'
             };
+
+            // Validate it's actually in Algeria
+            if (this.isLocationInAlgeria(result.coords)) {
+              console.log(`✅ ${service.name} success: ${city} - ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+              return result;
+            }
           }
 
         } catch (error) {
-          console.warn(`IP service ${service} failed:`, error);
+          console.warn(`${service.name} failed:`, error);
           continue;
         }
       }
@@ -177,7 +249,7 @@ export class ExtremeLocationService {
       return null;
 
     } catch (error) {
-      console.warn('All IP location services failed:', error);
+      console.warn('All Algeria IP location services failed:', error);
       return null;
     }
   }
