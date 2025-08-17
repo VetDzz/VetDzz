@@ -428,6 +428,8 @@ const AuthSection = () => {
                           <input
                             type="checkbox"
                             id="terms"
+                            name="agreeToTerms"
+                            required
                             className="rounded border-laboratory-muted"
                           />
                           <Label htmlFor="terms" className="text-sm">
@@ -436,6 +438,7 @@ const AuthSection = () => {
                                 {t('auth.terms')}
                               </span>
                             </TermsModal>
+                            <span className="text-red-500 ml-1">*</span>
                           </Label>
                         </div>
                       </TabsContent>
@@ -539,6 +542,8 @@ const AuthSection = () => {
                           <input
                             type="checkbox"
                             id="labTerms"
+                            name="agreeToTerms"
+                            required
                             className="rounded border-laboratory-muted"
                           />
                           <Label htmlFor="labTerms" className="text-sm">
@@ -547,6 +552,7 @@ const AuthSection = () => {
                                 {t('auth.professionalTerms')}
                               </span>
                             </TermsModal>
+                            <span className="text-red-500 ml-1">*</span>
                           </Label>
                         </div>
                       </TabsContent>
