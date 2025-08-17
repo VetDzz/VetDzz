@@ -1,0 +1,118 @@
+
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState } from "react";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+import FireCatProject from "./pages/FireCatProject";
+import SportRetailProject from "./pages/SportRetailProject";
+import WorkwearProject from "./pages/WorkwearProject";
+import HockeyProject from "./pages/HockeyProject";
+import PetProject from "./pages/PetProject";
+import TechDetails from "./pages/TechDetails";
+import DevelopmentProcess from "./pages/DevelopmentProcess";
+import About from "./pages/About";
+import Careers from "./pages/Careers";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Blog from "./pages/Blog";
+import BlogPostDetail from "./pages/BlogPostDetail";
+import ClientDashboardPage from "./pages/ClientDashboardPage";
+import LaboratoryDashboardPage from "./pages/LaboratoryDashboardPage";
+import BloodTestsService from "./pages/BloodTestsService";
+import UrineTestsService from "./pages/UrineTestsService";
+import HomeCollectionService from "./pages/HomeCollectionService";
+import RapidResultsService from "./pages/RapidResultsService";
+import AuthPage from "./pages/AuthPage";
+import AuthCallback from "./pages/AuthCallback";
+import ResultsPage from "./pages/ResultsPage";
+import FindLaboratoryPage from "./pages/FindLaboratoryPage";
+import UserRemovalNotice from "./components/UserRemovalNotice";
+import BannedPage from "./pages/BannedPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LaboratoryRegistration from "./components/LaboratoryRegistration";
+import LaboratoryHomePage from "./pages/LaboratoryHomePage";
+import DatabaseStatus from "./pages/DatabaseStatus";
+import AdminPage from "./pages/AdminPage";
+import AdminSetupPage from "./pages/AdminSetupPage";
+
+const App = () => {
+  const [queryClient] = useState(() => new QueryClient());
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/account-removed" element={<UserRemovalNotice />} />
+                  <Route path="/banned" element={<BannedPage />} />
+                  <Route path="/results" element={<ResultsPage />} />
+                  <Route path="/find-laboratory" element={
+                    <ProtectedRoute>
+                      <FindLaboratoryPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/client-dashboard" element={
+                    <ProtectedRoute>
+                      <ClientDashboardPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/laboratory-dashboard" element={
+                    <ProtectedRoute>
+                      <LaboratoryDashboardPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/laboratory-registration" element={
+                    <ProtectedRoute>
+                      <LaboratoryRegistration />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/laboratory-home" element={
+                    <ProtectedRoute>
+                      <LaboratoryHomePage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/services/blood-tests" element={<BloodTestsService />} />
+                  <Route path="/services/urine-tests" element={<UrineTestsService />} />
+                  <Route path="/services/home-collection" element={<HomeCollectionService />} />
+                  <Route path="/services/rapid-results" element={<RapidResultsService />} />
+                  <Route path="/projects/firecat" element={<FireCatProject />} />
+                  <Route path="/projects/sport-retail" element={<SportRetailProject />} />
+                  <Route path="/projects/workwear" element={<WorkwearProject />} />
+                  <Route path="/projects/hockey" element={<HockeyProject />} />
+                  <Route path="/projects/pet-tracker" element={<PetProject />} />
+                  <Route path="/tech-details" element={<TechDetails />} />
+                  <Route path="/development-process" element={<DevelopmentProcess />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/careers" element={<Careers />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPostDetail />} />
+                  <Route path="/database-status" element={<DatabaseStatus />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/admin-setup" element={<AdminSetupPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </NotificationProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </QueryClientProvider>
+  );
+};
+
+export default App;
