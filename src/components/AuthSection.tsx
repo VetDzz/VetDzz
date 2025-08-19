@@ -571,7 +571,12 @@ const AuthSection = () => {
                     <Button
                       type="submit"
                       className="w-full bg-laboratory-primary hover:bg-laboratory-accent"
-                      disabled={isLoading || (password && !Object.values(passwordValidation).every(Boolean))}
+                      disabled={
+                        isLoading ||
+                        (password && !Object.values(passwordValidation).every(Boolean)) ||
+                        (userType === 'client' && !clientTermsAccepted) ||
+                        (userType === 'laboratory' && !labTermsAccepted)
+                      }
                       size="default"
                     >
                       {isLoading ? 'Création...' : `${t('auth.createAccount')} ${userType === 'client' ? t('auth.client').toLowerCase() : t('auth.laboratory').toLowerCase()}`}
