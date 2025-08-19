@@ -21,6 +21,8 @@ const AuthSection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [clientTermsAccepted, setClientTermsAccepted] = useState(false);
+  const [labTermsAccepted, setLabTermsAccepted] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [showLocationForm, setShowLocationForm] = useState(false);
@@ -425,15 +427,19 @@ const AuthSection = () => {
                           </div>
                         )}
                         <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            id="terms"
-                            name="agreeToTerms"
-                            required
-                            className="rounded border-laboratory-muted"
-                          />
+                          <TermsModal type="client" onAccept={() => setClientTermsAccepted(true)}>
+                            <input
+                              type="checkbox"
+                              id="terms"
+                              name="agreeToTerms"
+                              required
+                              className="rounded border-laboratory-muted cursor-pointer"
+                              checked={clientTermsAccepted}
+                              readOnly
+                            />
+                          </TermsModal>
                           <Label htmlFor="terms" className="text-sm">
-                            <TermsModal type="client">
+                            <TermsModal type="client" onAccept={() => setClientTermsAccepted(true)}>
                               <span className="text-laboratory-dark hover:underline cursor-pointer">
                                 {t('auth.terms')}
                               </span>
@@ -539,15 +545,19 @@ const AuthSection = () => {
                           </div>
                         )}
                         <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            id="labTerms"
-                            name="agreeToTerms"
-                            required
-                            className="rounded border-laboratory-muted"
-                          />
+                          <TermsModal type="laboratory" onAccept={() => setLabTermsAccepted(true)}>
+                            <input
+                              type="checkbox"
+                              id="labTerms"
+                              name="agreeToTerms"
+                              required
+                              className="rounded border-laboratory-muted cursor-pointer"
+                              checked={labTermsAccepted}
+                              readOnly
+                            />
+                          </TermsModal>
                           <Label htmlFor="labTerms" className="text-sm">
-                            <TermsModal type="laboratory">
+                            <TermsModal type="laboratory" onAccept={() => setLabTermsAccepted(true)}>
                               <span className="text-laboratory-dark hover:underline cursor-pointer">
                                 {t('auth.professionalTerms')}
                               </span>

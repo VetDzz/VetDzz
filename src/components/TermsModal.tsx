@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -14,9 +15,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 interface TermsModalProps {
   children: React.ReactNode;
   type?: 'client' | 'laboratory';
+  onAccept?: () => void;
 }
 
-const TermsModal: React.FC<TermsModalProps> = ({ children, type = 'client' }) => {
+const TermsModal: React.FC<TermsModalProps> = ({ children, type = 'client', onAccept }) => {
   const { t } = useLanguage();
   const [hasReadAll, setHasReadAll] = useState(false);
 
@@ -31,39 +33,42 @@ const TermsModal: React.FC<TermsModalProps> = ({ children, type = 'client' }) =>
   const clientTerms = `
 CONDITIONS D'UTILISATION - CLIENTS
 
-1. OBJET
+1. RESPONSABILITÉ
+L'application n'est pas responsable de la qualité des tests médicaux.
+
+2. OBJET
 Les présentes conditions générales d'utilisation (CGU) régissent l'utilisation de la plateforme de laboratoires d'analyses médicales.
 
-2. INSCRIPTION ET COMPTE UTILISATEUR
+3. INSCRIPTION ET COMPTE UTILISATEUR
 - L'inscription est gratuite et réservée aux personnes majeures
 - Les informations fournies doivent être exactes et à jour
 - Vous êtes responsable de la confidentialité de vos identifiants
 
-3. SERVICES PROPOSÉS
+4. SERVICES PROPOSÉS
 - Recherche de laboratoires d'analyses médicales
 - Prise de rendez-vous en ligne
 - Accès aux résultats d'analyses
 - Service de prélèvement à domicile
 
-4. PROTECTION DES DONNÉES
+5. PROTECTION DES DONNÉES
 - Vos données personnelles sont protégées conformément au RGPD
 - Les données médicales sont cryptées et sécurisées
 - Vous disposez d'un droit d'accès, de rectification et de suppression
 
-5. RESPONSABILITÉS
+6. RESPONSABILITÉS
 - La plateforme facilite la mise en relation avec les laboratoires
 - Les analyses sont réalisées par des laboratoires agréés
 - Nous ne sommes pas responsables des actes médicaux
 
-6. TARIFICATION
+7. TARIFICATION
 - La consultation de la plateforme est gratuite
 - Les tarifs des analyses sont fixés par les laboratoires
 - Les modalités de paiement sont définies par chaque laboratoire
 
-7. MODIFICATION DES CGU
+8. MODIFICATION DES CGU
 Ces conditions peuvent être modifiées à tout moment. Les utilisateurs en seront informés.
 
-8. DROIT APPLICABLE
+9. DROIT APPLICABLE
 Les présentes CGU sont soumises au droit français.
   `;
 
@@ -135,16 +140,20 @@ Ces conditions sont soumises au droit français et aux réglementations sanitair
             {type === 'client' ? clientTerms : laboratoryTerms}
           </div>
         </ScrollArea>
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            {hasReadAll ? '✓ Vous avez lu toutes les conditions' : 'Faites défiler pour lire toutes les conditions'}
-          </p>
-          <Button 
-            disabled={!hasReadAll}
-            className="bg-laboratory-primary hover:bg-laboratory-accent disabled:opacity-50"
-          >
-            J'ai lu et j'accepte
-          </Button>
+        <div className="flex items-center justify-end mt-4">
+          <DialogClose asChild>
+            <Button
+              onClick={() => {
+                if (onAccept) {
+                  onAccept();
+                }
+              }}
+              disabled={!hasReadAll}
+              className="bg-laboratory-primary hover:bg-laboratory-accent disabled:opacity-50"
+            >
+              Continuer
+            </Button>
+          </DialogClose>
         </div>
       </DialogContent>
     </Dialog>
