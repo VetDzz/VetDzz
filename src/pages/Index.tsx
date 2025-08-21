@@ -2,6 +2,7 @@
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
+import ContactForm from '@/components/ContactForm';
 import SEO from '@/components/SEO';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
@@ -34,6 +35,7 @@ const Index = () => {
       />
       <Hero />
       <Features />
+      <ContactForm />
     </PageLayout>
   );
 };

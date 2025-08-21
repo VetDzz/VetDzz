@@ -1,9 +1,10 @@
 
-import { ArrowRight, Linkedin, MapPin, Phone, Mail } from "lucide-react";
+import { ArrowRight, Linkedin, MapPin, Phone, Mail, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from '@/components/ui/button';
 import emailjs from 'emailjs-com';
 
 const Footer = () => {
@@ -11,6 +12,20 @@ const Footer = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
+
+  const handleGmailContact = () => {
+    const emailAddress = 'sihaaexpress@gmail.com';
+    const subject = 'Contact SihaaExpress';
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${emailAddress}&su=${encodeURIComponent(subject)}`;
+    window.open(gmailUrl, '_blank');
+  };
+
+  const handleWhatsAppContact = () => {
+    const phoneNumber = '213797495568';
+    const message = 'Bonjour, je souhaite obtenir des informations sur vos services de laboratoire d\'analyses médicales. Merci.';
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +85,7 @@ const Footer = () => {
   return (
     <footer className="bg-laboratory-light pt-16 pb-8 w-full border-t border-laboratory-muted">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 pb-10 border-b border-laboratory-muted">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 pb-10 border-b border-laboratory-muted">
           <div className="lg:col-span-2">
             <div className="flex items-center mb-6">
               <div className="w-12 h-12 bg-laboratory-primary rounded-full flex items-center justify-center mr-3">
@@ -89,24 +104,44 @@ const Footer = () => {
                 <MapPin className="w-4 h-4 mr-2 text-laboratory-primary" />
                 <span className="text-sm">33 El khroub Constantine</span>
               </div>
-              <div className="flex items-center text-gray-600">
+              <button 
+                onClick={handleWhatsAppContact}
+                className="flex items-center text-gray-600 hover:text-green-600 transition-colors cursor-pointer"
+              >
                 <Phone className="w-4 h-4 mr-2 text-laboratory-primary" />
-                <span className="text-sm">0549702788</span>
-              </div>
-              <div className="flex items-center text-gray-600">
+                <span className="text-sm">+213 797 49 55 68</span>
+              </button>
+              <button 
+                onClick={handleGmailContact}
+                className="flex items-center text-gray-600 hover:text-red-600 transition-colors cursor-pointer"
+              >
                 <Mail className="w-4 h-4 mr-2 text-laboratory-primary" />
-                <span className="text-sm">contact sihaaexpress@gmail.com</span>
-              </div>
+                <span className="text-sm">sihaaexpress@gmail.com</span>
+              </button>
             </div>
             <div className="flex space-x-4">
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-laboratory-primary flex items-center justify-center text-white transition-colors hover:bg-laboratory-accent"
+              <Button
+                onClick={handleGmailContact}
+                className="w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-800 transition-colors p-2 border border-gray-300"
+                size="icon"
+                title="Contactez-nous par Email"
               >
-                <Linkedin size={20} />
-              </a>
+                <img 
+                  src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" 
+                  alt="Gmail" 
+                  className="w-7 h-7"
+                />
+              </Button>
+              <Button
+                onClick={handleWhatsAppContact}
+                className="w-12 h-12 rounded-full bg-[#25D366] hover:bg-[#20b858] flex items-center justify-center text-white transition-colors p-2"
+                size="icon"
+                title="Contactez-nous sur WhatsApp"
+              >
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.085" fill="white"/>
+                </svg>
+              </Button>
             </div>
           </div>
 
@@ -118,37 +153,6 @@ const Footer = () => {
               <li><Link to="/services/home-collection" className="text-gray-600 hover:text-laboratory-dark transition-colors">{t('services.homeCollection')}</Link></li>
               <li><Link to="/services/rapid-results" className="text-gray-600 hover:text-laboratory-dark transition-colors">{t('services.rapidResults')}</Link></li>
             </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-4 text-laboratory-dark">{t('footer.newsletter')}</h3>
-            <p className="text-gray-600 text-sm mb-4">
-              {t('footer.stayUpdated')}
-            </p>
-            <form className="space-y-4" onSubmit={handleSubscribe}>
-              <div>
-                <input
-                  type="email"
-                  placeholder={t('footer.emailPlaceholder')}
-                  className="w-full px-4 py-2 bg-white border border-laboratory-muted rounded-md focus:outline-none focus:ring-2 focus:ring-laboratory-primary text-laboratory-dark placeholder-gray-400"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full px-4 py-2 bg-laboratory-primary text-white rounded-md hover:bg-laboratory-accent transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? t('footer.subscribing') : (
-                  <>
-                    {t('footer.subscribe')}
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </form>
           </div>
         </div>
 
