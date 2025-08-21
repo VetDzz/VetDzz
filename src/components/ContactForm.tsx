@@ -28,7 +28,7 @@ const ContactForm = () => {
           transition={{ duration: 0.6 }}
         >
           <div className="inline-block mb-3 px-3 py-1 bg-laboratory-primary text-white rounded-full text-sm font-medium">
-            Contactez-nous
+            Service Client
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-laboratory-dark">
             Nous Contacter
