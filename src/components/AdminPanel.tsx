@@ -589,8 +589,8 @@ const AdminPanel: React.FC = () => {
       ] = await Promise.all([
         supabase.from('client_profiles').select('*').eq('user_id', userId).single(),
         supabase.from('laboratory_profiles').select('*').eq('user_id', userId).single(),
-        supabase.from('pad_requests').select('*').eq('client_id', userId),
-        supabase.from('pad_requests').select('*').eq('laboratory_id', userId),
+        supabase.from('PAD_requests').select('*').eq('client_id', userId),
+        supabase.from('PAD_requests').select('*').eq('laboratory_id', userId),
         supabase.from('notifications').select('*').eq('user_id', userId),
         supabase.from('medical_results').select('*').eq('client_id', userId),
         supabase.from('medical_results').select('*').eq('laboratory_id', userId),
