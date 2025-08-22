@@ -673,7 +673,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     try {
       // Block duplicate PAD if there is a pending or accepted one
       const { data: existing } = await supabase
-        .from('pad_requests')
+        .from('PAD_requests')
         .select('id,status')
         .eq('client_id', user.id)
         .eq('laboratory_id', (lab as any).user_id)
@@ -692,7 +692,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         .single();
 
       const { data: inserted, error } = await supabase
-        .from('pad_requests')
+        .from('PAD_requests')
         .insert([
           {
             client_id: user.id,
