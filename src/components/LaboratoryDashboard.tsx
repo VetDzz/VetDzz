@@ -127,9 +127,9 @@ const LaboratoryDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Simple query without complex joins
+      // Simple query without complex joins - fixed table name case
       const { data, error } = await supabase
-        .from('pad_requests')
+        .from('PAD_requests')
         .select('*')
         .eq('laboratory_id', user.id)
         .order('created_at', { ascending: false });
@@ -233,8 +233,28 @@ const LaboratoryDashboard = () => {
 
   const handleApproveRequest = async (requestId: string) => {
     try {
+      console.log('🔄 Approving PAD request:', requestId);
+      
+      // First get the current laboratory info
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
+      
+      // Get laboratory profile for notification
+      const { data: labProfile, error: labError } = await supabase
+        .from('laboratory_profiles')
+        .select('lab_name, email')
+        .eq('user_id', currentUser.id)
+        .single();
+        
+      if (labError) {
+        console.warn('Could not fetch lab profile for notification:', labError);
+      }
+
+      // Update request status - fixed table name case
       const { data: updated, error } = await supabase
-        .from('pad_requests')
+        .from('PAD_requests')
         .update({ status: 'accepted' })
         .eq('id', requestId)
         .select()
@@ -242,27 +262,140 @@ const LaboratoryDashboard = () => {
 
       if (error) {
         console.error('Error approving request:', error);
-        alert('Erreur lors de l\'approbation');
-      } else {
-        // Send notification to client
-        if (updated?.client_id) {
-          await supabase.from('notifications').insert([
-            {
-              user_id: updated.client_id,
-              title: t('PAD.acceptedTitle'),
-              message: t('PAD.acceptedMessage'),
-              type: 'success',
-              is_read: false,
-              related_entity_type: 'PAD_request',
-              related_entity_id: updated.id
-            }
-          ]);
-        }
-        alert('Demande acceptée avec succès!');
-        fetchPADRequests();
+        toast({
+          title: "Erreur",
+          description: "Erreur lors de l'approbation de la demande",
+          variant: "destructive"
+        });
+        return;
       }
+
+      console.log('✅ Request approved:', updated);
+
+      // Send notification to client with lab name
+      if (updated?.client_id) {
+        const labName = labProfile?.lab_name || 'Un laboratoire';
+        
+        console.log('📧 Sending acceptance notification to client:', updated.client_id);
+        
+        const { error: notifError } = await supabase.from('notifications').insert([
+          {
+            user_id: updated.client_id,
+            title: t('PAD.acceptedTitle'),
+            message: `${labName} a accepté votre demande PAD. Restez joignable, ils peuvent vous appeler.`,
+            type: 'success',
+            is_read: false,
+            related_entity_type: 'PAD_request',
+            related_entity_id: updated.id
+          }
+        ]);
+        
+        if (notifError) {
+          console.error('Error sending notification:', notifError);
+        } else {
+          console.log('✅ Notification sent successfully');
+        }
+      }
+      
+      toast({
+        title: "Succès",
+        description: "Demande PAD acceptée avec succès!",
+      });
+      
+      // Refresh requests
+      await fetchPADRequests();
+      
     } catch (error) {
-      console.error('Error:', error);
+      console.error('❌ Error approving request:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'approbation",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    try {
+      console.log('❌ Rejecting PAD request:', requestId);
+      
+      // First get the current laboratory info
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
+      
+      // Get laboratory profile for notification
+      const { data: labProfile, error: labError } = await supabase
+        .from('laboratory_profiles')
+        .select('lab_name, email')
+        .eq('user_id', currentUser.id)
+        .single();
+        
+      if (labError) {
+        console.warn('Could not fetch lab profile for notification:', labError);
+      }
+
+      // Update request status - fixed table name case
+      const { data: updated, error } = await supabase
+        .from('PAD_requests')
+        .update({ status: 'rejected' })
+        .eq('id', requestId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error rejecting request:', error);
+        toast({
+          title: "Erreur",
+          description: "Erreur lors du refus de la demande",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('❌ Request rejected:', updated);
+
+      // Send notification to client with lab name
+      if (updated?.client_id) {
+        const labName = labProfile?.lab_name || 'Un laboratoire';
+        
+        console.log('📧 Sending rejection notification to client:', updated.client_id);
+        
+        const { error: notifError } = await supabase.from('notifications').insert([
+          {
+            user_id: updated.client_id,
+            title: 'PAD refusée',
+            message: `${labName} a refusé votre demande PAD. Vous pouvez contacter d'autres laboratoires.`,
+            type: 'error',
+            is_read: false,
+            related_entity_type: 'PAD_request',
+            related_entity_id: updated.id
+          }
+        ]);
+        
+        if (notifError) {
+          console.error('Error sending notification:', notifError);
+        } else {
+          console.log('✅ Rejection notification sent successfully');
+        }
+      }
+      
+      toast({
+        title: "Demande refusée",
+        description: "La demande PAD a été refusée et le client a été notifié.",
+      });
+      
+      // Refresh requests
+      await fetchPADRequests();
+      
+    } catch (error) {
+      console.error('❌ Error rejecting request:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du refus",
+        variant: "destructive"
+      });
     }
   };
 
@@ -469,6 +602,7 @@ const LaboratoryDashboard = () => {
                                   size="sm"
                                   variant="outline"
                                   className="border-red-300 text-red-600 hover:bg-red-50 w-full sm:w-auto"
+                                  onClick={() => handleRejectRequest(request.id)}
                                 >
                                   {t('lab.reject')}
                                 </Button>
