@@ -185,7 +185,7 @@ const FindLaboratory = () => {
       }
 
       const { error } = await supabase
-        .from('PAD_requests')
+        .from('pad_requests')
         .insert([
           {
             client_id: user.id,

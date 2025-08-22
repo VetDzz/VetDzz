@@ -129,7 +129,7 @@ const LaboratoryDashboard = () => {
 
       // Simple query without complex joins - fixed table name case
       const { data, error } = await supabase
-        .from('PAD_requests')
+        .from('pad_requests')
         .select('*')
         .eq('laboratory_id', user.id)
         .order('created_at', { ascending: false });
@@ -254,7 +254,7 @@ const LaboratoryDashboard = () => {
 
       // Update request status - fixed table name case
       const { data: updated, error } = await supabase
-        .from('PAD_requests')
+        .from('pad_requests')
         .update({ status: 'accepted' })
         .eq('id', requestId)
         .select()
@@ -338,7 +338,7 @@ const LaboratoryDashboard = () => {
 
       // Update request status - fixed table name case
       const { data: updated, error } = await supabase
-        .from('PAD_requests')
+        .from('pad_requests')
         .update({ status: 'rejected' })
         .eq('id', requestId)
         .select()
