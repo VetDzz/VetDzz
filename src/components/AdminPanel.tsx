@@ -627,7 +627,26 @@ const AdminPanel: React.FC = () => {
     try {
       console.log('🔍 Fetching ALL details for user:', userId);
 
-      // Fetch ALL possible data for this user
+      // Helper function to safely fetch data and handle RLS errors
+      const safeFetch = async (tableName: string, query: any, description: string) => {
+        try {
+          const result = await query;
+          if (result.error) {
+            console.warn(`⚠️ ${description} failed:`, result.error);
+            if (result.error.code === 'PGRST116' || result.error.message?.includes('JWT')) {
+              console.warn(`🔒 RLS blocking access to ${tableName} for user ${userId}`);
+            }
+            return { data: null, error: result.error };
+          }
+          console.log(`✅ ${description} successful:`, result.data?.length || (result.data ? 'found' : 'none'));
+          return result;
+        } catch (err) {
+          console.warn(`⚠️ ${description} exception:`, err);
+          return { data: null, error: err };
+        }
+      };
+
+      // Fetch ALL possible data for this user with error handling
       const [
         clientProfile,
         labProfile,
@@ -638,20 +657,24 @@ const AdminPanel: React.FC = () => {
         medicalResultsAsLab,
         banInfo
       ] = await Promise.all([
-        supabase.from('client_profiles').select('*').eq('user_id', userId).single(),
-        supabase.from('laboratory_profiles').select('*').eq('user_id', userId).single(),
-        supabase.from('PAD_requests').select('*').eq('client_id', userId),
-        supabase.from('PAD_requests').select('*').eq('laboratory_id', userId),
-        supabase.from('notifications').select('*').eq('user_id', userId),
-        supabase.from('medical_results').select('*').eq('client_id', userId),
-        supabase.from('medical_results').select('*').eq('laboratory_id', userId),
-        supabase.from('banned_users').select('*').eq('user_id', userId)
+        safeFetch('client_profiles', supabase.from('client_profiles').select('*').eq('user_id', userId).single(), 'Client profile fetch'),
+        safeFetch('laboratory_profiles', supabase.from('laboratory_profiles').select('*').eq('user_id', userId).single(), 'Lab profile fetch'),
+        safeFetch('PAD_requests (client)', supabase.from('PAD_requests').select('*').eq('client_id', userId), 'PAD requests as client fetch'),
+        safeFetch('PAD_requests (lab)', supabase.from('PAD_requests').select('*').eq('laboratory_id', userId), 'PAD requests as lab fetch'),
+        safeFetch('notifications', supabase.from('notifications').select('*').eq('user_id', userId), 'Notifications fetch'),
+        safeFetch('medical_results (client)', supabase.from('medical_results').select('*').eq('client_id', userId), 'Medical results as client fetch'),
+        safeFetch('medical_results (lab)', supabase.from('medical_results').select('*').eq('laboratory_id', userId), 'Medical results as lab fetch'),
+        safeFetch('banned_users', supabase.from('banned_users').select('*').eq('user_id', userId), 'Banned users fetch')
       ]);
+
+      // Try to get basic profile info from our already loaded data as fallback
+      let fallbackClientProfile = clientProfiles.find(p => p.user_id === userId);
+      let fallbackLabProfile = labProfiles.find(p => p.user_id === userId);
 
       const details = {
         userId,
-        clientProfile: clientProfile.data,
-        labProfile: labProfile.data,
+        clientProfile: clientProfile.data || fallbackClientProfile || null,
+        labProfile: labProfile.data || fallbackLabProfile || null,
         padRequestsAsClient: padRequestsAsClient.data || [],
         padRequestsAsLab: padRequestsAsLab.data || [],
         notifications: notifications.data || [],
@@ -661,11 +684,22 @@ const AdminPanel: React.FC = () => {
         totalPadRequests: (padRequestsAsClient.data?.length || 0) + (padRequestsAsLab.data?.length || 0),
         totalNotifications: notifications.data?.length || 0,
         totalMedicalResults: (medicalResultsAsClient.data?.length || 0) + (medicalResultsAsLab.data?.length || 0),
-        isBanned: banInfo.data && banInfo.data.length > 0,
-        userType: clientProfile.data ? 'Client' : labProfile.data ? 'Laboratoire' : 'Inconnu'
+        isBanned: (banInfo.data && banInfo.data.length > 0) || bannedUsers.includes(userId),
+        userType: (clientProfile.data || fallbackClientProfile) ? 'Client' : 
+                 (labProfile.data || fallbackLabProfile) ? 'Laboratoire' : 'Inconnu',
+        errors: {
+          clientProfileError: clientProfile.error,
+          labProfileError: labProfile.error,
+          padRequestsAsClientError: padRequestsAsClient.error,
+          padRequestsAsLabError: padRequestsAsLab.error,
+          notificationsError: notifications.error,
+          medicalResultsAsClientError: medicalResultsAsClient.error,
+          medicalResultsAsLabError: medicalResultsAsLab.error,
+          banInfoError: banInfo.error
+        }
       };
 
-      console.log('📊 User details fetched:', details);
+      console.log('📊 User details fetched with errors handled:', details);
       setUserDetails(details);
       setShowUserDetails(true);
     } catch (error) {
