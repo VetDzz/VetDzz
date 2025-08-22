@@ -127,9 +127,9 @@ const AdminPanel: React.FC = () => {
       // Create a function to get auth users (admin only)
       const { data: authUsers, error } = await supabase.rpc('get_auth_users_admin');
 
-      if (error) {
-        console.warn('Could not fetch from auth.users, falling back to profiles:', error);
-        // Fallback to profiles method
+      if (error || !authUsers || authUsers.length === 0) {
+        console.warn('Could not fetch from auth.users or empty result, falling back to profiles:', error);
+        // Always fallback to profiles method since auth.users access is restricted
         await fetchUsersFromProfiles();
         return;
       }
@@ -233,20 +233,71 @@ const AdminPanel: React.FC = () => {
 
   const fetchPadRequests = async () => {
     try {
+      console.log('🔍 Fetching PAD requests...');
+      
+      // Try simple query first without foreign key relationships
       const { data, error } = await supabase
         .from('PAD_requests')
-        .select(`
-          *,
-          client_profiles:client_id(full_name, email, phone),
-          laboratory_profiles:laboratory_id(lab_name, email, phone)
-        `);
+        .select('*');
       
       if (error) {
         console.warn('Could not fetch PAD requests:', error);
+        console.warn('Error details:', error.message);
         setPadRequests([]);
+        return;
+      }
+      
+      console.log('✅ Raw PAD requests fetched:', data?.length || 0);
+      
+      // If we got data, enrich it with profile information manually
+      if (data && data.length > 0) {
+        const enrichedRequests = [];
+        
+        for (const request of data) {
+          const enrichedRequest = { ...request };
+          
+          // Get client profile if client_id exists
+          if (request.client_id) {
+            try {
+              const { data: clientProfile } = await supabase
+                .from('client_profiles')
+                .select('full_name, email, phone')
+                .eq('user_id', request.client_id)
+                .single();
+              
+              if (clientProfile) {
+                enrichedRequest.client_profiles = clientProfile;
+              }
+            } catch (clientError) {
+              console.warn('Could not fetch client profile for:', request.client_id);
+            }
+          }
+          
+          // Get laboratory profile if laboratory_id exists
+          if (request.laboratory_id) {
+            try {
+              const { data: labProfile } = await supabase
+                .from('laboratory_profiles')
+                .select('lab_name, laboratory_name, email, phone')
+                .eq('user_id', request.laboratory_id)
+                .single();
+              
+              if (labProfile) {
+                enrichedRequest.laboratory_profiles = labProfile;
+              }
+            } catch (labError) {
+              console.warn('Could not fetch lab profile for:', request.laboratory_id);
+            }
+          }
+          
+          enrichedRequests.push(enrichedRequest);
+        }
+        
+        setPadRequests(enrichedRequests);
+        console.log('✅ Enriched PAD requests:', enrichedRequests.length);
       } else {
-        setPadRequests(data || []);
-        console.log('Fetched PAD requests:', data?.length || 0);
+        setPadRequests([]);
+        console.log('📋 No PAD requests found');
       }
     } catch (error) {
       console.warn('Error fetching PAD requests:', error);
