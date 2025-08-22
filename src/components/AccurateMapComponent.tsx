@@ -671,18 +671,45 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     }
 
     try {
-      // Block duplicate PAD if there is a pending or accepted one
+      // Check for existing PAD requests with improved logic
       const { data: existing } = await supabase
         .from('pad_requests')
-        .select('id,status')
+        .select('id,status,created_at,updated_at')
         .eq('client_id', user.id)
         .eq('laboratory_id', (lab as any).user_id)
-        .in('status', ['pending', 'accepted'])
+        .order('created_at', { ascending: false })
         .limit(1);
 
       if (existing && existing.length > 0) {
-        toast({ title: t('map.alreadySent'), description: t('map.alreadySentDesc'), variant: 'default' });
-        return;
+        const lastRequest = existing[0];
+        
+        // Block if there's a pending request
+        if (lastRequest.status === 'pending') {
+          toast({ 
+            title: 'Demande en attente', 
+            description: 'Vous avez déjà une demande PAD en attente pour ce laboratoire.', 
+            variant: 'default' 
+          });
+          return;
+        }
+        
+        // Block if accepted and less than 1 hour has passed
+        if (lastRequest.status === 'accepted') {
+          const acceptedTime = new Date(lastRequest.updated_at || lastRequest.created_at);
+          const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+          
+          if (acceptedTime > oneHourAgo) {
+            const timeLeft = Math.ceil((acceptedTime.getTime() + 60 * 60 * 1000 - Date.now()) / (1000 * 60));
+            toast({ 
+              title: 'Demande récemment acceptée', 
+              description: `Attendez ${timeLeft} minutes avant de renvoyer une demande à ce laboratoire.`, 
+              variant: 'default' 
+            });
+            return;
+          }
+        }
+        
+        // If rejected, allow immediate new request (no waiting period)
       }
 
       const { data: clientProfile } = await supabase

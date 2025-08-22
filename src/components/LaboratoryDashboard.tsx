@@ -255,7 +255,10 @@ const LaboratoryDashboard = () => {
       // Update request status - fixed table name case
       const { data: updated, error } = await supabase
         .from('pad_requests')
-        .update({ status: 'accepted' })
+        .update({ 
+          status: 'accepted',
+          updated_at: new Date().toISOString()
+        })
         .eq('id', requestId)
         .select()
         .single();
@@ -339,7 +342,10 @@ const LaboratoryDashboard = () => {
       // Update request status - fixed table name case
       const { data: updated, error } = await supabase
         .from('pad_requests')
-        .update({ status: 'rejected' })
+        .update({ 
+          status: 'rejected',
+          updated_at: new Date().toISOString()
+        })
         .eq('id', requestId)
         .select()
         .single();
