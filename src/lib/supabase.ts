@@ -8,7 +8,27 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Configure Supabase client with optimizations for high-load scenarios
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    // Automatically refresh tokens before they expire
+    autoRefreshToken: true,
+    // Persist session across browser restarts
+    persistSession: true,
+    // Don't detect session from URL (security)
+    detectSessionInUrl: false,
+  },
+  db: {
+    // Use a more efficient schema cache
+    schema: 'public',
+  },
+  // Enable real-time but with connection limits
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
+});
 
 // Database types
 export interface User {

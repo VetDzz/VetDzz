@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Users, 
@@ -18,7 +19,13 @@ import {
   Mail,
   Phone,
   Calendar,
-  MapPin
+  MapPin,
+  Filter,
+  CheckCircle,
+  XCircle,
+  Clock,
+  FileText,
+  UserCheck
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -81,17 +88,21 @@ const AdminPanel: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [clientProfiles, setClientProfiles] = useState<UserProfile[]>([]);
   const [labProfiles, setLabProfiles] = useState<LabProfile[]>([]);
+  const [padRequests, setPadRequests] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userDetails, setUserDetails] = useState<any>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [bannedUsers, setBannedUsers] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState('all');
+  const [detailSearchTerm, setDetailSearchTerm] = useState('');
 
   useEffect(() => {
     fetchUsers();
     fetchProfiles();
     fetchBannedUsers();
+    fetchPadRequests();
   }, []);
 
   const fetchBannedUsers = async () => {
@@ -217,6 +228,29 @@ const AdminPanel: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPadRequests = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('PAD_requests')
+        .select(`
+          *,
+          client_profiles:client_id(full_name, email, phone),
+          laboratory_profiles:laboratory_id(lab_name, email, phone)
+        `);
+      
+      if (error) {
+        console.warn('Could not fetch PAD requests:', error);
+        setPadRequests([]);
+      } else {
+        setPadRequests(data || []);
+        console.log('Fetched PAD requests:', data?.length || 0);
+      }
+    } catch (error) {
+      console.warn('Error fetching PAD requests:', error);
+      setPadRequests([]);
     }
   };
 
@@ -481,17 +515,58 @@ const AdminPanel: React.FC = () => {
     return clientProfile || labProfile;
   };
 
-  const filteredUsers = users.filter(user => {
-    const profile = getUserProfile(user.id);
-    const searchLower = searchTerm.toLowerCase();
+  const getFilteredUsers = (filter: string) => {
+    let filtered = users.filter(user => {
+      const profile = getUserProfile(user.id);
+      const searchLower = searchTerm.toLowerCase();
+      
+      const matchesSearch = (
+        user.email?.toLowerCase().includes(searchLower) ||
+        profile?.full_name?.toLowerCase().includes(searchLower) ||
+        profile?.phone?.includes(searchTerm) ||
+        (profile as LabProfile)?.lab_name?.toLowerCase().includes(searchLower)
+      );
+      
+      if (!matchesSearch) return false;
+      
+      switch (filter) {
+        case 'clients':
+          return clientProfiles.some(cp => cp.user_id === user.id);
+        case 'laboratories':
+          return labProfiles.some(lp => lp.user_id === user.id);
+        case 'banned':
+          return isUserBanned(user);
+        default:
+          return true;
+      }
+    });
     
-    return (
-      user.email?.toLowerCase().includes(searchLower) ||
-      profile?.full_name?.toLowerCase().includes(searchLower) ||
-      profile?.phone?.includes(searchTerm) ||
-      (profile as LabProfile)?.lab_name?.toLowerCase().includes(searchLower)
+    return filtered;
+  };
+  
+  const filteredUsers = getFilteredUsers(activeTab);
+  
+  const getUserPadRequests = (userId: string, asClient: boolean = true) => {
+    return padRequests.filter(request => 
+      asClient ? request.client_id === userId : request.laboratory_id === userId
     );
-  });
+  };
+  
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'accepted': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      default: return 'bg-yellow-100 text-yellow-800';
+    }
+  };
+  
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'accepted': return <CheckCircle className="w-4 h-4" />;
+      case 'rejected': return <XCircle className="w-4 h-4" />;
+      default: return <Clock className="w-4 h-4" />;
+    }
+  };
 
   const isUserBanned = (user: User) => {
     return bannedUsers.includes(user.id);
@@ -684,178 +759,240 @@ const AdminPanel: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Users List */}
+          {/* Users List with Tabs */}
           <Card>
             <CardHeader>
-              <CardTitle>Liste des Utilisateurs ({filteredUsers.length})</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="w-5 h-5" />
+                Gestion des Utilisateurs
+              </CardTitle>
               <CardDescription>
-                Gérez les utilisateurs, bannissez ou supprimez des comptes
+                Filtrez et gérez les utilisateurs par catégorie
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {filteredUsers.map((user) => {
-                  const profile = getUserProfile(user.id);
-                  const isLab = labProfiles.some(lab => lab.user_id === user.id);
-                  const isBanned = isUserBanned(user);
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-4 mb-6">
+                  <TabsTrigger value="all" className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    Tous ({users.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="clients" className="flex items-center gap-2">
+                    <UserCheck className="w-4 h-4" />
+                    Clients ({clientProfiles.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="laboratories" className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4" />
+                    Labos ({labProfiles.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="banned" className="flex items-center gap-2">
+                    <Ban className="w-4 h-4" />
+                    Bannis ({users.filter(isUserBanned).length})
+                  </TabsTrigger>
+                </TabsList>
 
-                  return (
-                    <div key={user.id} className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-all duration-200 hover:border-green-300">
-                      {/* User Info Section */}
-                      <div className="space-y-3">
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                          <div className="flex items-center gap-2">
-                            {isLab ? <Building2 className="w-5 h-5 text-blue-600" /> : <Users className="w-5 h-5 text-green-600" />}
-                            <span className="font-semibold text-base sm:text-lg text-gray-800">
-                              {profile?.full_name || (profile as LabProfile)?.lab_name || 'Nom non disponible'}
-                            </span>
-                          </div>
-                          <Badge variant={isLab ? "secondary" : "default"} className="text-xs font-medium">
-                            {isLab ? 'Laboratoire' : 'Client'}
-                          </Badge>
-                          {isBanned && (
-                            <Badge variant="destructive" className="text-xs font-medium animate-pulse">
-                              <Ban className="w-3 h-3 mr-1" />
-                              Banni
-                            </Badge>
-                          )}
-                        </div>
+                <TabsContent value={activeTab} className="mt-0">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-600">
+                        Affichage de {filteredUsers.length} utilisateur(s)
+                      </p>
+                    </div>
+                    
+                    {filteredUsers.map((user) => {
+                      const profile = getUserProfile(user.id);
+                      const isLab = labProfiles.some(lab => lab.user_id === user.id);
+                      const isBanned = isUserBanned(user);
+                      const clientRequests = getUserPadRequests(user.id, true);
+                      const labRequests = getUserPadRequests(user.id, false);
+                      const totalRequests = clientRequests.length + labRequests.length;
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Mail className="w-4 h-4 flex-shrink-0 text-blue-500" />
-                            <span className="truncate font-medium">{user.email}</span>
-                          </div>
-                          {profile?.phone && (
-                            <div className="flex items-center gap-2">
-                              <Phone className="w-4 h-4 flex-shrink-0 text-green-500" />
-                              <span className="font-medium">{profile.phone}</span>
+                      return (
+                        <div key={user.id} className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-all duration-200 hover:border-green-300">
+                          {/* User Info Section */}
+                          <div className="space-y-3">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                              <div className="flex items-center gap-2">
+                                {isLab ? <Building2 className="w-5 h-5 text-blue-600" /> : <Users className="w-5 h-5 text-green-600" />}
+                                <span className="font-semibold text-base sm:text-lg text-gray-800">
+                                  {profile?.full_name || (profile as LabProfile)?.lab_name || 'Nom non disponible'}
+                                </span>
+                              </div>
+                              <Badge variant={isLab ? "secondary" : "default"} className="text-xs font-medium">
+                                {isLab ? 'Laboratoire' : 'Client'}
+                              </Badge>
+                              {isBanned && (
+                                <Badge variant="destructive" className="text-xs font-medium animate-pulse">
+                                  <Ban className="w-3 h-3 mr-1" />
+                                  Banni
+                                </Badge>
+                              )}
+                              {totalRequests > 0 && (
+                                <Badge variant="outline" className="text-xs font-medium">
+                                  <FileText className="w-3 h-3 mr-1" />
+                                  {totalRequests} PAD
+                                </Badge>
+                              )}
                             </div>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 flex-shrink-0 text-purple-500" />
-                            <span>Inscrit: {new Date(user.created_at).toLocaleDateString('fr-FR')}</span>
-                          </div>
-                          {profile?.address && (
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4 flex-shrink-0 text-red-500" />
-                              <span className="truncate">{profile.address}</span>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 text-sm text-gray-600">
+                              <div className="flex items-center gap-2">
+                                <Mail className="w-4 h-4 flex-shrink-0 text-blue-500" />
+                                <span className="truncate font-medium">{user.email}</span>
+                              </div>
+                              {profile?.phone && (
+                                <div className="flex items-center gap-2">
+                                  <Phone className="w-4 h-4 flex-shrink-0 text-green-500" />
+                                  <span className="font-medium">{profile.phone}</span>
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 flex-shrink-0 text-purple-500" />
+                                <span>Inscrit: {new Date(user.created_at).toLocaleDateString('fr-FR')}</span>
+                              </div>
+                              {profile?.address && (
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="w-4 h-4 flex-shrink-0 text-red-500" />
+                                  <span className="truncate">{profile.address}</span>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
 
-                      {/* Action Buttons Section - New Line */}
-                      <div className="mt-4 pt-3 border-t border-gray-100">
-                        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchUserDetails(user.id)}
-                            className="flex items-center gap-2 px-4 py-2 h-9 bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800 transition-all duration-200"
-                          >
-                            <Eye className="w-4 h-4" />
-                            <span>Voir Détails</span>
-                          </Button>
+                            {/* Quick PAD Stats */}
+                            {totalRequests > 0 && (
+                              <div className="flex flex-wrap gap-2 pt-2">
+                                {isLab && labRequests.length > 0 && (
+                                  <div className="flex items-center gap-1 text-xs bg-blue-50 px-2 py-1 rounded">
+                                    <Building2 className="w-3 h-3 text-blue-600" />
+                                    <span>Reçues: {labRequests.length}</span>
+                                    <span className="text-green-600">({labRequests.filter(r => r.status === 'accepted').length} acceptées)</span>
+                                  </div>
+                                )}
+                                {!isLab && clientRequests.length > 0 && (
+                                  <div className="flex items-center gap-1 text-xs bg-green-50 px-2 py-1 rounded">
+                                    <Users className="w-3 h-3 text-green-600" />
+                                    <span>Envoyées: {clientRequests.length}</span>
+                                    <span className="text-green-600">({clientRequests.filter(r => r.status === 'accepted').length} acceptées)</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
 
-                          {isBanned ? (
-                            <Button
-                              size="sm"
-                              onClick={() => unbanUser(user.id)}
-                              className="flex items-center gap-2 px-4 py-2 h-9 bg-green-400 hover:bg-green-500 text-white transition-all duration-200 shadow-sm hover:shadow-md"
-                            >
-                              <span>✅</span>
-                              <span>Débannir</span>
-                            </Button>
-                          ) : (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="flex items-center gap-2 px-4 py-2 h-9 bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700 hover:text-orange-800 transition-all duration-200"
-                                >
-                                  <Ban className="w-4 h-4" />
-                                  <span>Bannir</span>
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Bannir l'utilisateur</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Êtes-vous sûr de vouloir bannir cet utilisateur pour 30 jours ?
-                                    Il ne pourra plus se connecter pendant cette période.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => banUser(user.id)}
-                                    className="bg-orange-600 hover:bg-orange-700"
-                                  >
-                                    Bannir
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          )}
-
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
+                          {/* Action Buttons Section */}
+                          <div className="mt-4 pt-3 border-t border-gray-100">
+                            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="flex items-center gap-2 px-4 py-2 h-9 bg-red-50 hover:bg-red-100 border-red-200 text-red-700 hover:text-red-800 transition-all duration-200"
+                                onClick={() => fetchUserDetails(user.id)}
+                                className="flex items-center gap-2 px-4 py-2 h-9 bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800 transition-all duration-200"
                               >
-                                <Trash2 className="w-4 h-4" />
-                                <span>Supprimer</span>
+                                <Eye className="w-4 h-4" />
+                                <span>Voir Détails</span>
                               </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle className="flex items-center gap-2">
-                                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                                  SUPPRESSION COMPLÈTE DE L'UTILISATEUR
-                                </AlertDialogTitle>
-                                <AlertDialogDescription className="space-y-2">
-                                  <div className="font-bold text-red-600">⚠️ ATTENTION: SUPPRESSION TOTALE ET IRRÉVERSIBLE</div>
-                                  <div>Cette action supprimera TOUT ce qui concerne cet utilisateur :</div>
-                                  <ul className="list-disc list-inside space-y-1 text-sm">
-                                    <li><strong>Profils</strong> - Client/Laboratoire</li>
-                                    <li><strong>Demandes PAD</strong> - Envoyées et reçues</li>
-                                    <li><strong>Notifications</strong> - Toutes les notifications</li>
-                                    <li><strong>Résultats médicaux</strong> - Tous les résultats</li>
-                                    <li><strong>Fichiers</strong> - Photos, PDFs, documents</li>
-                                    <li><strong>Historique</strong> - Logs et sessions</li>
-                                    <li><strong>Références</strong> - Toutes les connexions</li>
-                                  </ul>
-                                  <div className="font-bold text-red-600">L'utilisateur sera complètement effacé du système.</div>
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteUser(user.id)}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Supprimer définitivement
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
 
-                {filteredUsers.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <UserX className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>Aucun utilisateur trouvé</p>
+                              {isBanned ? (
+                                <Button
+                                  size="sm"
+                                  onClick={() => unbanUser(user.id)}
+                                  className="flex items-center gap-2 px-4 py-2 h-9 bg-green-400 hover:bg-green-500 text-white transition-all duration-200 shadow-sm hover:shadow-md"
+                                >
+                                  <span>✅</span>
+                                  <span>Débannir</span>
+                                </Button>
+                              ) : (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="flex items-center gap-2 px-4 py-2 h-9 bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700 hover:text-orange-800 transition-all duration-200"
+                                    >
+                                      <Ban className="w-4 h-4" />
+                                      <span>Bannir</span>
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Bannir l'utilisateur</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Êtes-vous sûr de vouloir bannir cet utilisateur pour 30 jours ?
+                                        Il ne pourra plus se connecter pendant cette période.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => banUser(user.id)}
+                                        className="bg-orange-600 hover:bg-orange-700"
+                                      >
+                                        Bannir
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
+
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex items-center gap-2 px-4 py-2 h-9 bg-red-50 hover:bg-red-100 border-red-200 text-red-700 hover:text-red-800 transition-all duration-200"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                    <span>Supprimer</span>
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="flex items-center gap-2">
+                                      <AlertTriangle className="w-5 h-5 text-red-600" />
+                                      SUPPRESSION COMPLÈTE DE L'UTILISATEUR
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription className="space-y-2">
+                                      <div className="font-bold text-red-600">⚠️ ATTENTION: SUPPRESSION TOTALE ET IRRÉVERSIBLE</div>
+                                      <div>Cette action supprimera TOUT ce qui concerne cet utilisateur :</div>
+                                      <ul className="list-disc list-inside space-y-1 text-sm">
+                                        <li><strong>Profils</strong> - Client/Laboratoire</li>
+                                        <li><strong>Demandes PAD</strong> - Envoyées et reçues</li>
+                                        <li><strong>Notifications</strong> - Toutes les notifications</li>
+                                        <li><strong>Résultats médicaux</strong> - Tous les résultats</li>
+                                        <li><strong>Fichiers</strong> - Photos, PDFs, documents</li>
+                                        <li><strong>Historique</strong> - Logs et sessions</li>
+                                        <li><strong>Références</strong> - Toutes les connexions</li>
+                                      </ul>
+                                      <div className="font-bold text-red-600">L'utilisateur sera complètement effacé du système.</div>
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => deleteUser(user.id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Supprimer définitivement
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {filteredUsers.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <UserX className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                        <p>Aucun utilisateur trouvé pour ce filtre</p>
+                        <p className="text-xs mt-2">Essayez un autre onglet ou modifiez votre recherche</p>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
@@ -950,46 +1087,168 @@ const AdminPanel: React.FC = () => {
                     </Card>
                   )}
 
-                  {/* PAD Requests as Client */}
-                  {userDetails.padRequestsAsClient.length > 0 && (
+                  {/* PAD Requests for Clients */}
+                  {userDetails.clientProfile && (
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Demandes PAD Envoyées ({userDetails.padRequestsAsClient.length})</CardTitle>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">Demandes PAD Client ({userDetails.padRequestsAsClient.length})</CardTitle>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              placeholder="Rechercher laboratoires..."
+                              value={detailSearchTerm}
+                              onChange={(e) => setDetailSearchTerm(e.target.value)}
+                              className="max-w-xs text-sm"
+                            />
+                          </div>
+                        </div>
+                        <CardDescription>
+                          Laboratoires contactés par ce client
+                        </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-3 max-h-40 overflow-y-auto">
-                          {userDetails.padRequestsAsClient.map((request: any, index: number) => (
-                            <div key={index} className="border-l-4 border-blue-400 pl-3 text-sm">
-                              <div><strong>Statut:</strong> {request.status}</div>
-                              <div><strong>Message:</strong> {request.message}</div>
-                              <div><strong>Date:</strong> {new Date(request.created_at).toLocaleString('fr-FR')}</div>
-                              {request.client_location_lat && (
-                                <div><strong>Position:</strong> {request.client_location_lat}, {request.client_location_lng}</div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                        {userDetails.padRequestsAsClient.length > 0 ? (
+                          <div className="space-y-3 max-h-60 overflow-y-auto">
+                            {userDetails.padRequestsAsClient
+                              .filter((request: any) => {
+                                const searchLower = detailSearchTerm.toLowerCase();
+                                const labProfile = labProfiles.find(lab => lab.user_id === request.laboratory_id);
+                                return !searchLower || 
+                                  labProfile?.lab_name?.toLowerCase().includes(searchLower) ||
+                                  labProfile?.email?.toLowerCase().includes(searchLower) ||
+                                  request.status?.toLowerCase().includes(searchLower);
+                              })
+                              .map((request: any, index: number) => {
+                                const labProfile = labProfiles.find(lab => lab.user_id === request.laboratory_id);
+                                return (
+                                  <div key={index} className={`border rounded-lg p-3 ${getStatusBadgeColor(request.status)} bg-opacity-10`}>
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <Building2 className="w-4 h-4 text-blue-600" />
+                                        <span className="font-semibold text-sm">
+                                          {labProfile?.lab_name || 'Laboratoire inconnu'}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        {getStatusIcon(request.status)}
+                                        <Badge className={`text-xs ${getStatusBadgeColor(request.status)}`}>
+                                          {request.status}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                      <div><strong>Email:</strong> {labProfile?.email || 'N/A'}</div>
+                                      <div><strong>Téléphone:</strong> {labProfile?.phone || 'N/A'}</div>
+                                      <div><strong>Date demande:</strong> {new Date(request.created_at).toLocaleDateString('fr-FR')}</div>
+                                      <div><strong>SIRET:</strong> {labProfile?.siret || 'N/A'}</div>
+                                    </div>
+                                    {request.message && (
+                                      <div className="mt-2 text-xs">
+                                        <strong>Message:</strong> {request.message}
+                                      </div>
+                                    )}
+                                    {labProfile?.address && (
+                                      <div className="mt-2 text-xs">
+                                        <strong>Adresse:</strong> {labProfile.address}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            }
+                          </div>
+                        ) : (
+                          <div className="text-center py-6 text-gray-500">
+                            <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <p>Aucune demande PAD envoyée</p>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   )}
 
-                  {/* PAD Requests as Laboratory */}
-                  {userDetails.padRequestsAsLab.length > 0 && (
+                  {/* PAD Requests for Laboratories */}
+                  {userDetails.labProfile && (
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Demandes PAD Reçues ({userDetails.padRequestsAsLab.length})</CardTitle>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">Demandes PAD Laboratoire ({userDetails.padRequestsAsLab.length})</CardTitle>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              placeholder="Rechercher clients..."
+                              value={detailSearchTerm}
+                              onChange={(e) => setDetailSearchTerm(e.target.value)}
+                              className="max-w-xs text-sm"
+                            />
+                          </div>
+                        </div>
+                        <CardDescription>
+                          Clients qui ont contacté ce laboratoire
+                        </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-3 max-h-40 overflow-y-auto">
-                          {userDetails.padRequestsAsLab.map((request: any, index: number) => (
-                            <div key={index} className="border-l-4 border-green-400 pl-3 text-sm">
-                              <div><strong>Statut:</strong> {request.status}</div>
-                              <div><strong>Client:</strong> {request.client_name}</div>
-                              <div><strong>Téléphone:</strong> {request.client_phone}</div>
-                              <div><strong>Date:</strong> {new Date(request.created_at).toLocaleString('fr-FR')}</div>
-                            </div>
-                          ))}
-                        </div>
+                        {userDetails.padRequestsAsLab.length > 0 ? (
+                          <div className="space-y-3 max-h-60 overflow-y-auto">
+                            {userDetails.padRequestsAsLab
+                              .filter((request: any) => {
+                                const searchLower = detailSearchTerm.toLowerCase();
+                                const clientProfile = clientProfiles.find(client => client.user_id === request.client_id);
+                                return !searchLower || 
+                                  clientProfile?.full_name?.toLowerCase().includes(searchLower) ||
+                                  clientProfile?.email?.toLowerCase().includes(searchLower) ||
+                                  clientProfile?.phone?.includes(searchTerm) ||
+                                  request.status?.toLowerCase().includes(searchLower);
+                              })
+                              .map((request: any, index: number) => {
+                                const clientProfile = clientProfiles.find(client => client.user_id === request.client_id);
+                                return (
+                                  <div key={index} className={`border rounded-lg p-3 ${getStatusBadgeColor(request.status)} bg-opacity-10`}>
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <Users className="w-4 h-4 text-green-600" />
+                                        <span className="font-semibold text-sm">
+                                          {clientProfile?.full_name || request.client_name || 'Client inconnu'}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        {getStatusIcon(request.status)}
+                                        <Badge className={`text-xs ${getStatusBadgeColor(request.status)}`}>
+                                          {request.status}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                      <div><strong>Email:</strong> {clientProfile?.email || 'N/A'}</div>
+                                      <div><strong>Téléphone:</strong> {clientProfile?.phone || request.client_phone || 'N/A'}</div>
+                                      <div><strong>Date demande:</strong> {new Date(request.created_at).toLocaleDateString('fr-FR')}</div>
+                                      <div><strong>Date naissance:</strong> {clientProfile?.birth_date ? new Date(clientProfile.birth_date).toLocaleDateString('fr-FR') : 'N/A'}</div>
+                                    </div>
+                                    {request.message && (
+                                      <div className="mt-2 text-xs">
+                                        <strong>Message:</strong> {request.message}
+                                      </div>
+                                    )}
+                                    {request.client_location_lat && (
+                                      <div className="mt-2 text-xs">
+                                        <strong>Position client:</strong> {request.client_location_lat}, {request.client_location_lng}
+                                      </div>
+                                    )}
+                                    {(clientProfile?.address || request.client_address) && (
+                                      <div className="mt-2 text-xs">
+                                        <strong>Adresse:</strong> {clientProfile?.address || request.client_address}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            }
+                          </div>
+                        ) : (
+                          <div className="text-center py-6 text-gray-500">
+                            <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <p>Aucune demande PAD reçue</p>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   )}

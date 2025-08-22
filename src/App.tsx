@@ -44,7 +44,30 @@ import AdminPage from "./pages/AdminPage";
 
 
 const App = () => {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        // Cache data for 5 minutes before considering it stale
+        staleTime: 5 * 60 * 1000,
+        // Keep data in cache for 10 minutes
+        gcTime: 10 * 60 * 1000,
+        // Retry failed requests 2 times with exponential backoff
+        retry: 2,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        // Refetch data when window regains focus (for real-time updates)
+        refetchOnWindowFocus: true,
+        // Background refetch interval for critical data (every 2 minutes)
+        refetchInterval: 2 * 60 * 1000,
+        // Don't refetch on reconnect to reduce server load
+        refetchOnReconnect: false,
+      },
+      mutations: {
+        // Retry mutations once on failure
+        retry: 1,
+        retryDelay: 2000,
+      },
+    },
+  }));
 
   return (
     <QueryClientProvider client={queryClient}>

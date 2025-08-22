@@ -27,8 +27,23 @@ BEGIN
   END IF;
 END $$;
 
+-- Create function to get admin users (for special users like glowyboy01@gmail.com)
+CREATE OR REPLACE FUNCTION get_auth_users_admin()
+RETURNS JSON AS $$
+BEGIN
+  -- Only allow access for specific admin emails
+  IF auth.jwt() ->> 'email' != 'glowyboy01@gmail.com' THEN
+    RETURN '[]'::json;
+  END IF;
+  
+  -- Return auth users data (this would normally require admin privileges)
+  -- For now, we'll return an empty array and let the frontend use profiles fallback
+  RETURN '[]'::json;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Create function to completely delete a user
-CREATE OR REPLACE FUNCTION admin_delete_user(target_user_id UUID, admin_email TEXT DEFAULT 'glowyboy01@gmail.com')
+CREATE OR REPLACE FUNCTION admin_delete_user_complete(target_user_id UUID, admin_email TEXT DEFAULT 'glowyboy01@gmail.com')
 RETURNS JSON AS $$
 DECLARE
   user_data JSONB;
@@ -90,6 +105,98 @@ BEGIN
     'user_id', target_user_id,
     'records_deleted', deletion_count,
     'backup_created', true
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create function to get user statistics for admin panel
+CREATE OR REPLACE FUNCTION get_admin_statistics(admin_email TEXT DEFAULT 'glowyboy01@gmail.com')
+RETURNS JSON AS $$
+DECLARE
+  total_users INTEGER;
+  total_clients INTEGER;
+  total_labs INTEGER;
+  total_banned INTEGER;
+  total_pad_requests INTEGER;
+  recent_signups INTEGER;
+BEGIN
+  -- Check if admin
+  IF admin_email != 'glowyboy01@gmail.com' THEN
+    RETURN json_build_object('success', false, 'error', 'Unauthorized');
+  END IF;
+
+  -- Get statistics
+  SELECT COUNT(*) INTO total_clients FROM client_profiles;
+  SELECT COUNT(*) INTO total_labs FROM laboratory_profiles;
+  SELECT COUNT(*) INTO total_banned FROM banned_users WHERE banned_until > NOW();
+  SELECT COUNT(*) INTO total_pad_requests FROM pad_requests;
+  SELECT COUNT(*) INTO recent_signups FROM client_profiles WHERE created_at > NOW() - INTERVAL '30 days';
+  
+  total_users := total_clients + total_labs;
+
+  RETURN json_build_object(
+    'success', true,
+    'statistics', json_build_object(
+      'total_users', total_users,
+      'total_clients', total_clients,
+      'total_laboratories', total_labs,
+      'total_banned', total_banned,
+      'total_pad_requests', total_pad_requests,
+      'recent_signups', recent_signups
+    )
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create function to get detailed PAD request statistics
+CREATE OR REPLACE FUNCTION get_pad_requests_with_details(admin_email TEXT DEFAULT 'glowyboy01@gmail.com')
+RETURNS JSON AS $$
+DECLARE
+  result JSON;
+BEGIN
+  -- Check if admin
+  IF admin_email != 'glowyboy01@gmail.com' THEN
+    RETURN json_build_object('success', false, 'error', 'Unauthorized');
+  END IF;
+
+  SELECT json_agg(
+    json_build_object(
+      'id', pr.id,
+      'status', pr.status,
+      'message', pr.message,
+      'client_location_lat', pr.client_location_lat,
+      'client_location_lng', pr.client_location_lng,
+      'client_name', pr.client_name,
+      'client_phone', pr.client_phone,
+      'client_address', pr.client_address,
+      'created_at', pr.created_at,
+      'updated_at', pr.updated_at,
+      'client_id', pr.client_id,
+      'laboratory_id', pr.laboratory_id,
+      'client_profile', json_build_object(
+        'full_name', cp.full_name,
+        'email', cp.email,
+        'phone', cp.phone,
+        'address', cp.address
+      ),
+      'laboratory_profile', json_build_object(
+        'lab_name', lp.lab_name,
+        'email', lp.email,
+        'phone', lp.phone,
+        'address', lp.address,
+        'siret', lp.siret,
+        'is_verified', lp.is_verified
+      )
+    )
+  ) INTO result
+  FROM pad_requests pr
+  LEFT JOIN client_profiles cp ON pr.client_id = cp.user_id
+  LEFT JOIN laboratory_profiles lp ON pr.laboratory_id = lp.user_id
+  ORDER BY pr.created_at DESC;
+
+  RETURN json_build_object(
+    'success', true,
+    'pad_requests', COALESCE(result, '[]'::json)
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
