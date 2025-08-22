@@ -237,7 +237,7 @@ const AdminPanel: React.FC = () => {
       
       // Try simple query first without foreign key relationships
       const { data, error } = await supabase
-        .from('PAD_requests')
+        .from('pad_requests')
         .select('*');
       
       if (error) {
@@ -380,8 +380,8 @@ const AdminPanel: React.FC = () => {
     const checks = [
       { name: 'client_profiles', query: supabase.from('client_profiles').select('*').eq('user_id', userId) },
       { name: 'laboratory_profiles', query: supabase.from('laboratory_profiles').select('*').eq('user_id', userId) },
-      { name: 'PAD_requests (client)', query: supabase.from('PAD_requests').select('*').eq('client_id', userId) },
-      { name: 'PAD_requests (lab)', query: supabase.from('PAD_requests').select('*').eq('laboratory_id', userId) },
+      { name: 'pad_requests (client)', query: supabase.from('pad_requests').select('*').eq('client_id', userId) },
+      { name: 'pad_requests (lab)', query: supabase.from('pad_requests').select('*').eq('laboratory_id', userId) },
       { name: 'notifications', query: supabase.from('notifications').select('*').eq('user_id', userId) },
       { name: 'medical_results (client)', query: supabase.from('medical_results').select('*').eq('client_id', userId) },
       { name: 'medical_results (lab)', query: supabase.from('medical_results').select('*').eq('laboratory_id', userId) },
@@ -409,8 +409,8 @@ const AdminPanel: React.FC = () => {
     const deletions = [
       { name: 'client_profiles', promise: supabase.from('client_profiles').delete().eq('user_id', userId) },
       { name: 'laboratory_profiles', promise: supabase.from('laboratory_profiles').delete().eq('user_id', userId) },
-      { name: 'PAD_requests (client)', promise: supabase.from('PAD_requests').delete().eq('client_id', userId) },
-      { name: 'PAD_requests (lab)', promise: supabase.from('PAD_requests').delete().eq('laboratory_id', userId) },
+      { name: 'pad_requests (client)', promise: supabase.from('pad_requests').delete().eq('client_id', userId) },
+      { name: 'pad_requests (lab)', promise: supabase.from('pad_requests').delete().eq('laboratory_id', userId) },
       { name: 'notifications', promise: supabase.from('notifications').delete().eq('user_id', userId) },
       { name: 'medical_results (client)', promise: supabase.from('medical_results').delete().eq('client_id', userId) },
       { name: 'medical_results (lab)', promise: supabase.from('medical_results').delete().eq('laboratory_id', userId) },
@@ -659,8 +659,8 @@ const AdminPanel: React.FC = () => {
       ] = await Promise.all([
         safeFetch('client_profiles', supabase.from('client_profiles').select('*').eq('user_id', userId).single(), 'Client profile fetch'),
         safeFetch('laboratory_profiles', supabase.from('laboratory_profiles').select('*').eq('user_id', userId).single(), 'Lab profile fetch'),
-        safeFetch('PAD_requests (client)', supabase.from('PAD_requests').select('*').eq('client_id', userId), 'PAD requests as client fetch'),
-        safeFetch('PAD_requests (lab)', supabase.from('PAD_requests').select('*').eq('laboratory_id', userId), 'PAD requests as lab fetch'),
+        safeFetch('pad_requests (client)', supabase.from('pad_requests').select('*').eq('client_id', userId), 'PAD requests as client fetch'),
+        safeFetch('pad_requests (lab)', supabase.from('pad_requests').select('*').eq('laboratory_id', userId), 'PAD requests as lab fetch'),
         safeFetch('notifications', supabase.from('notifications').select('*').eq('user_id', userId), 'Notifications fetch'),
         safeFetch('medical_results (client)', supabase.from('medical_results').select('*').eq('client_id', userId), 'Medical results as client fetch'),
         safeFetch('medical_results (lab)', supabase.from('medical_results').select('*').eq('laboratory_id', userId), 'Medical results as lab fetch'),
