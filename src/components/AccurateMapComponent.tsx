@@ -1036,6 +1036,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                         key={lab.id}
                         position={[lab.latitude as number, lab.longitude as number]}
                         icon={lab.type === 'laboratory' ? labIcon : cliniqueIcon}
+                        title=""
                       >
                         <Popup>
                           <div style={{ minWidth: '200px' }}>
