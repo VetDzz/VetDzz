@@ -69,14 +69,13 @@ const labIcon = new L.Icon({
   popupAnchor: [0, -32],
 });
 
-// Custom clinique icon (green marker with medical cross symbol)
+// Custom clinique icon (green geolocation pin like laboratory)
 const cliniqueIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64=' + btoa(`
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#90EE90"/>
-      <circle cx="16" cy="10" r="6" fill="white" stroke="#228B22" stroke-width="1"/>
-      <rect x="14" y="6" width="4" height="8" fill="#228B22" rx="0.5"/>
-      <rect x="12" y="8" width="8" height="4" fill="#228B22" rx="0.5"/>
+      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#059669"/>
+      <circle cx="16" cy="10" r="5" fill="white"/>
+      <path d="M16 6l1.5 3h3l-2.5 2L19 14l-3-1.5L13 14l1-3-2.5-2h3L16 6z" fill="#059669"/>
     </svg>
   `),
   iconSize: [32, 32],
