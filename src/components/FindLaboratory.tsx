@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { searchLaboratories, supabase } from '@/lib/supabase';
-import MapComponent, { MapComponentHandles } from '@/components/MapComponent';
+import AccurateMapComponent from '@/components/AccurateMapComponent';
 import { useRef } from 'react';
 
 const FindLaboratory = () => {
@@ -20,7 +20,7 @@ const FindLaboratory = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
-  const mapRef = useRef<MapComponentHandles>(null);
+  const mapRef = useRef<any>(null);
 
   // Get user's current location
   useEffect(() => {
@@ -337,25 +337,7 @@ const FindLaboratory = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <MapComponent
-              ref={mapRef}
-              laboratories={laboratories.map(lab => ({
-                id: lab.id,
-                name: lab.lab_name,
-                address: `${lab.address}, ${lab.city}`,
-                phone: lab.phone,
-                lat: lab.latitude || 48.8566,
-                lng: lab.longitude || 2.3522,
-                services: lab.services_offered || []
-              }))}
-              onLocationSelect={(lat, lng) => {
-                console.log('Location selected:', lat, lng);
-                setUserLocation({ lat, lng });
-                // Don't reload laboratories immediately, just update location for distance calculation
-              }}
-              mode="view"
-              height="500px"
-            />
+            <AccurateMapComponent height="500px" />
           </motion.div>
 
           {/* Laboratory Results */}
