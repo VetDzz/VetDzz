@@ -939,7 +939,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
             size="sm"
             className={`h-8 px-3 text-xs ${
               filterType === 'laboratory'
-                ? 'bg-green-600 text-white hover:bg-green-700'
+                ? 'bg-laboratory-primary text-laboratory-dark hover:bg-laboratory-accent'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
@@ -1045,14 +1045,14 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                         <Popup>
                           <div style={{ minWidth: '200px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                              <h3 style={{ margin: '0', color: lab.type === 'laboratory' ? '#059669' : '#2563EB', fontSize: '16px', fontWeight: 'bold' }}>
+                              <h3 style={{ margin: '0', color: lab.type === 'laboratory' ? '#059669' : '#228B22', fontSize: '16px', fontWeight: 'bold' }}>
                                 {lab.name}
                               </h3>
                               <span style={{
                                 marginLeft: '8px',
                                 padding: '2px 6px',
-                                backgroundColor: lab.type === 'laboratory' ? '#059669' : '#2563EB',
-                                color: 'white',
+                                backgroundColor: lab.type === 'laboratory' ? '#059669' : '#90EE90',
+                                color: lab.type === 'laboratory' ? 'white' : '#228B22',
                                 fontSize: '10px',
                                 borderRadius: '4px',
                                 textTransform: 'uppercase'
@@ -1077,8 +1077,8 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                             <button
                               onClick={() => getDirections(lab)}
                               style={{
-                                background: lab.type === 'laboratory' ? '#059669' : '#2563EB',
-                                color: 'white',
+                                background: lab.type === 'laboratory' ? '#059669' : '#90EE90',
+                                color: lab.type === 'laboratory' ? 'white' : '#228B22',
                                 border: 'none',
                                 padding: '8px 16px',
                                 borderRadius: '4px',
