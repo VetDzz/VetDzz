@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase, signIn, signUp, signOut, getCurrentUser, createClientProfile, createLaboratoryProfile, createNotification, subscribeToUserChanges, checkUserExists } from '@/lib/supabase';
 import { getAuthRedirectUrl } from '@/utils/urlConfig';
 
-export type UserType = 'client' | 'laboratory';
+export type UserType = 'client' | 'laboratory' | 'clinique';
 
 export interface User {
   id: string;
@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.log('✅ Client profile created successfully:', profileData);
           // No success alert for client
         }
-      } else {
+      } else if (userType === 'laboratory') {
         console.log('Creating laboratory profile with data:', {
           user_id: userId,
           laboratory_name: userData.labName,
@@ -118,6 +118,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } else {
           console.log('✅ Laboratory profile created successfully:', profileData);
           // No success alert for laboratory
+        }
+      } else if (userType === 'clinique') {
+        console.log('Creating clinique profile with data:', {
+          user_id: userId,
+          laboratory_name: userData.labName,
+          email: userData.email,
+          phone: userData.phone,
+          address: userData.address,
+          city: userData.city,
+          postal_code: userData.postalCode,
+          latitude: userData.latitude,
+          longitude: userData.longitude,
+          opening_hours: userData.openingHours,
+          description: userData.description,
+          opening_days: Array.isArray(userData.openingDays) ? userData.openingDays : undefined
+        });
+
+        // Build payload only with defined fields to avoid overwriting existing data with null/empty
+        const cliniquePayload: any = { user_id: userId, is_verified: true };
+        if (userData.labName) { cliniquePayload.laboratory_name = userData.labName; cliniquePayload.lab_name = userData.labName; }
+        if (userData.email) cliniquePayload.email = userData.email;
+        if (userData.phone) cliniquePayload.phone = userData.phone;
+        if (userData.address) cliniquePayload.address = userData.address;
+
+        if (typeof userData.latitude === 'number') cliniquePayload.latitude = userData.latitude;
+        if (typeof userData.longitude === 'number') cliniquePayload.longitude = userData.longitude;
+        if (userData.openingHours) cliniquePayload.opening_hours = userData.openingHours;
+        if (Array.isArray(userData.openingDays)) cliniquePayload.opening_days = userData.openingDays;
+        if (typeof userData.description === 'string') cliniquePayload.description = userData.description;
+
+        // Insert or update clinique profile (handle duplicates) without null clobbering
+        const { data: profileData, error: profileError } = await supabase
+          .from('clinique_profiles')
+          .upsert([cliniquePayload], {
+            onConflict: 'user_id'
+          })
+          .select();
+
+        if (profileError) {
+          console.error('❌ Clinique profile creation FAILED:', profileError);
+          console.error('Error message:', profileError.message);
+          console.error('Error details:', profileError.details);
+          console.error('Error hint:', profileError.hint);
+          alert(`❌ Clinique profile creation failed: ${profileError.message}`);
+        } else {
+          console.log('✅ Clinique profile created successfully:', profileData);
+          // No success alert for clinique
         }
       }
     } catch (profileError) {

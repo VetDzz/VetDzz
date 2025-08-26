@@ -82,12 +82,24 @@ interface LabProfile {
   user_id: string;
 }
 
+interface CliniqueProfile {
+  id: string;
+  lab_name: string; // Same field names as laboratory for compatibility
+  laboratory_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  is_verified: boolean;
+  user_id: string;
+}
+
 const AdminPanel: React.FC = () => {
   const { toast } = useToast();
   const { checkBanStatus } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [clientProfiles, setClientProfiles] = useState<UserProfile[]>([]);
   const [labProfiles, setLabProfiles] = useState<LabProfile[]>([]);
+  const [cliniqueProfiles, setCliniqueProfiles] = useState<CliniqueProfile[]>([]);
   const [padRequests, setPadRequests] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -161,9 +173,10 @@ const AdminPanel: React.FC = () => {
       console.log('📋 Fallback: Fetching users from profiles...');
 
       // Fetch users from profiles since we can't access auth.users directly
-      const [clientsResult, labsResult] = await Promise.all([
+      const [clientsResult, labsResult, cliniquesResult] = await Promise.all([
         supabase.from('client_profiles').select('*'),
-        supabase.from('laboratory_profiles').select('*')
+        supabase.from('laboratory_profiles').select('*'),
+        supabase.from('clinique_profiles').select('*')
       ]);
 
       // Combine and format user data
@@ -199,6 +212,21 @@ const AdminPanel: React.FC = () => {
         });
       }
 
+      if (cliniquesResult.data) {
+        cliniquesResult.data.forEach(profile => {
+          allUsers.push({
+            id: profile.user_id,
+            email: profile.email,
+            created_at: profile.created_at,
+            last_sign_in_at: profile.created_at,
+            user_metadata: {
+              type: 'clinique',
+              full_name: profile.lab_name || profile.laboratory_name
+            }
+          });
+        });
+      }
+
       setUsers(allUsers);
       console.log(`📊 Loaded ${allUsers.length} users from profiles`);
     } catch (error) {
@@ -213,13 +241,15 @@ const AdminPanel: React.FC = () => {
 
   const fetchProfiles = async () => {
     try {
-      const [clientsResult, labsResult] = await Promise.all([
+      const [clientsResult, labsResult, cliniquesResult] = await Promise.all([
         supabase.from('client_profiles').select('*'),
-        supabase.from('laboratory_profiles').select('*')
+        supabase.from('laboratory_profiles').select('*'),
+        supabase.from('clinique_profiles').select('*')
       ]);
 
       if (clientsResult.data) setClientProfiles(clientsResult.data);
       if (labsResult.data) setLabProfiles(labsResult.data);
+      if (cliniquesResult.data) setCliniqueProfiles(cliniquesResult.data);
     } catch (error) {
       toast({
         title: "Erreur",
@@ -569,13 +599,16 @@ const AdminPanel: React.FC = () => {
   const getFilteredUsers = (filter: string) => {
     let filtered = users.filter(user => {
       const profile = getUserProfile(user.id);
+      const cliniqueProfile = cliniqueProfiles.find(p => p.user_id === user.id);
       const searchLower = searchTerm.toLowerCase();
       
       const matchesSearch = (
         user.email?.toLowerCase().includes(searchLower) ||
         profile?.full_name?.toLowerCase().includes(searchLower) ||
         profile?.phone?.includes(searchTerm) ||
-        (profile as LabProfile)?.lab_name?.toLowerCase().includes(searchLower)
+        (profile as LabProfile)?.lab_name?.toLowerCase().includes(searchLower) ||
+        (cliniqueProfile as CliniqueProfile)?.lab_name?.toLowerCase().includes(searchLower) ||
+        (cliniqueProfile as CliniqueProfile)?.laboratory_name?.toLowerCase().includes(searchLower)
       );
       
       if (!matchesSearch) return false;
@@ -585,6 +618,8 @@ const AdminPanel: React.FC = () => {
           return clientProfiles.some(cp => cp.user_id === user.id);
         case 'laboratories':
           return labProfiles.some(lp => lp.user_id === user.id);
+        case 'cliniques':
+          return cliniqueProfiles.some(cp => cp.user_id === user.id);
         case 'banned':
           return isUserBanned(user);
         default:
@@ -772,7 +807,7 @@ const AdminPanel: React.FC = () => {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
@@ -801,25 +836,29 @@ const AdminPanel: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-sm hover:shadow-md transition-all duration-200">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <Building2 className="w-8 h-8 text-purple-600" />
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Building2 className="w-6 h-6 text-purple-600" />
+                  </div>
                   <div>
-                    <p className="text-sm text-gray-600">Laboratoires</p>
-                    <p className="text-2xl font-bold">{labProfiles.length}</p>
+                    <p className="text-sm text-gray-600 font-medium">Laboratoires</p>
+                    <p className="text-2xl font-bold text-purple-700">{labProfiles.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200 shadow-sm hover:shadow-md transition-all duration-200">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <Ban className="w-8 h-8 text-red-600" />
+                  <div className="p-2 bg-indigo-100 rounded-lg">
+                    <Building2 className="w-6 h-6 text-indigo-600" />
+                  </div>
                   <div>
-                    <p className="text-sm text-gray-600">Utilisateurs Bannis</p>
-                    <p className="text-2xl font-bold">{users.filter(isUserBanned).length}</p>
+                    <p className="text-sm text-gray-600 font-medium">Cliniques</p>
+                    <p className="text-2xl font-bold text-indigo-700">{cliniqueProfiles.length}</p>
                   </div>
                 </div>
               </CardContent>
@@ -857,7 +896,7 @@ const AdminPanel: React.FC = () => {
             </CardHeader>
             <CardContent>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsList className="grid w-full grid-cols-5 mb-6">
                   <TabsTrigger value="all" className="flex items-center gap-2">
                     <Users className="w-4 h-4" />
                     Tous ({users.length})
@@ -869,6 +908,10 @@ const AdminPanel: React.FC = () => {
                   <TabsTrigger value="laboratories" className="flex items-center gap-2">
                     <Building2 className="w-4 h-4" />
                     Labos ({labProfiles.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="cliniques" className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4" />
+                    Cliniques ({cliniqueProfiles.length})
                   </TabsTrigger>
                   <TabsTrigger value="banned" className="flex items-center gap-2">
                     <Ban className="w-4 h-4" />

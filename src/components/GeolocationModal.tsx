@@ -20,6 +20,7 @@ L.Icon.Default.mergeOptions({
 interface LaboratoryLocationFormProps {
   isOpen: boolean;
   userData: any;
+  userType?: 'laboratory' | 'clinique';
   onComplete: (data: any) => void;
   onBack: () => void;
 }
@@ -44,6 +45,7 @@ const LocationSelector: React.FC<{
 const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
   isOpen,
   userData,
+  userType = 'laboratory',
   onComplete,
   onBack
 }) => {
@@ -67,7 +69,7 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
       return;
     }
     if (!labName.trim()) {
-      alert('Veuillez entrer le nom de votre laboratoire');
+      alert(userType === 'clinique' ? 'Veuillez entrer le nom de votre clinique' : 'Veuillez entrer le nom de votre laboratoire');
       return;
     }
 
@@ -105,11 +107,14 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
             >
               {/* Header */}
               <div className="text-center">
-                <h1 className="text-3xl font-bold text-laboratory-dark mb-2">
-                  Localisation de votre Laboratoire
+                <h1 className={`text-3xl font-bold mb-2 ${userType === 'clinique' ? 'text-blue-600' : 'text-laboratory-dark'}`}>
+                  {userType === 'clinique' ? 'Localisation de votre Clinique' : 'Localisation de votre Laboratoire'}
                 </h1>
                 <p className="text-gray-600">
-                  Sélectionnez l'emplacement exact de votre laboratoire sur la carte
+                  {userType === 'clinique' 
+                    ? 'Sélectionnez l\'emplacement exact de votre clinique sur la carte'
+                    : 'Sélectionnez l\'emplacement exact de votre laboratoire sur la carte'
+                  }
                 </p>
               </div>
 
@@ -119,17 +124,17 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <Building className="w-5 h-5 mr-2" />
-                      Informations du Laboratoire
+                      {userType === 'clinique' ? 'Informations de la Clinique' : 'Informations du Laboratoire'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor="labName">Nom du Laboratoire *</Label>
+                      <Label htmlFor="labName">{userType === 'clinique' ? 'Nom de la Clinique *' : 'Nom du Laboratoire *'}</Label>
                       <Input
                         id="labName"
                         value={labName}
                         onChange={(e) => setLabName(e.target.value)}
-                        placeholder="Ex: Laboratoire Central"
+                        placeholder={userType === 'clinique' ? 'Ex: Clinique Médicale Centrale' : 'Ex: Laboratoire Central'}
                       />
                     </div>
 
@@ -232,7 +237,10 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
                       Sélectionner l'Emplacement
                     </CardTitle>
                     <p className="text-sm text-gray-600">
-                      Cliquez sur la carte pour marquer votre laboratoire
+                      {userType === 'clinique' 
+                        ? 'Cliquez sur la carte pour marquer votre clinique'
+                        : 'Cliquez sur la carte pour marquer votre laboratoire'
+                      }
                     </p>
                   </CardHeader>
                   <CardContent>

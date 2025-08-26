@@ -17,7 +17,7 @@ import { supabase } from '@/lib/supabase';
 
 const AuthSection = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [userType, setUserType] = useState<'client' | 'laboratory'>('client');
+  const [userType, setUserType] = useState<'client' | 'laboratory' | 'clinique'>('client');
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -95,7 +95,7 @@ const AuthSection = () => {
         ...locationData
       };
 
-      const success = await register(userDataWithLocation, 'laboratory');
+      const success = await register(userDataWithLocation, userType === 'clinique' ? 'clinique' : 'laboratory');
 
       if (success) {
         setShowLocationForm(false);
@@ -147,7 +147,15 @@ const AuthSection = () => {
         // Navigate based on the actual user type from the database
         const actualUserType = result.userType || 'client';
         console.log('Navigating to home page for user type:', actualUserType);
-        navigate(actualUserType === 'laboratory' ? '/laboratory-home' : '/');
+        
+        // Navigate to appropriate dashboard based on user type
+        if (actualUserType === 'laboratory') {
+          navigate('/laboratory-home');
+        } else if (actualUserType === 'clinique') {
+          navigate('/clinique-home');
+        } else {
+          navigate('/');
+        }
       } else {
         toast({
           title: "Erreur de connexion",
@@ -178,8 +186,8 @@ const AuthSection = () => {
     console.log('User type:', userType);
 
     try {
-      // For laboratory users, DON'T register yet - show location form first
-      if (userType === 'laboratory') {
+      // For laboratory and clinique users, DON'T register yet - show location form first
+      if (userType === 'laboratory' || userType === 'clinique') {
         setPendingLabData(userData);
         setShowLocationForm(true);
         // No registration yet, no toast
@@ -301,8 +309,8 @@ const AuthSection = () => {
                   </form>
                 ) : (
                   <form className="space-y-6" onSubmit={handleRegister}>
-                    <Tabs value={userType} onValueChange={(value) => setUserType(value as 'client' | 'laboratory')}>
-                      <TabsList className="grid w-full grid-cols-2">
+                    <Tabs value={userType} onValueChange={(value) => setUserType(value as 'client' | 'laboratory' | 'clinique')}>
+                      <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="client" className="flex items-center">
                           <User className="w-4 h-4 mr-2" />
                           {t('auth.client')}
@@ -310,6 +318,10 @@ const AuthSection = () => {
                         <TabsTrigger value="laboratory" className="flex items-center">
                           <Building2 className="w-4 h-4 mr-2" />
                           {t('auth.laboratory')}
+                        </TabsTrigger>
+                        <TabsTrigger value="clinique" className="flex items-center">
+                          <Building2 className="w-4 h-4 mr-2" />
+                          {t('auth.clinique')}
                         </TabsTrigger>
                       </TabsList>
                       
@@ -566,6 +578,124 @@ const AuthSection = () => {
                           </Label>
                         </div>
                       </TabsContent>
+                      
+                      <TabsContent value="clinique" className="space-y-4 mt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="cliniqueLabName">{t('auth.cliniqueName')}</Label>
+                          <Input
+                            id="cliniqueLabName"
+                            name="labName"
+                            placeholder="Clinique Centrale"
+                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cliniqueEmail">{t('auth.professionalEmail')}</Label>
+                          <Input
+                            id="cliniqueEmail"
+                            name="email"
+                            type="email"
+                            placeholder="contact@clinique.com"
+                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cliniquePhone">{t('auth.phone')}</Label>
+                          <Input
+                            id="cliniquePhone"
+                            name="phone"
+                            type="tel"
+                            placeholder="+33 1 23 45 67 89"
+                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            required
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="cliniqueAddress">{t('auth.address')}</Label>
+                          <Input
+                            id="cliniqueAddress"
+                            name="address"
+                            placeholder="123 Rue de la Santé"
+                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            required
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="cliniquePassword">{t('auth.password')}</Label>
+                          <Input
+                            id="cliniquePassword"
+                            name="password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => handlePasswordChange(e.target.value)}
+                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cliniqueConfirmPassword">Confirmer le mot de passe</Label>
+                          <Input
+                            id="cliniqueConfirmPassword"
+                            name="confirmPassword"
+                            type="password"
+                            placeholder="••••••••"
+                            value={confirmPassword}
+                            onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            required
+                          />
+                        </div>
+
+                        {/* Password validation indicators */}
+                        {password && (
+                          <div className="space-y-2 p-3 bg-gray-50 rounded-md">
+                            <p className="text-sm font-medium text-gray-700">Exigences du mot de passe:</p>
+                            <div className="space-y-1">
+                              <div className={`flex items-center text-xs ${passwordValidation.length ? 'text-green-600' : 'text-red-600'}`}>
+                                {passwordValidation.length ? '✓' : '✗'} Au moins 8 caractères
+                              </div>
+                              <div className={`flex items-center text-xs ${passwordValidation.uppercase ? 'text-green-600' : 'text-red-600'}`}>
+                                {passwordValidation.uppercase ? '✓' : '✗'} Une lettre majuscule
+                              </div>
+                              <div className={`flex items-center text-xs ${passwordValidation.lowercase ? 'text-green-600' : 'text-red-600'}`}>
+                                {passwordValidation.lowercase ? '✓' : '✗'} Une lettre minuscule
+                              </div>
+                              <div className={`flex items-center text-xs ${passwordValidation.number ? 'text-green-600' : 'text-red-600'}`}>
+                                {passwordValidation.number ? '✓' : '✗'} Un chiffre
+                              </div>
+                              <div className={`flex items-center text-xs ${passwordValidation.match ? 'text-green-600' : 'text-red-600'}`}>
+                                {passwordValidation.match ? '✓' : '✗'} Les mots de passe correspondent
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center space-x-2">
+                          <TermsModal type="laboratory" onAccept={() => setLabTermsAccepted(true)}>
+                            <input
+                              type="checkbox"
+                              id="cliniqueTerms"
+                              name="agreeToTerms"
+                              required
+                              className="rounded border-laboratory-muted cursor-pointer"
+                              checked={labTermsAccepted}
+                              readOnly
+                            />
+                          </TermsModal>
+                          <Label htmlFor="cliniqueTerms" className="text-sm">
+                            <TermsModal type="laboratory" onAccept={() => setLabTermsAccepted(true)}>
+                              <span className="text-laboratory-dark hover:underline cursor-pointer">
+                                {t('auth.professionalTerms')}
+                              </span>
+                            </TermsModal>
+                            <span className="text-red-500 ml-1">*</span>
+                          </Label>
+                        </div>
+                      </TabsContent>
                     </Tabs>
 
                     <Button
@@ -575,11 +705,11 @@ const AuthSection = () => {
                         isLoading ||
                         (password && !Object.values(passwordValidation).every(Boolean)) ||
                         (userType === 'client' && !clientTermsAccepted) ||
-                        (userType === 'laboratory' && !labTermsAccepted)
+                        ((userType === 'laboratory' || userType === 'clinique') && !labTermsAccepted)
                       }
                       size="default"
                     >
-                      {isLoading ? 'Création...' : `${t('auth.createAccount')} ${userType === 'client' ? t('auth.client').toLowerCase() : t('auth.laboratory').toLowerCase()}`}
+                      {isLoading ? 'Création...' : `${t('auth.createAccount')} ${userType === 'client' ? t('auth.client').toLowerCase() : userType === 'laboratory' ? t('auth.laboratory').toLowerCase() : t('auth.clinique').toLowerCase()}`}
                     </Button>
                   </form>
                 )}
@@ -608,6 +738,7 @@ const AuthSection = () => {
       <LaboratoryLocationForm
         isOpen={showLocationForm}
         userData={pendingLabData}
+        userType={userType}
         onComplete={handleLocationComplete}
         onBack={() => {
           setShowLocationForm(false);

@@ -36,8 +36,10 @@ import UserRemovalNotice from "./components/UserRemovalNotice";
 import BannedPage from "./pages/BannedPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LaboratoryRegistration from "./components/LaboratoryRegistration";
+import CliniqueRegistration from "./components/CliniqueRegistration";
 import LaboratoryHomePage from "./pages/LaboratoryHomePage";
 import DatabaseStatus from "./pages/DatabaseStatus";
+import CliniqueHome from "./components/CliniqueHome";
 
 
 import AdminPage from "./pages/AdminPage";
@@ -105,9 +107,19 @@ const App = () => {
                       <LaboratoryRegistration />
                     </ProtectedRoute>
                   } />
+                  <Route path="/clinique-registration" element={
+                    <ProtectedRoute>
+                      <CliniqueRegistration />
+                    </ProtectedRoute>
+                  } />
                   <Route path="/laboratory-home" element={
                     <ProtectedRoute>
                       <LaboratoryHomePage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/clinique-home" element={
+                    <ProtectedRoute>
+                      <CliniqueHome />
                     </ProtectedRoute>
                   } />
                   <Route path="/services/blood-tests" element={<BloodTestsService />} />

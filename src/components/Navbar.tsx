@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const handleFindLaboratory = () => {
     if (isAuthenticated) {
-      if (user?.type === 'laboratory') {
+      if (user?.type === 'laboratory' || user?.type === 'clinique') {
         navigate('/laboratory-dashboard?tab=clients'); // Go to client search tab
       } else {
         navigate('/find-laboratory');
@@ -91,7 +91,7 @@ const Navbar = () => {
                     onClick={handleFindLaboratory}
                     className={cn(navigationMenuTriggerStyle(), isScrolled ? "text-gray-700 hover:text-gray-900" : "text-white hover:text-gray-100 bg-transparent hover:bg-laboratory-dark")}
                   >
-                    {user?.type === 'laboratory' ? t('nav.findClient') : t('nav.findLab')}
+                    {(user?.type === 'laboratory' || user?.type === 'clinique') ? t('nav.findClient') : t('nav.findLab')}
                   </button>
                 </NavigationMenuItem>
 
@@ -107,7 +107,7 @@ const Navbar = () => {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {user?.type === 'laboratory' && (
+                {(user?.type === 'laboratory' || user?.type === 'clinique') && (
                   <NavigationMenuItem>
                     <NavigationMenuLink asChild>
                       <Link
@@ -195,7 +195,7 @@ const Navbar = () => {
             {t('nav.results')}
           </Link>
 
-          {user?.type === 'laboratory' && (
+          {(user?.type === 'laboratory' || user?.type === 'clinique') && (
             <Link to="/laboratory-dashboard?tab=requests" className="block px-3 py-3 rounded-md text-sm min-h-[44px] flex items-center touch-manipulation text-gray-700 hover:bg-gray-50 active:bg-gray-100" onClick={() => {
               setIsMenuOpen(false);
               window.scrollTo(0, 0);

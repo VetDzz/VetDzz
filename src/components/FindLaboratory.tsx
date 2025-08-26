@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, Clock, Star, Navigation, Loader2, Send } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Phone, Clock, Star, Navigation, Loader2, Send, Building2, Stethoscope } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -296,10 +297,10 @@ const FindLaboratory = () => {
         >
           <motion.div className="text-center mb-12" variants={itemVariants}>
             <h2 className="text-3xl font-bold text-laboratory-dark mb-4">
-              {t('findLab.title')}
+              Trouver des Laboratoires et Cliniques
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              {t('findLab.subtitle')}
+              Localisez facilement des laboratoires et cliniques près de chez vous pour vos analyses médicales
             </p>
           </motion.div>
 
@@ -383,6 +384,24 @@ const FindLaboratory = () => {
                             <span className="ml-1 text-sm text-gray-600">{lab.rating?.toFixed(1)}</span>
                           </div>
                         </CardTitle>
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge 
+                            variant={lab.provider_type === 'clinique' ? 'secondary' : 'default'} 
+                            className="flex items-center gap-1"
+                          >
+                            {lab.provider_type === 'clinique' ? (
+                              <>
+                                <Stethoscope className="w-3 h-3" />
+                                Clinique
+                              </>
+                            ) : (
+                              <>
+                                <Building2 className="w-3 h-3" />
+                                Laboratoire
+                              </>
+                            )}
+                          </Badge>
+                        </div>
                         <CardDescription className="flex items-center text-gray-600">
                           <MapPin className="w-4 h-4 mr-1" />
                           {lab.address || 'Adresse non disponible'}, {lab.city || 'Ville non disponible'}

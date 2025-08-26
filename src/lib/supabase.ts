@@ -335,12 +335,48 @@ export const checkUserExists = async (userId: string) => {
   return true;
 };
 
-// Laboratory search functions
+// Laboratory and clinique search functions
 export const searchLaboratories = async (city?: string, services?: string[]) => {
+  // Search both laboratories and cliniques using the combined view
+  let query = supabase
+    .from('all_service_providers')
+    .select('*');
+  
+  if (city) {
+    query = query.ilike('city', `%${city}%`);
+  }
+  
+  if (services && services.length > 0) {
+    query = query.overlaps('services_offered', services);
+  }
+  
+  const { data, error } = await query;
+  return { data, error };
+};
+
+// Function to get only laboratories
+export const searchOnlyLaboratories = async (city?: string, services?: string[]) => {
   let query = supabase
     .from('laboratory_profiles')
-    .select('*')
-    .eq('is_verified', true);
+    .select('*');
+  
+  if (city) {
+    query = query.ilike('city', `%${city}%`);
+  }
+  
+  if (services && services.length > 0) {
+    query = query.overlaps('services_offered', services);
+  }
+  
+  const { data, error } = await query;
+  return { data, error };
+};
+
+// Function to get only cliniques
+export const searchOnlyCliniques = async (city?: string, services?: string[]) => {
+  let query = supabase
+    .from('clinique_profiles')
+    .select('*');
   
   if (city) {
     query = query.ilike('city', `%${city}%`);

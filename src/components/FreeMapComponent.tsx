@@ -136,8 +136,7 @@ const FreeMapComponent: React.FC<FreeMapComponentProps> = ({
       console.log('Fetching laboratories from database...');
       const { data: labs, error } = await supabase
         .from('laboratory_profiles')
-        .select('*')
-        .eq('is_verified', true);
+        .select('*');
 
       if (error) {
         console.error('Error fetching laboratories:', error);

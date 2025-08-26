@@ -21,17 +21,22 @@ L.Icon.Default.mergeOptions({
 
 interface Laboratory {
   id: number;
-  laboratory_name: string;
+  laboratory_name?: string;
+  clinique_name?: string;
+  name: string; // computed field for display
+  type: 'laboratory' | 'clinique';
   address: string;
   phone: string;
   latitude?: number | string | null;
   longitude?: number | string | null;
   city: string;
   services_offered?: string[];
+  specialities?: string[]; // for cliniques
   opening_hours?: string;
   opening_days?: string[];
   rating?: number;
   distance?: number;
+  user_id?: string;
 }
 
 interface AccurateMapComponentProps {
@@ -57,6 +62,20 @@ const labIcon = new L.Icon({
       <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#059669"/>
       <circle cx="16" cy="10" r="5" fill="white"/>
       <path d="M16 6l1.5 3h3l-2.5 2L19 14l-3-1.5L13 14l1-3-2.5-2h3L16 6z" fill="#059669"/>
+    </svg>
+  `),
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+// Custom clinique icon (blue marker)
+const cliniqueIcon = new L.Icon({
+  iconUrl: 'data:image/svg+xml;base64=' + btoa(`
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#2563EB"/>
+      <circle cx="16" cy="10" r="5" fill="white"/>
+      <path d="M16 5v10M11 10h10" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
     </svg>
   `),
   iconSize: [32, 32],
@@ -103,6 +122,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
   const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
   const [selectedLab, setSelectedLab] = useState<Laboratory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [filterType, setFilterType] = useState<'all' | 'laboratory' | 'clinique'>('all');
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const { user } = useAuth();
@@ -618,20 +638,50 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
   const fetchLaboratories = async () => {
     try {
-      console.log('Fetching laboratories from database...');
-      const { data: labs, error } = await supabase
-        .from('laboratory_profiles')
-        .select('*');
+      console.log('Fetching laboratories and cliniques from database...');
+      
+      // Fetch both laboratories and cliniques in parallel
+      const [labResponse, cliniqueResponse] = await Promise.all([
+        supabase.from('laboratory_profiles').select('*'),
+        supabase.from('clinique_profiles').select('*')
+      ]);
 
-      if (error) {
-        console.error('Error fetching laboratories:', error);
-        setLaboratories([]);
-      } else {
-        console.log('Fetched laboratories:', labs);
-        setLaboratories(labs || []);
+      let allLocations: Laboratory[] = [];
+
+      // Process laboratories
+      if (labResponse.data && !labResponse.error) {
+        const laboratories = labResponse.data.map((lab: any) => ({
+          ...lab,
+          name: lab.laboratory_name,
+          type: 'laboratory' as const,
+          city: lab.address?.split(',').pop()?.trim() || 'Batna' // Extract city from address or default
+        }));
+        allLocations = [...allLocations, ...laboratories];
+        console.log('Fetched laboratories:', laboratories.length);
+      } else if (labResponse.error) {
+        console.error('Error fetching laboratories:', labResponse.error);
       }
+
+      // Process cliniques
+      if (cliniqueResponse.data && !cliniqueResponse.error) {
+        const cliniques = cliniqueResponse.data.map((clinique: any) => ({
+          ...clinique,
+          name: clinique.clinique_name,
+          type: 'clinique' as const,
+          laboratory_name: clinique.clinique_name, // For compatibility
+          city: clinique.address?.split(',').pop()?.trim() || 'Batna' // Extract city from address or default
+        }));
+        allLocations = [...allLocations, ...cliniques];
+        console.log('Fetched cliniques:', cliniques.length);
+      } else if (cliniqueResponse.error) {
+        console.error('Error fetching cliniques:', cliniqueResponse.error);
+      }
+
+      console.log('Total locations fetched:', allLocations.length);
+      setLaboratories(allLocations);
+      
     } catch (error) {
-      console.error('Error fetching laboratories:', error);
+      console.error('Error fetching locations:', error);
       setLaboratories([]);
     } finally {
       setIsLoading(false);
@@ -786,8 +836,14 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
 
 
-  const labsWithDistance = userLocation && laboratories.length > 0
-    ? laboratories
+  // Filter laboratories based on selected filter type
+  const filteredLaboratories = laboratories.filter(lab => {
+    if (filterType === 'all') return true;
+    return lab.type === filterType;
+  });
+
+  const labsWithDistance = userLocation && filteredLaboratories.length > 0
+    ? filteredLaboratories
         .map(lab => {
           const lat = typeof lab.latitude === 'string' ? parseFloat(lab.latitude) : lab.latitude;
           const lng = typeof lab.longitude === 'string' ? parseFloat(lab.longitude) : lab.longitude;
@@ -807,7 +863,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           const db = typeof b.distance === 'number' ? b.distance : Number.POSITIVE_INFINITY;
           return da - db;
         })
-    : laboratories;
+    : filteredLaboratories;
 
   const mapCenter: [number, number] = userLocation
     ? [userLocation.lat, userLocation.lng]
@@ -862,6 +918,46 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           <Navigation className="w-4 h-4 mr-2" />
           {t('map.goToMyPlace')}
         </Button>
+
+        {/* Filter Controls */}
+        <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md">
+          <Button
+            onClick={() => setFilterType('all')}
+            variant={filterType === 'all' ? 'default' : 'ghost'}
+            size="sm"
+            className={`h-8 px-3 text-xs ${
+              filterType === 'all'
+                ? 'bg-laboratory-primary text-white hover:bg-laboratory-accent'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Tous ({laboratories.length})
+          </Button>
+          <Button
+            onClick={() => setFilterType('laboratory')}
+            variant={filterType === 'laboratory' ? 'default' : 'ghost'}
+            size="sm"
+            className={`h-8 px-3 text-xs ${
+              filterType === 'laboratory'
+                ? 'bg-green-600 text-white hover:bg-green-700'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Laboratoires ({laboratories.filter(l => l.type === 'laboratory').length})
+          </Button>
+          <Button
+            onClick={() => setFilterType('clinique')}
+            variant={filterType === 'clinique' ? 'default' : 'ghost'}
+            size="sm"
+            className={`h-8 px-3 text-xs ${
+              filterType === 'clinique'
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Cliniques ({laboratories.filter(l => l.type === 'clinique').length})
+          </Button>
+        </div>
 
         {userLocation && (
           <div className={`flex items-center text-sm text-gray-600 px-3 py-2 rounded-md ${getAccuracyColor()}`}>
@@ -937,20 +1033,33 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                     </Marker>
                   )}
 
-                  {/* Laboratory markers (only render when coordinates are valid) */}
+                  {/* Laboratory and Clinique markers (only render when coordinates are valid) */}
                   {labsWithDistance
                     .filter(lab => typeof lab.latitude === 'number' && !isNaN(lab.latitude as any) && typeof lab.longitude === 'number' && !isNaN(lab.longitude as any))
                     .map((lab) => (
                       <Marker
                         key={lab.id}
                         position={[lab.latitude as number, lab.longitude as number]}
-                        icon={labIcon}
+                        icon={lab.type === 'laboratory' ? labIcon : cliniqueIcon}
                       >
                         <Popup>
                           <div style={{ minWidth: '200px' }}>
-                            <h3 style={{ margin: '0 0 8px 0', color: '#059669', fontSize: '16px', fontWeight: 'bold' }}>
-                              {lab.laboratory_name}
-                            </h3>
+                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                              <h3 style={{ margin: '0', color: lab.type === 'laboratory' ? '#059669' : '#2563EB', fontSize: '16px', fontWeight: 'bold' }}>
+                                {lab.name}
+                              </h3>
+                              <span style={{
+                                marginLeft: '8px',
+                                padding: '2px 6px',
+                                backgroundColor: lab.type === 'laboratory' ? '#059669' : '#2563EB',
+                                color: 'white',
+                                fontSize: '10px',
+                                borderRadius: '4px',
+                                textTransform: 'uppercase'
+                              }}>
+                                {lab.type === 'laboratory' ? 'Laboratoire' : 'Clinique'}
+                              </span>
+                            </div>
                             <p style={{ margin: '0 0 5px 0', color: '#666', fontSize: '14px' }}>
                               📍 {lab.address}, {lab.city}
                             </p>
@@ -968,7 +1077,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                             <button
                               onClick={() => getDirections(lab)}
                               style={{
-                                background: '#059669',
+                                background: lab.type === 'laboratory' ? '#059669' : '#2563EB',
                                 color: 'white',
                                 border: 'none',
                                 padding: '8px 16px',
@@ -1100,8 +1209,19 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                   }}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium text-laboratory-dark">{lab.laboratory_name}</h4>
-
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-laboratory-dark">{lab.name}</h4>
+                      <Badge 
+                        className={`text-xs ${
+                          lab.type === 'laboratory'
+                            ? 'bg-green-100 text-green-800 border-green-200'
+                            : 'bg-blue-100 text-blue-800 border-blue-200'
+                        }`}
+                        variant="outline"
+                      >
+                        {lab.type === 'laboratory' ? 'Laboratoire' : 'Clinique'}
+                      </Badge>
+                    </div>
                   </div>
 
                   <p className="text-sm text-gray-600 mb-2">{lab.address}, {lab.city}</p>
