@@ -69,13 +69,13 @@ const labIcon = new L.Icon({
   popupAnchor: [0, -32],
 });
 
-// Custom clinique icon (blue marker)
+// Custom clinique icon (green marker to match laboratory theme)
 const cliniqueIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64=' + btoa(`
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#2563EB"/>
+      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#90EE90"/>
       <circle cx="16" cy="10" r="5" fill="white"/>
-      <path d="M16 5v10M11 10h10" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
+      <path d="M16 5v10M11 10h10" stroke="#228B22" stroke-width="2" stroke-linecap="round"/>
     </svg>
   `),
   iconSize: [32, 32],

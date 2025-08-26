@@ -32,13 +32,13 @@ interface CliniqueData {
   longitude: number | null;
 }
 
-// Custom clinique marker (blue color for clinics)
+// Custom clinique marker (green color for clinics to match laboratory theme)
 const cliniqueIcon = new L.Icon({
-  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+  iconUrl: 'data:image/svg+xml;base64=' + btoa(`
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#0066cc"/>
+      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#90EE90"/>
       <circle cx="16" cy="10" r="5" fill="white"/>
-      <path d="M16 6v8M12 10h8" stroke="#0066cc" stroke-width="2" stroke-linecap="round"/>
+      <path d="M16 6v8M12 10h8" stroke="#228B22" stroke-width="2" stroke-linecap="round"/>
     </svg>
   `),
   iconSize: [32, 32],
@@ -183,7 +183,7 @@ const CliniqueRegistration: React.FC = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">
+          <h1 className="text-3xl font-bold text-laboratory-dark mb-2">
             Localisation de votre Clinique
           </h1>
           <p className="text-gray-600">
@@ -264,7 +264,7 @@ const CliniqueRegistration: React.FC = () => {
                           }}
                           className={`px-3 py-1 rounded-full border text-sm ${
                             selected 
-                              ? 'bg-blue-500 text-white border-blue-500' 
+                              ? 'bg-laboratory-primary text-laboratory-dark border-laboratory-primary' 
                               : 'bg-white text-gray-700 border-gray-300'
                           } hover:shadow-sm transition-colors`}
                         >
@@ -294,7 +294,7 @@ const CliniqueRegistration: React.FC = () => {
                           }}
                           className={`px-3 py-2 rounded-md border text-sm text-left ${
                             selected 
-                              ? 'bg-blue-500 text-white border-blue-500' 
+                              ? 'bg-laboratory-primary text-laboratory-dark border-laboratory-primary' 
                               : 'bg-white text-gray-700 border-gray-300'
                           } hover:shadow-sm transition-colors`}
                         >
@@ -306,12 +306,12 @@ const CliniqueRegistration: React.FC = () => {
                 </div>
 
                 {selectedLocation && (
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <div className="flex items-center text-blue-700">
+                  <div className="p-3 bg-laboratory-light border border-laboratory-muted rounded-md">
+                    <div className="flex items-center text-laboratory-dark">
                       <MapPin className="w-4 h-4 mr-2" />
                       <span className="font-medium">Emplacement sélectionné:</span>
                     </div>
-                    <p className="text-sm text-blue-600 mt-1">
+                    <p className="text-sm text-laboratory-dark mt-1">
                       Latitude: {selectedLocation.lat.toFixed(6)}, 
                       Longitude: {selectedLocation.lng.toFixed(6)}
                     </p>
@@ -364,7 +364,7 @@ const CliniqueRegistration: React.FC = () => {
             <Button
               type="submit"
               disabled={isSubmitting || !selectedLocation}
-              className="bg-blue-600 hover:bg-blue-700 px-8 py-3"
+              className="bg-laboratory-primary hover:bg-laboratory-accent text-laboratory-dark px-8 py-3"
             >
               {isSubmitting ? (
                 <>

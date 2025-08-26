@@ -107,7 +107,7 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
             >
               {/* Header */}
               <div className="text-center">
-                <h1 className={`text-3xl font-bold mb-2 ${userType === 'clinique' ? 'text-blue-600' : 'text-laboratory-dark'}`}>
+                <h1 className={`text-3xl font-bold mb-2 ${userType === 'clinique' ? 'text-laboratory-dark' : 'text-laboratory-dark'}`}>
                   {userType === 'clinique' ? 'Localisation de votre Clinique' : 'Localisation de votre Laboratoire'}
                 </h1>
                 <p className="text-gray-600">

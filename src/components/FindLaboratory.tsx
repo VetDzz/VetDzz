@@ -474,7 +474,7 @@ const FindLaboratory = () => {
                               </Button>
                               <Button
                                 variant="outline"
-                                className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                                className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
                                 onClick={() => { if (lab.phone) window.open(`tel:${lab.phone}`, '_self'); }}
                                 size="sm"
                               >
