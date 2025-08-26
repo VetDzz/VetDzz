@@ -58,25 +58,13 @@ const labIcon = new L.Icon({
       <circle cx="16" cy="10" r="5" fill="white"/>
       <path d="M16 6l1.5 3h3l-2.5 2L19 14l-3-1.5L13 14l1-3-2.5-2h3L16 6z" fill="#059669"/>
     </svg>
-  `) + '?v=2',
+  `),
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
 
-// Custom clinique icon (green geolocation pin like laboratory)
-const cliniqueIcon = new L.Icon({
-  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#059669"/>
-      <circle cx="16" cy="10" r="5" fill="white"/>
-      <path d="M16 6l1.5 3h3l-2.5 2L19 14l-3-1.5L13 14l1-3-2.5-2h3L16 6z" fill="#059669"/>
-    </svg>
-  `) + '?v=2',
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-});
+// Note: Both laboratories and cliniques use the same labIcon for consistency
 
 // Component to update map center when location changes
 const MapUpdater: React.FC<{ center: [number, number] }> = ({ center }) => {
@@ -158,18 +146,9 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            console.log('🎯 EXACT LOCATION FOUND:');
-            console.log(`   Latitude: ${pos.coords.latitude.toFixed(10)}`);
-            console.log(`   Longitude: ${pos.coords.longitude.toFixed(10)}`);
-            console.log(`   Accuracy: ±${Math.round(pos.coords.accuracy)}m`);
-            console.log(`   Altitude: ${pos.coords.altitude}m`);
-            console.log(`   Speed: ${pos.coords.speed} m/s`);
-            console.log(`   Heading: ${pos.coords.heading}°`);
-            console.log(`   Timestamp: ${new Date(pos.timestamp).toLocaleString()}`);
             resolve(pos);
           },
           (error) => {
-            console.error('Geolocation error:', error);
             reject(error);
           },
           options
@@ -194,14 +173,9 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         description: `${preciseCoords} - Précision: ±${Math.round(accuracy)}m`,
       });
 
-      // Log the exact location details like before
-      console.log('✅ LOCATION DETAILS:');
-      console.log(`   Exact coordinates: ${preciseCoords}`);
-      console.log(`   Accuracy: ±${Math.round(accuracy)}m`);
-      console.log(`   Method: Direct Browser Geolocation`);
+      // Location found successfully
 
     } catch (error) {
-      console.error('Location failed:', error);
 
       // Fallback to default location
       setUserLocation({ lat: 35.5559, lng: 6.1743 });
@@ -239,11 +213,9 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
         const tryGetPosition = () => {
           attempts++;
-          console.log(`🎯 Ultra-precise attempt ${attempts}/3...`);
 
           const timeoutId = setTimeout(() => {
             if (bestPosition && bestPosition.coords.accuracy <= 100) {
-              console.log('⏰ Using best position due to timeout');
               resolve(bestPosition);
             } else {
               reject(new Error(`Ultra-precise timeout on attempt ${attempts}`));
@@ -253,7 +225,6 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           navigator.geolocation.getCurrentPosition(
             (pos) => {
               clearTimeout(timeoutId);
-              console.log(`📍 Attempt ${attempts} accuracy: ${Math.round(pos.coords.accuracy)}m`);
 
               if (!bestPosition || pos.coords.accuracy < bestPosition.coords.accuracy) {
                 bestPosition = pos;
@@ -261,28 +232,23 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
               // If we get house-level accuracy (≤10m), use it immediately
               if (pos.coords.accuracy <= 10) {
-                console.log('🏠 House-level accuracy achieved!');
                 resolve(pos);
               }
               // If we get street-level accuracy (≤20m), use it
               else if (pos.coords.accuracy <= 20) {
-                console.log('🛣️ Street-level accuracy achieved!');
                 resolve(pos);
               }
               // If this is our last attempt, use the best we have
               else if (attempts >= 3) {
-                console.log('🎯 Using best accuracy from all attempts');
                 resolve(bestPosition || pos);
               }
               // Otherwise, try again for better accuracy
               else {
-                console.log('🔄 Trying again for better accuracy...');
                 setTimeout(tryGetPosition, 2000); // Wait 2 seconds between attempts
               }
             },
             (err) => {
               clearTimeout(timeoutId);
-              console.log(`❌ Attempt ${attempts} failed:`, err.message);
 
               if (attempts >= 3) {
                 if (bestPosition) {
@@ -320,7 +286,6 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
       };
 
     } catch (error) {
-      console.error('❌ Ultra-precise location failed:', error);
       return null;
     }
   };
@@ -328,11 +293,8 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
   const tryAccurateGPS = async (): Promise<boolean> => {
     try {
       if (!navigator.geolocation) {
-        console.log('❌ Geolocation not supported');
         return false;
       }
-
-      console.log('📍 Trying multiple location methods for maximum accuracy...');
 
       // Try multiple approaches in parallel for best accuracy
       const locationPromises = [
@@ -371,17 +333,14 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           watchId = navigator.geolocation.watchPosition(
             (pos) => {
               positionCount++;
-              console.log(`📍 Watch position ${positionCount}:`, pos.coords.accuracy, 'meters');
 
               if (!bestPosition || pos.coords.accuracy < bestPosition.coords.accuracy) {
                 bestPosition = pos;
-                console.log(`🎯 New best accuracy: ${Math.round(pos.coords.accuracy)}m`);
 
                 // If we get very accurate position, resolve immediately
                 if (pos.coords.accuracy <= 15) {
                   clearTimeout(timeoutId);
                   navigator.geolocation.clearWatch(watchId);
-                  console.log('✅ Excellent accuracy achieved, stopping watch');
                   resolve(pos);
                 }
               }
@@ -390,14 +349,12 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
               if (positionCount >= 3 && bestPosition && bestPosition.coords.accuracy <= 50) {
                 clearTimeout(timeoutId);
                 navigator.geolocation.clearWatch(watchId);
-                console.log('✅ Good accuracy after multiple readings');
                 resolve(bestPosition);
               }
             },
             (err) => {
               clearTimeout(timeoutId);
               navigator.geolocation.clearWatch(watchId);
-              console.log('❌ Watch position error:', err.message);
               reject(err);
             },
             {
@@ -414,7 +371,6 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           navigator.geolocation.getCurrentPosition(
             (pos) => {
               clearTimeout(timeoutId);
-              console.log('📍 Alternative method accuracy:', Math.round(pos.coords.accuracy), 'meters');
               resolve(pos);
             },
             (err) => {
@@ -444,7 +400,6 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
       }
 
       if (!bestPosition) {
-        console.log('❌ All location methods failed');
         return false;
       }
 
@@ -455,24 +410,20 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
       // Validate coordinates are reasonable
       if (Math.abs(location.lat) > 90 || Math.abs(location.lng) > 180) {
-        console.log('❌ Invalid GPS coordinates:', location);
         return false;
       }
 
       setUserLocation(location);
       setLocationAccuracy(bestPosition.coords.accuracy);
-      console.log('✅ Best location found:', location, 'Accuracy:', Math.round(bestPosition.coords.accuracy), 'meters');
       return true;
 
     } catch (error) {
-      console.log('❌ All GPS methods failed:', error);
       return false;
     }
   };
 
   const getFastLocation = async () => {
     try {
-      console.log('🌐 Using enhanced location services with cross-validation...');
 
       // Enhanced location services with better accuracy
       const locationServices = [
@@ -533,7 +484,6 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
       // Try services in parallel and collect all results for cross-validation
       const promises = locationServices.map(async (service) => {
         try {
-          console.log(`📡 Trying ${service.name}...`);
           const response = await fetch(service.url, {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
@@ -547,14 +497,12 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
           if (location.lat && location.lng && !isNaN(location.lat) && !isNaN(location.lng)) {
             if (Math.abs(location.lat) > 0.1 && Math.abs(location.lng) > 0.1) {
-              console.log(`✅ ${service.name} success:`, location);
               return location;
             }
           }
           throw new Error('Invalid coordinates');
 
         } catch (error) {
-          console.log(`❌ ${service.name} failed:`, error);
           return null;
         }
       });
@@ -573,7 +521,6 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
       let bestLocation = validLocations[0];
 
       if (validLocations.length > 1) {
-        console.log('🔍 Cross-validating locations:', validLocations);
 
         // If we have multiple results, pick the one with best accuracy
         // or the one that's most consistent with others
@@ -594,47 +541,37 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         });
 
         const avgDistance = distances.reduce((a, b) => a + b, 0) / distances.length;
-        console.log('📏 Average distance between locations:', avgDistance);
 
         if (avgDistance > 0.1) { // If locations are very different
-          console.log('⚠️ Location services disagree significantly, using most accurate');
         }
       }
 
       setUserLocation({ lat: bestLocation.lat, lng: bestLocation.lng });
       setLocationAccuracy(bestLocation.accuracy);
-      console.log('🎯 Final location selected:', bestLocation);
 
       for (const result of results) {
         if (result.status === 'fulfilled' && result.value) {
           const location = result.value;
           setUserLocation({ lat: location.lat, lng: location.lng });
           setLocationAccuracy(location.accuracy);
-          console.log('🎯 Fast location found:', location);
           return;
         }
       }
 
       // If all IP services fail, use Batna as fallback
-      console.log('📍 IP services failed, using Batna fallback...');
       setUserLocation({ lat: 35.5559, lng: 6.1743 });
       setLocationAccuracy(null);
-      console.log('🏠 Using Batna coordinates as fallback');
 
     } catch (error) {
-      console.error('❌ Fast location failed:', error);
       // Final fallback to Batna
       setUserLocation({ lat: 35.5559, lng: 6.1743 });
       setLocationAccuracy(null);
-      console.log('🏠 Using Batna coordinates as final fallback');
     }
   };
 
 
   const fetchLaboratories = async () => {
     try {
-      console.log('Fetching laboratories and cliniques from database...');
-      
       // Fetch both laboratories and cliniques in parallel
       const [labResponse, cliniqueResponse] = await Promise.all([
         supabase.from('laboratory_profiles').select('*'),
@@ -649,12 +586,10 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           ...lab,
           name: lab.laboratory_name,
           type: 'laboratory' as const,
-          city: lab.address?.split(',').pop()?.trim() || 'Batna' // Extract city from address or default
+          city: lab.address?.split(',').pop()?.trim() || 'Batna'
         }));
         allLocations = [...allLocations, ...laboratories];
-        console.log('Fetched laboratories:', laboratories.length);
       } else if (labResponse.error) {
-        console.error('Error fetching laboratories:', labResponse.error);
       }
 
       // Process cliniques
@@ -664,19 +599,15 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           name: clinique.clinique_name,
           type: 'clinique' as const,
           laboratory_name: clinique.clinique_name, // For compatibility
-          city: clinique.address?.split(',').pop()?.trim() || 'Batna' // Extract city from address or default
+          city: clinique.address?.split(',').pop()?.trim() || 'Batna'
         }));
         allLocations = [...allLocations, ...cliniques];
-        console.log('Fetched cliniques:', cliniques.length);
       } else if (cliniqueResponse.error) {
-        console.error('Error fetching cliniques:', cliniqueResponse.error);
       }
 
-      console.log('Total locations fetched:', allLocations.length);
       setLaboratories(allLocations);
       
     } catch (error) {
-      console.error('Error fetching locations:', error);
       setLaboratories([]);
     } finally {
       setIsLoading(false);
@@ -1035,7 +966,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                       <Marker
                         key={lab.id}
                         position={[lab.latitude as number, lab.longitude as number]}
-                        icon={lab.type === 'laboratory' ? labIcon : cliniqueIcon}
+                        icon={labIcon}
                         title=""
                       >
                         <Popup>
