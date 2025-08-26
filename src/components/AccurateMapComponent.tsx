@@ -55,7 +55,7 @@ const userLocationIcon = new L.Icon({
   iconAnchor: [12, 12],
 });
 
-// Custom laboratory icon (green marker)
+// Custom laboratory icon (green geolocation pin)
 const labIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64,' + btoa(`
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -63,7 +63,7 @@ const labIcon = new L.Icon({
       <circle cx="16" cy="10" r="5" fill="white"/>
       <path d="M16 6l1.5 3h3l-2.5 2L19 14l-3-1.5L13 14l1-3-2.5-2h3L16 6z" fill="#059669"/>
     </svg>
-  `),
+  `) + '?v=2',
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
@@ -71,13 +71,13 @@ const labIcon = new L.Icon({
 
 // Custom clinique icon (green geolocation pin like laboratory)
 const cliniqueIcon = new L.Icon({
-  iconUrl: 'data:image/svg+xml;base64=' + btoa(`
+  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#059669"/>
       <circle cx="16" cy="10" r="5" fill="white"/>
       <path d="M16 6l1.5 3h3l-2.5 2L19 14l-3-1.5L13 14l1-3-2.5-2h3L16 6z" fill="#059669"/>
     </svg>
-  `),
+  `) + '?v=2',
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
