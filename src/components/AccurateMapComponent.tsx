@@ -888,7 +888,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
   const getAccuracyColor = () => {
     if (!locationAccuracy) return "bg-gray-50 border-gray-200";
     if (locationAccuracy <= 50) return "bg-green-50 border-green-200";
-    if (locationAccuracy <= 100) return "bg-blue-50 border-blue-200";
+    if (locationAccuracy <= 100) return "bg-laboratory-light border-laboratory-muted";
     if (locationAccuracy <= 500) return "bg-yellow-50 border-yellow-200";
     return "bg-orange-50 border-orange-200";
   };
@@ -951,7 +951,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
             size="sm"
             className={`h-8 px-3 text-xs ${
               filterType === 'clinique'
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                ? 'bg-laboratory-primary text-laboratory-dark hover:bg-laboratory-accent'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
@@ -961,7 +961,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
         {userLocation && (
           <div className={`flex items-center text-sm text-gray-600 px-3 py-2 rounded-md ${getAccuracyColor()}`}>
-            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+            <div className="w-2 h-2 bg-laboratory-primary rounded-full mr-2 animate-pulse"></div>
             <span className="font-medium">{getAccuracyText()}:</span>
             <span className="ml-1">{userLocation.lat.toFixed(6)}, {userLocation.lng.toFixed(6)}</span>
             {locationAccuracy && (
@@ -1215,7 +1215,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                         className={`text-xs ${
                           lab.type === 'laboratory'
                             ? 'bg-green-100 text-green-800 border-green-200'
-                            : 'bg-blue-100 text-blue-800 border-blue-200'
+                            : 'bg-laboratory-light text-laboratory-dark border-laboratory-muted'
                         }`}
                         variant="outline"
                       >
