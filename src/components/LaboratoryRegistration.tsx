@@ -26,7 +26,7 @@ interface LaboratoryData {
   longitude: number | null;
 }
 
-// Custom laboratory marker
+// Custom laboratory marker (identical to AccurateMapComponent marker)
 const labIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64,' + btoa(`
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,6 +37,7 @@ const labIcon = new L.Icon({
   `),
   iconSize: [32, 32],
   iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
 });
 
 // Map click handler component
