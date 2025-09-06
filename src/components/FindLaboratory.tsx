@@ -281,7 +281,7 @@ const FindLaboratory = () => {
         const minutesLeft = Math.ceil((globalPadLock.until - Date.now()) / (60 * 1000));
         toast({ 
           title: 'Demande PAD en cours', 
-          description: `Vous avez une demande en cours avec un autre laboratoire. Patientez encore ${minutesLeft} minutes ou attendez leur réponse.`, 
+          description: `Vous avez une demande en cours avec un autre laboratoire. Patientez encore 2 ehur ou attendez leur réponse.`, 
           variant: 'default' 
         });
         return;
