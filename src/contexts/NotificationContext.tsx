@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getNotifications, markNotificationAsRead, createNotification } from '@/lib/supabase';
+import { getNotifications, markNotificationAsRead, createNotification, deleteNotification } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
 export interface Notification {
@@ -17,6 +17,7 @@ interface NotificationContextType {
   notifications: Notification[];
   addNotification: (notification: Omit<Notification, 'id' | 'created_at'>) => Promise<void>;
   markAsRead: (id: string) => Promise<void>;
+  deleteNotificationById: (id: string) => Promise<void>;
   refreshNotifications: () => Promise<void>;
   unreadCount: number;
   isLoading: boolean;
@@ -94,6 +95,20 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
+  const deleteNotificationById = async (id: string) => {
+    try {
+      const { error } = await deleteNotification(id);
+      if (error) {
+        console.error('Error deleting notification:', error);
+      } else {
+        // Remove from local state
+        setNotifications(prev => prev.filter(notification => notification.id !== id));
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
   const unreadCount = notifications.filter(notification => !notification.is_read).length;
 
   return (
@@ -102,6 +117,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         notifications,
         addNotification,
         markAsRead,
+        deleteNotificationById,
         refreshNotifications,
         unreadCount,
         isLoading

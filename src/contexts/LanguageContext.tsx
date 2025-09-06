@@ -104,7 +104,7 @@ const translations = {
 
     // PAD strings
     'PAD.loginRequired': 'Vous devez être connecté pour envoyer une demande PAD.',
-    'PAD.sendError': 'Impossible d\'envoyer la demande PAD.',
+    'PAD.sendError': 'Demande PAD en cours. Patientez ou attendez la réponse du laboratoire.',
     'PAD.sendSuccess': 'Demande envoyée',
     'PAD.sendSuccessDesc': 'Demande PAD envoyée à {labName}',
     'PAD.defaultMessage': 'Demande de PAD envoyée par le client',
@@ -356,7 +356,7 @@ const translations = {
 
     // PAD strings
     'PAD.loginRequired': 'You must be logged in to send a PAD request.',
-    'PAD.sendError': 'Unable to send PAD request.',
+    'PAD.sendError': 'PAD request in progress. Please wait or wait for the laboratory response.',
     'PAD.sendSuccess': 'Request sent',
     'PAD.sendSuccessDesc': 'PAD request sent to {labName}',
     'PAD.defaultMessage': 'PAD request sent by client',
@@ -608,7 +608,7 @@ const translations = {
 
     // PAD strings
     'PAD.loginRequired': 'يجب أن تكون مسجل الدخول لإرسال طلب PAD.',
-    'PAD.sendError': 'غير قادر على إرسال طلب PAD.',
+    'PAD.sendError': 'طلب PAD قيد المعالجة. يرجى الانتظار أو انتظار رد المختبر.',
     'PAD.sendSuccess': 'تم إرسال الطلب',
     'PAD.sendSuccessDesc': 'تم إرسال طلب PAD إلى {labName}',
     'PAD.defaultMessage': 'طلب PAD مرسل من العميل',

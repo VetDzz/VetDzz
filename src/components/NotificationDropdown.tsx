@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
 const NotificationDropdown = () => {
-  const { notifications, markAsRead, refreshNotifications, unreadCount, isLoading } = useNotifications();
+  const { notifications, markAsRead, deleteNotificationById, refreshNotifications, unreadCount, isLoading } = useNotifications();
   const { t } = useLanguage();
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -187,6 +187,16 @@ const NotificationDropdown = () => {
                             <Check className="w-3 h-3" />
                           </Button>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs text-red-500 hover:text-red-700"
+                          onClick={async () => {
+                            await deleteNotificationById(notification.id);
+                          }}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
                       </div>
                     </div>
                   </div>

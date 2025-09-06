@@ -301,6 +301,17 @@ export const markNotificationAsRead = async (notificationId: string) => {
   return { data, error };
 };
 
+export const deleteNotification = async (notificationId: string) => {
+  const { data, error } = await supabase
+    .from('notifications')
+    .delete()
+    .eq('id', notificationId)
+    .select()
+    .single();
+
+  return { data, error };
+};
+
 // Real-time user monitoring
 export const subscribeToUserChanges = (userId: string, onUserDeleted: () => void) => {
   // Monitor auth.users table for user deletion

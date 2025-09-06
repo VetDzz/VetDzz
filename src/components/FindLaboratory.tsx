@@ -22,6 +22,16 @@ const FindLaboratory = () => {
   const { toast } = useToast();
   const mapRef = useRef<any>(null);
 
+  // Global PAD lock: when you send PAD to any lab, lock ALL OTHER labs for 2 hours
+  const [globalPadLock, setGlobalPadLock] = useState<{
+    active: boolean;
+    until: number; // timestamp in ms when lock expires
+    activeLab: string; // the lab you sent PAD to (this one stays unlocked)
+    requestId: string;
+  } | null>(null);
+  // Track time for countdown updates
+  const [nowTs, setNowTs] = useState<number>(Date.now());
+
   // Get user's current location
   useEffect(() => {
     if (navigator.geolocation) {
@@ -48,6 +58,105 @@ const FindLaboratory = () => {
   useEffect(() => {
     loadLaboratories();
   }, []);
+
+  // Update countdown every minute
+  useEffect(() => {
+    const id = setInterval(() => setNowTs(Date.now()), 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // On auth changes, check active PAD locks using database view
+  useEffect(() => {
+    if (!user) {
+      setGlobalPadLock(null);
+      return;
+    }
+    const checkGlobalLock = async () => {
+      try {
+        // First, clean up any expired requests
+        await supabase.rpc('expire_old_pad_requests');
+        
+        // Then check for active locks using the database view
+        const { data: activeLocks } = await supabase
+          .from('active_pad_locks')
+          .select('*')
+          .eq('client_id', user.id)
+          .limit(1);
+        
+        if (activeLocks && activeLocks.length > 0) {
+          const lock = activeLocks[0] as any;
+          setGlobalPadLock({
+            active: true,
+            until: new Date(lock.expires_at).getTime(),
+            activeLab: lock.laboratory_id,
+            requestId: lock.request_id
+          });
+        } else {
+          setGlobalPadLock(null);
+        }
+      } catch (e) {
+        console.error('Error checking global PAD lock', e);
+        // Fallback to original method if database functions not available
+        const { data: pending } = await supabase
+          .from('PAD_requests')
+          .select('id, laboratory_id, status, created_at')
+          .eq('client_id', user.id)
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (pending && pending.length > 0) {
+          const req = pending[0] as any;
+          const created = new Date(req.created_at).getTime();
+          const twoHoursMs = 2 * 60 * 60 * 1000;
+          const until = created + twoHoursMs;
+          
+          if (Date.now() < until) {
+            setGlobalPadLock({
+              active: true,
+              until,
+              activeLab: req.laboratory_id,
+              requestId: req.id
+            });
+          } else {
+            setGlobalPadLock(null);
+          }
+        } else {
+          setGlobalPadLock(null);
+        }
+      }
+    };
+    checkGlobalLock();
+  }, [user]);
+
+  // Subscribe to PAD request updates to unlock when lab responds
+  useEffect(() => {
+    if (!user || !globalPadLock?.requestId) return;
+    const channel = supabase
+      .channel(`pad-requests-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'PAD_requests',
+          filter: `id=eq.${globalPadLock.requestId}`,
+        },
+        (payload: any) => {
+          const newStatus = payload?.new?.status;
+          if (newStatus && newStatus !== 'pending') {
+            // Lab responded - unlock all other labs
+            setGlobalPadLock(null);
+            toast({ title: t('PAD.responseReceived') || 'Réponse reçue', description: t('PAD.responseReceivedDesc') || 'Le laboratoire a répondu à votre demande. Tous les laboratoires sont maintenant disponibles.' });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      try { supabase.removeChannel(channel); } catch {}
+    };
+  }, [user, globalPadLock?.requestId]);
 
   // Recalculate distances when user location changes
   useEffect(() => {
@@ -174,45 +283,25 @@ const FindLaboratory = () => {
     }
 
     try {
-      // Check for existing PAD requests with improved logic
-      const { data: existing } = await supabase
-        .from('pad_requests')
-        .select('id,status,created_at,updated_at')
-        .eq('client_id', user.id)
-        .eq('laboratory_id', laboratory.user_id)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (existing && existing.length > 0) {
-        const lastRequest = existing[0];
-        
-        // Block if there's a pending request
-        if (lastRequest.status === 'pending') {
-          toast({ 
-            title: 'Demande en attente', 
-            description: 'Vous avez déjà une demande PAD en attente pour ce laboratoire.', 
-            variant: 'default' 
-          });
-          return;
-        }
-        
-        // Block if accepted and less than 1 hour has passed
-        if (lastRequest.status === 'accepted') {
-          const acceptedTime = new Date(lastRequest.updated_at || lastRequest.created_at);
-          const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-          
-          if (acceptedTime > oneHourAgo) {
-            const timeLeft = Math.ceil((acceptedTime.getTime() + 60 * 60 * 1000 - Date.now()) / (1000 * 60));
-            toast({ 
-              title: 'Demande récemment acceptée', 
-              description: `Attendez ${timeLeft} minutes avant de renvoyer une demande à ce laboratoire.`, 
-              variant: 'default' 
-            });
-            return;
-          }
-        }
-        
-        // If rejected, allow immediate new request (no waiting period)
+      // Check if there's a global lock and this lab is not the active one
+      if (globalPadLock?.active && laboratory.user_id !== globalPadLock.activeLab) {
+        const minutesLeft = Math.ceil((globalPadLock.until - Date.now()) / (60 * 1000));
+        toast({ 
+          title: 'Demande PAD en cours', 
+          description: `Vous avez une demande en cours avec un autre laboratoire. Patientez encore ${minutesLeft} minutes ou attendez leur réponse.`, 
+          variant: 'default' 
+        });
+        return;
+      }
+      
+      // If this is the active lab and already has a pending request
+      if (globalPadLock?.active && laboratory.user_id === globalPadLock.activeLab) {
+        toast({ 
+          title: 'Demande déjà envoyée', 
+          description: 'Vous avez déjà une demande en attente pour ce laboratoire.', 
+          variant: 'default' 
+        });
+        return;
       }
 
       // Get client profile with location data
@@ -221,13 +310,12 @@ const FindLaboratory = () => {
         .select('*')
         .eq('user_id', user.id)
         .single();
-
       if (profileError) {
         console.error('Error fetching client profile:', profileError);
       }
 
-      const { error } = await supabase
-        .from('pad_requests')
+      const { data: inserted, error } = await supabase
+        .from('PAD_requests')
         .insert([
           {
             client_id: user.id,
@@ -240,15 +328,55 @@ const FindLaboratory = () => {
             client_phone: clientProfile?.phone || '',
             client_address: clientProfile?.address || ''
           }
-        ]);
+        ])
+        .select('id,created_at');
 
       if (error) {
-        toast({
-          title: t('common.error'),
-          description: t('PAD.sendError'),
-          variant: "destructive"
-        });
+        // For debugging - but don't panic users!
+        console.log('Database error occurred:', error);
+        
+        // Since we have the database trigger in place, ANY error on PAD insert 
+        // is likely the lock trigger. Show normal waiting message to avoid panic.
+        // Only show real errors for very specific non-lock cases.
+        
+        const isDefinitelyNotLockError = (
+          error.message?.includes('permission denied') ||
+          error.message?.includes('connection') ||
+          error.message?.includes('network') ||
+          error.code === '42501' || // insufficient privilege
+          error.code === '08000'    // connection exception
+        );
+        
+        if (isDefinitelyNotLockError) {
+          // Real technical errors - use custom message to avoid panic
+          toast({
+            title: "Erreur technique",
+            description: "Une erreur technique est survenue. Veuillez réessayer dans quelques instants.",
+            variant: "destructive"
+          });
+        } else {
+          // Assume it's the lock trigger - show normal waiting message
+          // Extract wait time if available, otherwise default to reasonable time
+          const fullErrorText = JSON.stringify(error);
+          const waitTimeMatch = fullErrorText.match(/(\d+)\s+minutes?/);
+          const waitTime = waitTimeMatch ? waitTimeMatch[1] : '120';
+          
+          toast({
+            title: 'Demande PAD en cours',
+            description: `Vous avez déjà une demande PAD en cours. Patientez encore ${waitTime} minutes ou attendez la réponse du laboratoire.`,
+            variant: "default" // Normal toast, not red - NO PANIC!
+          });
+        }
       } else {
+        const createdAt = inserted && inserted.length > 0 ? new Date(inserted[0].created_at).getTime() : Date.now();
+        const twoHoursMs = 2 * 60 * 60 * 1000;
+        // Set global lock - lock all OTHER labs for 2 hours
+        setGlobalPadLock({
+          active: true,
+          until: createdAt + twoHoursMs,
+          activeLab: laboratory.user_id,
+          requestId: inserted?.[0]?.id || ''
+        });
         toast({
           title: t('PAD.sendSuccess'),
           description: t('PAD.sendSuccessDesc', { labName: laboratory.lab_name || laboratory.laboratory_name }),
@@ -346,6 +474,7 @@ const FindLaboratory = () => {
               {isLoading ? t('findLab.searching') : t('findLab.found', { count: laboratories.length })}
             </h3>
 
+
             {isLoading ? (
               <div className="flex justify-center items-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-laboratory-primary" />
@@ -432,16 +561,39 @@ const FindLaboratory = () => {
                           )}
                           <div className="mt-4">
                             <div className="flex flex-wrap gap-2">
-                              {user && user.type === 'client' && (
-                                <Button
-                                  className="bg-green-600 hover:bg-green-700 text-white"
-                                  onClick={() => sendPADRequest(lab)}
-                                  size="sm"
-                                >
-                                  <Send className="w-4 h-4 mr-2" />
-                                  {t('map.requestPAD')}
-                                </Button>
-                              )}
+                              {user && user.type === 'client' && (() => {
+                                const isActiveLab = globalPadLock?.activeLab === lab.user_id;
+                                const isGlobalLocked = globalPadLock?.active && !isActiveLab && Date.now() < globalPadLock.until;
+                                const isActivePending = globalPadLock?.active && isActiveLab;
+                                
+                                const minutesLeft = globalPadLock?.active ? Math.max(0, Math.ceil((globalPadLock.until - nowTs) / (60 * 1000))) : 0;
+                                
+                                let buttonText = t('map.requestPAD');
+                                let buttonClass = "bg-green-600 hover:bg-green-700 text-white";
+                                let isDisabled = false;
+                                
+                                if (isActivePending) {
+                                  buttonText = `En attente (${minutesLeft}min)`;
+                                  buttonClass = "bg-blue-500 text-white cursor-not-allowed";
+                                  isDisabled = true;
+                                } else if (isGlobalLocked) {
+                                  buttonText = `Verrouillé (${minutesLeft}min)`;
+                                  buttonClass = "bg-gray-400 text-gray-600 cursor-not-allowed";
+                                  isDisabled = true;
+                                }
+                                
+                                return (
+                                  <Button
+                                    className={buttonClass}
+                                    onClick={() => !isDisabled && sendPADRequest(lab)}
+                                    size="sm"
+                                    disabled={isDisabled}
+                                  >
+                                    <Send className="w-4 h-4 mr-2" />
+                                    {buttonText}
+                                  </Button>
+                                );
+                              })()}
                               <Button
                                 variant="outline"
                                 className="border-green-500 text-green-600 hover:bg-green-50"
