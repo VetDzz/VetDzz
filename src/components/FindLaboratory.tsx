@@ -355,15 +355,26 @@ const FindLaboratory = () => {
             variant: "destructive"
           });
         } else {
-          // Assume it's the lock trigger - show normal waiting message
-          // Extract wait time if available, otherwise default to reasonable time
-          const fullErrorText = JSON.stringify(error);
-          const waitTimeMatch = fullErrorText.match(/(\d+)\s+minutes?/);
-          const waitTime = waitTimeMatch ? waitTimeMatch[1] : '120';
+          // Calculate accurate wait time from database or global lock state
+          let waitTime = '120'; // default fallback
           
+          // Try to get accurate wait time from global lock state
+          if (globalPadLock?.active) {
+            const minutesLeft = Math.max(0, Math.ceil((globalPadLock.until - Date.now()) / (60 * 1000)));
+            waitTime = minutesLeft.toString();
+          } else {
+            // Extract from database error if available
+            const fullErrorText = JSON.stringify(error);
+            const waitTimeMatch = fullErrorText.match(/(\d+)\s+minutes?/);
+            if (waitTimeMatch) {
+              waitTime = waitTimeMatch[1];
+            }
+          }
+          
+          // Use translation with timer
           toast({
             title: 'Demande PAD en cours',
-            description: `Vous avez déjà une demande PAD en cours. Patientez encore ${waitTime} minutes ou attendez la réponse du laboratoire.`,
+            description: t('PAD.sendError', { waitTime }),
             variant: "default" // Normal toast, not red - NO PANIC!
           });
         }
