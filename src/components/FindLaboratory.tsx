@@ -332,8 +332,10 @@ const FindLaboratory = () => {
         .select('id,created_at');
 
       if (error) {
-        // For debugging - but don't panic users!
+        // For debugging - log the full error
         console.log('Database error occurred:', error);
+        console.log('Error message:', error.message);
+        console.log('Error code:', error.code);
         
         // Since we have the database trigger in place, ANY error on PAD insert 
         // is likely the lock trigger. Show normal waiting message to avoid panic.
@@ -355,26 +357,93 @@ const FindLaboratory = () => {
             variant: "destructive"
           });
         } else {
-          // Calculate accurate wait time from database or global lock state
-          let waitTime = '120'; // default fallback
+          // Calculate accurate wait time from multiple sources
+          let waitTime = 120; // default fallback in minutes
+          console.log('Calculating wait time...');
           
-          // Try to get accurate wait time from global lock state
+          // Method 1: Try to get from global lock state first
           if (globalPadLock?.active) {
-            const minutesLeft = Math.max(0, Math.ceil((globalPadLock.until - Date.now()) / (60 * 1000)));
-            waitTime = minutesLeft.toString();
+            waitTime = Math.max(0, Math.ceil((globalPadLock.until - Date.now()) / (60 * 1000)));
+            console.log('Got wait time from global lock state:', waitTime);
           } else {
-            // Extract from database error if available
-            const fullErrorText = JSON.stringify(error);
-            const waitTimeMatch = fullErrorText.match(/(\d+)\s+minutes?/);
-            if (waitTimeMatch) {
-              waitTime = waitTimeMatch[1];
+            console.log('No global lock state, trying database...');
+            
+            // Method 2: Try to get from active_pad_locks view
+            try {
+              const { data: activeLocks } = await supabase
+                .from('active_pad_locks')
+                .select('minutes_remaining')
+                .eq('client_id', user.id)
+                .limit(1);
+              
+              console.log('Active locks query result:', activeLocks);
+              
+              if (activeLocks && activeLocks.length > 0) {
+                waitTime = Math.max(0, Math.floor(activeLocks[0].minutes_remaining));
+                console.log('Got wait time from active_pad_locks view:', waitTime);
+              } else {
+                console.log('No active locks found, trying error message extraction...');
+                
+                // Method 3: Extract from database error message
+                const fullErrorText = error.message || JSON.stringify(error);
+                console.log('Searching for wait time in error text:', fullErrorText);
+                
+                // Try multiple patterns to extract wait time
+                const patterns = [
+                  /wait\s+(\d+)\s+minutes?/i,
+                  /Please wait (\d+) minutes/i,
+                  /attendre (\d+) minutes/i,
+                  /(\d+)\s+minutes?\s+or until/i
+                ];
+                
+                for (const pattern of patterns) {
+                  const match = fullErrorText.match(pattern);
+                  if (match) {
+                    waitTime = parseInt(match[1]);
+                    console.log('Extracted wait time from error message:', waitTime);
+                    break;
+                  }
+                }
+                
+                // Method 4: If still no wait time, calculate from most recent pending request
+                if (waitTime === 120) {
+                  try {
+                    const { data: recentPending } = await supabase
+                      .from('PAD_requests')
+                      .select('created_at')
+                      .eq('client_id', user.id)
+                      .eq('status', 'pending')
+                      .order('created_at', { ascending: false })
+                      .limit(1);
+                    
+                    if (recentPending && recentPending.length > 0) {
+                      const createdAt = new Date(recentPending[0].created_at).getTime();
+                      const twoHoursLater = createdAt + (2 * 60 * 60 * 1000);
+                      const minutesLeft = Math.max(0, Math.ceil((twoHoursLater - Date.now()) / (60 * 1000)));
+                      waitTime = minutesLeft;
+                      console.log('Calculated wait time from recent pending request:', waitTime);
+                    }
+                  } catch (fallbackError) {
+                    console.log('Fallback calculation failed:', fallbackError);
+                  }
+                }
+              }
+            } catch (dbError) {
+              console.log('Could not fetch from active_pad_locks view:', dbError);
             }
           }
+          
+          // Ensure waitTime is a number and reasonable
+          if (isNaN(waitTime) || waitTime < 0) {
+            waitTime = 120; // fallback to 2 hours
+          }
+          
+          console.log('Final wait time to display:', waitTime);
           
           // Use translation with timer
           toast({
             title: 'Demande PAD en cours',
-            description: t('PAD.sendError', { waitTime }),
+            description: t('PAD.sendError', { waitTime: waitTime.toString() }),
             variant: "default" // Normal toast, not red - NO PANIC!
           });
         }
