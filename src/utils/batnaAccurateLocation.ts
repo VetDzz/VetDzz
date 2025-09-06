@@ -23,7 +23,6 @@ export class BatnaAccurateLocation {
 
   // 🎯 Main method: Get your exact location in Batna
   static async getBatnaLocation(): Promise<BatnaLocationResult | null> {
-    console.log('🏠 Getting your exact location in Batna...');
 
     // Try multiple GPS methods in sequence
     const methods = [
@@ -35,7 +34,7 @@ export class BatnaAccurateLocation {
 
     for (let i = 0; i < methods.length; i++) {
       try {
-        console.log(`📡 Trying GPS method ${i + 1}/${methods.length}...`);
+
         const result = await methods[i]();
         
         if (result) {
@@ -48,27 +47,21 @@ export class BatnaAccurateLocation {
             distanceFromBatnaCenter: distance
           };
 
-          console.log(`📍 Method ${i + 1} result:`);
-          console.log(`   Location: ${result.coords.lat.toFixed(6)}, ${result.coords.lng.toFixed(6)}`);
-          console.log(`   Accuracy: ±${Math.round(result.accuracy)}m`);
-          console.log(`   Distance from Batna center: ${Math.round(distance)}m`);
-          console.log(`   Is in Batna: ${isInBatna}`);
-
           // If location is reasonable (within 20km of Batna center), use it
           if (distance <= 20000) {
-            console.log(`✅ Good location found with method ${i + 1}`);
+
             return batnaResult;
           } else {
-            console.warn(`❌ Method ${i + 1} gave location too far from Batna (${Math.round(distance/1000)}km)`);
+
           }
         }
       } catch (error) {
-        console.warn(`Method ${i + 1} failed:`, error);
+
       }
     }
 
     // If all methods fail or give bad locations, return Batna center
-    console.log('🏠 Using Batna center as fallback');
+
     return {
       coords: this.BATNA_CENTER,
       accuracy: 1000,
@@ -101,7 +94,7 @@ export class BatnaAccurateLocation {
           });
         },
         (error) => {
-          console.warn('High precision GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -132,7 +125,7 @@ export class BatnaAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Standard GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -163,7 +156,7 @@ export class BatnaAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Network GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -194,7 +187,7 @@ export class BatnaAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Quick GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -232,16 +225,14 @@ export class BatnaAccurateLocation {
 
   // Get multiple readings and average them
   static async getAveragedLocation(numReadings: number = 3): Promise<BatnaLocationResult | null> {
-    console.log(`📊 Taking ${numReadings} readings for better accuracy...`);
-    
+
     const readings: BatnaLocationResult[] = [];
     
     for (let i = 0; i < numReadings; i++) {
       const reading = await this.getBatnaLocation();
       if (reading && reading.distanceFromBatnaCenter <= 20000) {
         readings.push(reading);
-        console.log(`📍 Reading ${i + 1}: ±${Math.round(reading.accuracy)}m`);
-        
+
         // Wait 2 seconds between readings
         if (i < numReadings - 1) {
           await new Promise(resolve => setTimeout(resolve, 2000));
@@ -264,8 +255,6 @@ export class BatnaAccurateLocation {
 
     const bestAccuracy = Math.min(...readings.map(r => r.accuracy));
     const distance = this.calculateDistance({ lat: avgLat, lng: avgLng }, this.BATNA_CENTER);
-
-    console.log(`📊 Averaged location: ${avgLat.toFixed(6)}, ${avgLng.toFixed(6)} (±${Math.round(bestAccuracy)}m)`);
 
     return {
       coords: { lat: avgLat, lng: avgLng },

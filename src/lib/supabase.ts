@@ -326,7 +326,7 @@ export const subscribeToUserChanges = (userId: string, onUserDeleted: () => void
         filter: `id=eq.${userId}`
       },
       (payload) => {
-        console.log('User deleted:', payload);
+
         onUserDeleted();
       }
     )

@@ -20,7 +20,7 @@ const BannedPage: React.FC = () => {
       try {
         setBanInfo(JSON.parse(storedBanInfo));
       } catch (error) {
-        console.error('Error parsing ban info:', error);
+
       }
     }
   }, []);

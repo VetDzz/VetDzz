@@ -14,27 +14,25 @@ export interface WorldwideLocationResult {
 export class WorldwideAccurateLocation {
   // 🔥 Request geolocation permission explicitly
   static async requestLocationPermission(): Promise<boolean> {
-    console.log('🔐 Requesting geolocation permission...');
 
     try {
       // Check if permissions API is available
       if ('permissions' in navigator) {
         const permission = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
-        console.log(`📋 Current permission state: ${permission.state}`);
 
         if (permission.state === 'denied') {
-          console.log('❌ Geolocation permission denied');
+
           return false;
         }
 
         if (permission.state === 'granted') {
-          console.log('✅ Geolocation permission already granted');
+
           return true;
         }
       }
 
       // Try to get location to trigger permission prompt
-      console.log('🔔 Triggering permission prompt...');
+
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
           resolve,
@@ -47,28 +45,25 @@ export class WorldwideAccurateLocation {
         );
       });
 
-      console.log('✅ Geolocation permission granted!');
       return true;
 
     } catch (error) {
-      console.warn('❌ Geolocation permission request failed:', error);
+
       return false;
     }
   }
 
   // 🎯 Main method: Get FAST and accurate location ANYWHERE in the world
   static async getWorldwideLocation(): Promise<WorldwideLocationResult | null> {
-    console.log('⚡ Getting FAST accurate location WORLDWIDE...');
 
     // First, ensure we have permission
     const hasPermission = await this.requestLocationPermission();
     if (!hasPermission) {
-      console.log('❌ Cannot get location without permission');
+
       return null;
     }
 
     // Try fast methods in parallel for speed
-    console.log('🚀 Running multiple GPS methods in parallel...');
 
     const methods = [
       this.getFastHighAccuracyGPS(),
@@ -83,44 +78,39 @@ export class WorldwideAccurateLocation {
           try {
             const res = await method;
             if (res && this.isValidCoordinates(res.coords)) {
-              console.log(`⚡ Method ${index + 1} won the race: ±${Math.round(res.accuracy)}m`);
+
               return res;
             }
             return null;
           } catch (error) {
-            console.warn(`Method ${index + 1} failed:`, error);
+
             return null;
           }
         })
       );
 
       if (result) {
-        console.log(`✅ FAST location found:`);
-        console.log(`   Location: ${result.coords.lat.toFixed(6)}, ${result.coords.lng.toFixed(6)}`);
-        console.log(`   Accuracy: ±${Math.round(result.accuracy)}m`);
-        console.log(`   Method: ${result.method}`);
+
         return result;
       }
 
       // If parallel methods fail, try one more quick method
-      console.log('🔄 Parallel methods failed, trying quick fallback...');
+
       const fallback = await this.getQuickGPS();
       if (fallback && this.isValidCoordinates(fallback.coords)) {
         return fallback;
       }
 
     } catch (error) {
-      console.warn('All parallel methods failed:', error);
+
     }
 
-    console.log('❌ All location methods failed');
     return null;
   }
 
   // Method 1: Fast High Accuracy GPS (10 seconds timeout)
   private static async getFastHighAccuracyGPS(): Promise<WorldwideLocationResult | null> {
     return new Promise((resolve) => {
-      console.log('⚡ Starting FAST High Accuracy GPS (10s timeout)...');
 
       const options: PositionOptions = {
         enableHighAccuracy: true,
@@ -130,7 +120,7 @@ export class WorldwideAccurateLocation {
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log(`⚡ Fast GPS result: ±${Math.round(position.coords.accuracy)}m`);
+
           resolve({
             coords: {
               lat: position.coords.latitude,
@@ -142,7 +132,7 @@ export class WorldwideAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Fast high accuracy GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -172,7 +162,7 @@ export class WorldwideAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Standard GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -202,7 +192,7 @@ export class WorldwideAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Network GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -232,7 +222,7 @@ export class WorldwideAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Network GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -262,7 +252,7 @@ export class WorldwideAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Quick GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -280,7 +270,7 @@ export class WorldwideAccurateLocation {
                    lat !== 0 || lng !== 0; // Avoid exact 0,0 which is often invalid
     
     if (!isValid) {
-      console.warn(`🚫 Invalid coordinates: ${lat}, ${lng}`);
+
     }
     
     return isValid;
@@ -288,28 +278,25 @@ export class WorldwideAccurateLocation {
 
   // Get multiple readings and average them for EXTREME accuracy
   static async getAveragedLocation(numReadings: number = 5): Promise<WorldwideLocationResult | null> {
-    console.log(`🔥 Taking ${numReadings} ULTRA-PRECISE readings for EXTREME accuracy...`);
 
     // First, ensure we have permission
     const hasPermission = await this.requestLocationPermission();
     if (!hasPermission) {
-      console.log('❌ Cannot get averaged location without permission');
+
       return null;
     }
 
     const readings: WorldwideLocationResult[] = [];
 
     for (let i = 0; i < numReadings; i++) {
-      console.log(`🎯 ULTRA Reading ${i + 1}/${numReadings}...`);
 
       const reading = await this.getWorldwideLocation();
       if (reading) {
         readings.push(reading);
-        console.log(`   Result: ±${Math.round(reading.accuracy)}m via ${reading.method}`);
 
         // If we get an extremely accurate reading (≤10m), prioritize it
         if (reading.accuracy <= 10) {
-          console.log(`🔥 EXTREME accuracy found: ±${Math.round(reading.accuracy)}m - prioritizing this reading`);
+
           // Add this reading multiple times to give it more weight
           readings.push(reading);
           readings.push(reading);
@@ -317,14 +304,14 @@ export class WorldwideAccurateLocation {
 
         // Wait 3 seconds between readings for GPS to stabilize
         if (i < numReadings - 1) {
-          console.log(`   Waiting 3s for GPS stabilization...`);
+
           await new Promise(resolve => setTimeout(resolve, 3000));
         }
       }
     }
 
     if (readings.length === 0) {
-      console.log('❌ No valid readings obtained');
+
       return null;
     }
 
@@ -354,12 +341,6 @@ export class WorldwideAccurateLocation {
 
     const consistencyScore = Math.max(latStdDev, lngStdDev) * 111000; // Convert to meters
 
-    console.log(`🔥 EXTREME ACCURACY RESULT from ${readings.length} readings:`);
-    console.log(`   Final coordinates: ${avgLat.toFixed(8)}, ${avgLng.toFixed(8)}`);
-    console.log(`   Best accuracy: ±${Math.round(bestAccuracy)}m`);
-    console.log(`   Consistency score: ±${Math.round(consistencyScore)}m`);
-    console.log(`   Final estimated accuracy: ±${Math.round(Math.max(bestAccuracy, consistencyScore))}m`);
-
     return {
       coords: { lat: avgLat, lng: avgLng },
       accuracy: Math.max(bestAccuracy, consistencyScore), // Use worse of best accuracy or consistency
@@ -379,8 +360,6 @@ export class WorldwideAccurateLocation {
     let bestAccuracy = Infinity;
     let startTime = Date.now();
 
-    console.log(`🔄 Starting continuous location monitoring (target: ±${targetAccuracy}m, max time: ${maxTime/1000}s)`);
-
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
         const result: WorldwideLocationResult = {
@@ -396,24 +375,22 @@ export class WorldwideAccurateLocation {
         if (position.coords.accuracy < bestAccuracy) {
           bestAccuracy = position.coords.accuracy;
           callback(result);
-          
-          console.log(`🎯 Improved accuracy: ±${Math.round(position.coords.accuracy)}m`);
-          
+
           // Stop if we reach target accuracy
           if (position.coords.accuracy <= targetAccuracy) {
-            console.log(`✅ Target accuracy reached: ±${Math.round(position.coords.accuracy)}m`);
+
             navigator.geolocation.clearWatch(watchId);
           }
         }
 
         // Stop after max time
         if (Date.now() - startTime > maxTime) {
-          console.log(`⏰ Max time reached, stopping continuous monitoring`);
+
           navigator.geolocation.clearWatch(watchId);
         }
       },
       (error) => {
-        console.warn('Continuous location error:', error);
+
       },
       {
         enableHighAccuracy: true,

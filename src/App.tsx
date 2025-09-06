@@ -41,9 +41,7 @@ import LaboratoryHomePage from "./pages/LaboratoryHomePage";
 import DatabaseStatus from "./pages/DatabaseStatus";
 import CliniqueHome from "./components/CliniqueHome";
 
-
 import AdminPage from "./pages/AdminPage";
-
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient({
@@ -140,8 +138,6 @@ const App = () => {
                   <Route path="/blog/:slug" element={<BlogPostDetail />} />
                   <Route path="/database-status" element={<DatabaseStatus />} />
                   <Route path="/admin" element={<AdminPage />} />
-
-
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>

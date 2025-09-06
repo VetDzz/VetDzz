@@ -117,7 +117,7 @@ const AuthSection = () => {
       }
 
     } catch (error) {
-      console.error('Registration with location error:', error);
+
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'inscription.",
@@ -146,8 +146,7 @@ const AuthSection = () => {
 
         // Navigate based on the actual user type from the database
         const actualUserType = result.userType || 'client';
-        console.log('Navigating to home page for user type:', actualUserType);
-        
+
         // Navigate to appropriate dashboard based on user type
         if (actualUserType === 'laboratory') {
           navigate('/laboratory-home');
@@ -182,8 +181,6 @@ const AuthSection = () => {
     const userData = Object.fromEntries(formData.entries());
 
     // Debug: Log the form data
-    console.log('Form data collected:', userData);
-    console.log('User type:', userType);
 
     try {
       // For laboratory and clinique users, DON'T register yet - show location form first
@@ -210,7 +207,7 @@ const AuthSection = () => {
         }
       }
     } catch (error) {
-      console.error('Registration error:', error);
+
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'inscription.",

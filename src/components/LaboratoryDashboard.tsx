@@ -15,7 +15,6 @@ import { supabase } from '@/lib/supabase';
 import MapComponent from '@/components/MapComponent';
 import UploadResultModal from '@/components/UploadResultModal';
 
-
 interface Client {
   id: string;
   user_id: string;
@@ -73,12 +72,12 @@ const LaboratoryDashboard = () => {
         .single();
 
       if (error) {
-        console.error('Error fetching lab location:', error);
+
       } else if (data && data.latitude && data.longitude) {
         setLaboratoryLocation({ lat: data.latitude, lng: data.longitude });
       }
     } catch (error) {
-      console.error('Error:', error);
+
     }
   };
 
@@ -135,36 +134,34 @@ const LaboratoryDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching PAD requests:', error);
-        console.error('Error details:', error.message, error.details);
+
       } else {
-        console.log('PAD requests fetched successfully:', data);
+
         setPADRequests(data || []);
       }
     } catch (error) {
-      console.error('Error:', error);
+
     }
   };
 
   const fetchAllClients = async () => {
     setIsSearching(true);
     try {
-      console.log('Fetching all clients...');
+
       const { data, error } = await supabase
         .from('client_profiles')
         .select('*')
         .limit(20);
 
       if (error) {
-        console.error('Error fetching clients:', error);
-        console.error('Error details:', error.message, error.details);
+
         alert(`Erreur lors de la récupération des clients: ${error.message}`);
       } else {
-        console.log('Clients fetched successfully:', data);
+
         setClients(data || []);
       }
     } catch (error) {
-      console.error('Error:', error);
+
       alert(`Erreur: ${error.message}`);
     } finally {
       setIsSearching(false);
@@ -186,12 +183,12 @@ const LaboratoryDashboard = () => {
         .limit(20);
 
       if (error) {
-        console.error('Error searching clients:', error);
+
       } else {
         setClients(data || []);
       }
     } catch (error) {
-      console.error('Error:', error);
+
     } finally {
       setIsSearching(false);
     }
@@ -206,10 +203,6 @@ const LaboratoryDashboard = () => {
     setSelectedClient(null);
     setShowUploadModal(false);
   };
-
-
-
-
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -228,13 +221,12 @@ const LaboratoryDashboard = () => {
 
   const handleLocationSelect = (lat: number, lng: number) => {
     setLaboratoryLocation({ lat, lng });
-    console.log('Laboratory location updated:', lat, lng);
+
   };
 
   const handleApproveRequest = async (requestId: string) => {
     try {
-      console.log('🔄 Approving PAD request:', requestId);
-      
+
       // First get the current laboratory info
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) {
@@ -249,7 +241,7 @@ const LaboratoryDashboard = () => {
         .single();
         
       if (labError) {
-        console.warn('Could not fetch lab profile for notification:', labError);
+
       }
 
       // Update request status - fixed table name case
@@ -264,7 +256,7 @@ const LaboratoryDashboard = () => {
         .single();
 
       if (error) {
-        console.error('Error approving request:', error);
+
         toast({
           title: "Erreur",
           description: "Erreur lors de l'approbation de la demande",
@@ -273,14 +265,10 @@ const LaboratoryDashboard = () => {
         return;
       }
 
-      console.log('✅ Request approved:', updated);
-
       // Send notification to client with lab name
       if (updated?.client_id) {
         const labName = labProfile?.lab_name || 'Un laboratoire';
-        
-        console.log('📧 Sending acceptance notification to client:', updated.client_id);
-        
+
         const { error: notifError } = await supabase.from('notifications').insert([
           {
             user_id: updated.client_id,
@@ -294,9 +282,9 @@ const LaboratoryDashboard = () => {
         ]);
         
         if (notifError) {
-          console.error('Error sending notification:', notifError);
+
         } else {
-          console.log('✅ Notification sent successfully');
+
         }
       }
       
@@ -309,7 +297,7 @@ const LaboratoryDashboard = () => {
       await fetchPADRequests();
       
     } catch (error) {
-      console.error('❌ Error approving request:', error);
+
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'approbation",
@@ -320,8 +308,7 @@ const LaboratoryDashboard = () => {
 
   const handleRejectRequest = async (requestId: string) => {
     try {
-      console.log('❌ Rejecting PAD request:', requestId);
-      
+
       // First get the current laboratory info
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) {
@@ -336,7 +323,7 @@ const LaboratoryDashboard = () => {
         .single();
         
       if (labError) {
-        console.warn('Could not fetch lab profile for notification:', labError);
+
       }
 
       // Update request status - fixed table name case
@@ -351,7 +338,7 @@ const LaboratoryDashboard = () => {
         .single();
 
       if (error) {
-        console.error('Error rejecting request:', error);
+
         toast({
           title: "Erreur",
           description: "Erreur lors du refus de la demande",
@@ -360,14 +347,10 @@ const LaboratoryDashboard = () => {
         return;
       }
 
-      console.log('❌ Request rejected:', updated);
-
       // Send notification to client with lab name
       if (updated?.client_id) {
         const labName = labProfile?.lab_name || 'Un laboratoire';
-        
-        console.log('📧 Sending rejection notification to client:', updated.client_id);
-        
+
         const { error: notifError } = await supabase.from('notifications').insert([
           {
             user_id: updated.client_id,
@@ -381,9 +364,9 @@ const LaboratoryDashboard = () => {
         ]);
         
         if (notifError) {
-          console.error('Error sending notification:', notifError);
+
         } else {
-          console.log('✅ Rejection notification sent successfully');
+
         }
       }
       
@@ -396,7 +379,7 @@ const LaboratoryDashboard = () => {
       await fetchPADRequests();
       
     } catch (error) {
-      console.error('❌ Error rejecting request:', error);
+
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors du refus",
@@ -627,11 +610,6 @@ const LaboratoryDashboard = () => {
                 </Card>
               </motion.div>
             </TabsContent>
-
-
-
-
-
 
           </Tabs>
         </motion.div>

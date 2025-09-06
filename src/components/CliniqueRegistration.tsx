@@ -98,7 +98,6 @@ const CliniqueRegistration: React.FC = () => {
       latitude: lat,
       longitude: lng
     }));
-    console.log('Location selected:', { lat, lng });
   };
 
   const handleInputChange = (field: keyof CliniqueData, value: string) => {
@@ -156,19 +155,15 @@ const CliniqueRegistration: React.FC = () => {
         .select();
 
       if (error) {
-        console.error('Error creating clinique profile:', error);
         alert('Erreur lors de la création du profil');
         return;
       }
-
-      console.log('Clinique profile created:', data);
       alert('Profil de clinique créé avec succès! En attente de vérification.');
       
       // Navigate to clinique dashboard
       navigate('/clinique-home');
 
     } catch (error) {
-      console.error('Error:', error);
       alert('Erreur lors de la création du profil');
     } finally {
       setIsSubmitting(false);

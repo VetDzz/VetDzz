@@ -71,8 +71,7 @@ const sampleLaboratories = [
 
 export const addSampleLaboratories = async () => {
   try {
-    console.log('Adding sample laboratories...');
-    
+
     // First, create dummy users for the laboratories
     const userPromises = sampleLaboratories.map(async (lab, index) => {
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -87,7 +86,7 @@ export const addSampleLaboratories = async () => {
       });
 
       if (authError) {
-        console.error(`Error creating user for ${lab.laboratory_name}:`, authError);
+
         return null;
       }
 
@@ -98,7 +97,7 @@ export const addSampleLaboratories = async () => {
     const validLabs = usersWithLabs.filter(lab => lab !== null && lab.user_id);
 
     if (validLabs.length === 0) {
-      console.error('No valid laboratories to insert');
+
       return;
     }
 
@@ -108,13 +107,13 @@ export const addSampleLaboratories = async () => {
       .insert(validLabs);
 
     if (error) {
-      console.error('Error inserting laboratory profiles:', error);
+
     } else {
-      console.log('Successfully added sample laboratories:', data);
+
     }
 
   } catch (error) {
-    console.error('Error adding sample laboratories:', error);
+
   }
 };
 
@@ -127,14 +126,13 @@ export const checkExistingLaboratories = async () => {
       .eq('is_verified', true);
 
     if (error) {
-      console.error('Error fetching laboratories:', error);
+
       return [];
     }
 
-    console.log('Existing laboratories:', data);
     return data || [];
   } catch (error) {
-    console.error('Error checking laboratories:', error);
+
     return [];
   }
 };
@@ -148,11 +146,11 @@ export const deleteSampleLaboratories = async () => {
       .in('email', sampleLaboratories.map((_, index) => `lab${index + 1}@example.com`));
 
     if (error) {
-      console.error('Error deleting sample laboratories:', error);
+
     } else {
-      console.log('Successfully deleted sample laboratories');
+
     }
   } catch (error) {
-    console.error('Error deleting sample laboratories:', error);
+
   }
 };

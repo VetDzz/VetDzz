@@ -3,7 +3,6 @@ import SEO from '@/components/SEO';
 import AccurateMapComponent from '@/components/AccurateMapComponent';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-
 const FindLaboratoryPage = () => {
   const { t } = useLanguage();
   return (

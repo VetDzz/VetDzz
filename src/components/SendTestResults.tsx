@@ -185,7 +185,7 @@ const SendTestResults = ({ testRequest, onResultSent }: SendTestResultsProps) =>
 
       onResultSent();
     } catch (error) {
-      console.error('Error sending results:', error);
+
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'envoi des résultats.",

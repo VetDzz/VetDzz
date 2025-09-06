@@ -40,7 +40,7 @@ const ClientDashboard = () => {
     try {
       await Promise.all([fetchResults(), fetchNotifications()]);
     } catch (error) {
-      console.error('Error fetching data:', error);
+
     } finally {
       setLoading(false);
     }
@@ -56,13 +56,13 @@ const ClientDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching results:', error);
+
         setResults([]);
       } else {
         setResults(data || []);
       }
     } catch (error) {
-      console.error('Error fetching results:', error);
+
       setResults([]);
     }
   };
@@ -76,19 +76,16 @@ const ClientDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching notifications:', error);
+
         setNotifications([]);
       } else {
         setNotifications(userNotifications || []);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+
       setNotifications([]);
     }
   };
-
-
-
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -106,11 +103,9 @@ const ClientDashboard = () => {
   };
 
   const handleDownloadResult = (resultId: number) => {
-    console.log('Downloading result:', resultId);
+
     // Here you would typically trigger a file download
   };
-
-
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -161,8 +156,6 @@ const ClientDashboard = () => {
                 )}
               </TabsTrigger>
             </TabsList>
-
-
 
             <TabsContent value="results" className="space-y-6">
               <motion.div variants={itemVariants}>
@@ -233,8 +226,6 @@ const ClientDashboard = () => {
                 </Card>
               </motion.div>
             </TabsContent>
-
-
 
             <TabsContent value="notifications" className="space-y-6">
               <motion.div variants={itemVariants}>

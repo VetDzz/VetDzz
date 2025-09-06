@@ -80,17 +80,17 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
             lng: position.coords.longitude
           };
           setUserLocation(location);
-          console.log('User location found:', location);
+
           if (onLocationSelect) {
             onLocationSelect(location.lat, location.lng);
           }
         },
         (error) => {
-          console.error('Error getting location:', error);
+
           // Fallback to Paris center
           const fallbackLocation = { lat: 48.8566, lng: 2.3522 };
           setUserLocation(fallbackLocation);
-          console.log('Using fallback location (Paris):', fallbackLocation);
+
           if (onLocationSelect) {
             onLocationSelect(fallbackLocation.lat, fallbackLocation.lng);
           }
@@ -102,7 +102,7 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
         }
       );
     } else {
-      console.error('Geolocation is not supported by this browser');
+
       // Fallback to Paris center
       const fallbackLocation = { lat: 48.8566, lng: 2.3522 };
       setUserLocation(fallbackLocation);

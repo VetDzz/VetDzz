@@ -91,7 +91,7 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
           }
         },
         (error) => {
-          console.error('Error getting location:', error);
+
           // Fallback to Paris center
           const fallbackLocation = { lat: 48.8566, lng: 2.3522 };
           setUserLocation(fallbackLocation);

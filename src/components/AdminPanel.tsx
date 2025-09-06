@@ -124,29 +124,25 @@ const AdminPanel: React.FC = () => {
         .select('user_id, banned_until, reason')
         .gt('banned_until', new Date().toISOString());
 
-      console.log('📋 Banned users data:', data);
       setBannedUsers(data?.map(ban => ban.user_id) || []);
     } catch (error) {
-      console.warn('Could not fetch banned users (table might not exist yet):', error);
+
       setBannedUsers([]);
     }
   };
 
   const fetchUsers = async () => {
     try {
-      console.log('🔍 Fetching users from auth.users...');
 
       // Create a function to get auth users (admin only)
       const { data: authUsers, error } = await supabase.rpc('get_auth_users_admin');
 
       if (error || !authUsers || authUsers.length === 0) {
-        console.warn('Could not fetch from auth.users or empty result, falling back to profiles:', error);
+
         // Always fallback to profiles method since auth.users access is restricted
         await fetchUsersFromProfiles();
         return;
       }
-
-      console.log('✅ Got auth users:', authUsers);
 
       // Filter out admin users and format
       const filteredUsers = authUsers
@@ -160,9 +156,9 @@ const AdminPanel: React.FC = () => {
         }));
 
       setUsers(filteredUsers);
-      console.log(`📊 Loaded ${filteredUsers.length} users from auth.users`);
+
     } catch (error) {
-      console.error('Error fetching users:', error);
+
       // Fallback to profiles method
       await fetchUsersFromProfiles();
     }
@@ -170,7 +166,6 @@ const AdminPanel: React.FC = () => {
 
   const fetchUsersFromProfiles = async () => {
     try {
-      console.log('📋 Fallback: Fetching users from profiles...');
 
       // Fetch users from profiles since we can't access auth.users directly
       const [clientsResult, labsResult, cliniquesResult] = await Promise.all([
@@ -228,9 +223,9 @@ const AdminPanel: React.FC = () => {
       }
 
       setUsers(allUsers);
-      console.log(`📊 Loaded ${allUsers.length} users from profiles`);
+
     } catch (error) {
-      console.error('Error fetching users from profiles:', error);
+
       toast({
         title: "Erreur",
         description: "Erreur lors du chargement des utilisateurs",
@@ -263,22 +258,18 @@ const AdminPanel: React.FC = () => {
 
   const fetchPadRequests = async () => {
     try {
-      console.log('🔍 Fetching PAD requests...');
-      
+
       // Try simple query first without foreign key relationships
       const { data, error } = await supabase
         .from('pad_requests')
         .select('*');
       
       if (error) {
-        console.warn('Could not fetch PAD requests:', error);
-        console.warn('Error details:', error.message);
+
         setPadRequests([]);
         return;
       }
-      
-      console.log('✅ Raw PAD requests fetched:', data?.length || 0);
-      
+
       // If we got data, enrich it with profile information manually
       if (data && data.length > 0) {
         const enrichedRequests = [];
@@ -299,7 +290,7 @@ const AdminPanel: React.FC = () => {
                 enrichedRequest.client_profiles = clientProfile;
               }
             } catch (clientError) {
-              console.warn('Could not fetch client profile for:', request.client_id);
+
             }
           }
           
@@ -316,7 +307,7 @@ const AdminPanel: React.FC = () => {
                 enrichedRequest.laboratory_profiles = labProfile;
               }
             } catch (labError) {
-              console.warn('Could not fetch lab profile for:', request.laboratory_id);
+
             }
           }
           
@@ -324,20 +315,19 @@ const AdminPanel: React.FC = () => {
         }
         
         setPadRequests(enrichedRequests);
-        console.log('✅ Enriched PAD requests:', enrichedRequests.length);
+
       } else {
         setPadRequests([]);
-        console.log('📋 No PAD requests found');
+
       }
     } catch (error) {
-      console.warn('Error fetching PAD requests:', error);
+
       setPadRequests([]);
     }
   };
 
   const banUser = async (userId: string, duration: number = 30) => {
     try {
-      console.log(`🚫 Banning user ${userId} for ${duration} days...`);
 
       // Try the database function first
       const { data, error } = await supabase.rpc('admin_ban_user', {
@@ -347,18 +337,11 @@ const AdminPanel: React.FC = () => {
         admin_email: 'glowyboy01@gmail.com'
       });
 
-      console.log('Ban function response:', { data, error });
-
       if (error || !data?.success) {
-        console.log('🔄 Function failed, using manual ban...');
-        console.log('Function error details:', error);
-        console.log('Function data:', data);
 
         // Fall back to manual banning
         const banUntil = new Date();
         banUntil.setDate(banUntil.getDate() + duration);
-
-        console.log(`📅 Banning until: ${banUntil.toISOString()}`);
 
         const { data: insertData, error: manualError } = await supabase
           .from('banned_users')
@@ -373,13 +356,12 @@ const AdminPanel: React.FC = () => {
           .select();
 
         if (manualError) {
-          console.error('Manual ban error:', manualError);
+
           throw manualError;
         }
 
-        console.log('✅ User banned manually:', insertData);
       } else {
-        console.log('✅ User banned via function:', data);
+
       }
 
       toast({
@@ -392,7 +374,7 @@ const AdminPanel: React.FC = () => {
       await fetchProfiles();
       await fetchBannedUsers();
     } catch (error: any) {
-      console.error('❌ Ban error:', error);
+
       toast({
         title: "❌ Erreur de bannissement",
         description: error.message || "Impossible de bannir l'utilisateur",
@@ -402,10 +384,8 @@ const AdminPanel: React.FC = () => {
   };
 
   const manualUserDeletion = async (userId: string) => {
-    console.log('🗄️ Performing manual database cleanup for user:', userId);
 
     // First, let's check what data exists for this user
-    console.log('🔍 Checking user data before deletion...');
 
     const checks = [
       { name: 'client_profiles', query: supabase.from('client_profiles').select('*').eq('user_id', userId) },
@@ -423,15 +403,15 @@ const AdminPanel: React.FC = () => {
       try {
         const { data, error } = await check.query;
         if (error) {
-          console.warn(`⚠️ Error checking ${check.name}:`, error);
+
         } else {
-          console.log(`📊 Found in ${check.name}:`, data?.length || 0, 'records');
+
           if (data && data.length > 0) {
-            console.log(`📋 Sample data from ${check.name}:`, data[0]);
+
           }
         }
       } catch (err) {
-        console.warn(`⚠️ Failed to check ${check.name}:`, err);
+
       }
     }
 
@@ -453,18 +433,16 @@ const AdminPanel: React.FC = () => {
       try {
         const { error, count } = await deletion.promise;
         if (error) {
-          console.warn(`⚠️ Error deleting from ${deletion.name}:`, error);
+
         } else {
           const deletedCount = count || 0;
           totalDeleted += deletedCount;
-          console.log(`✅ Deleted from ${deletion.name}: ${deletedCount} rows`);
+
         }
       } catch (err) {
-        console.warn(`⚠️ Failed to delete from ${deletion.name}:`, err);
+
       }
     }
-
-    console.log(`📊 Total records deleted: ${totalDeleted}`);
 
     toast({
       title: "🗑️ Utilisateur supprimé (manuel)",
@@ -474,10 +452,9 @@ const AdminPanel: React.FC = () => {
 
   const deleteUser = async (userId: string) => {
     try {
-      console.log(`🗑️ DELETING USER ${userId} FROM AUTH AND ALL DATA...`);
 
       // Step 1: Delete all files from storage buckets first
-      console.log('📁 Cleaning up storage buckets...');
+
       const buckets = ['avatars', 'medical-results', 'lab-certificates', 'documents'];
 
       for (const bucket of buckets) {
@@ -493,24 +470,24 @@ const AdminPanel: React.FC = () => {
               .remove(filePaths);
 
             if (deleteError) {
-              console.warn(`⚠️ Error deleting files from ${bucket}:`, deleteError);
+
             } else {
-              console.log(`🗂️ Deleted ${files.length} files from ${bucket}`);
+
             }
           }
         } catch (bucketError) {
-          console.warn(`⚠️ Bucket ${bucket} cleanup failed:`, bucketError);
+
         }
       }
 
       // Step 2: DELETE FROM ALL TABLES USING ADMIN FUNCTION
-      console.log('🔥 DELETING FROM ALL TABLES...');
+
       const { data, error: deleteError } = await supabase.rpc('admin_delete_user_complete', {
         target_user_id: userId
       });
 
       if (deleteError) {
-        console.error('❌ DELETE FAILED:', deleteError);
+
         toast({
           title: "❌ Erreur de suppression",
           description: `Impossible de supprimer l'utilisateur: ${deleteError.message}`,
@@ -518,8 +495,6 @@ const AdminPanel: React.FC = () => {
         });
         return;
       }
-
-      console.log('✅ USER DELETED FROM ALL TABLES:', data);
 
       toast({
         title: "🗑️ Utilisateur supprimé complètement",
@@ -531,9 +506,8 @@ const AdminPanel: React.FC = () => {
       await fetchProfiles();
       await fetchBannedUsers();
 
-      console.log('🎉 COMPLETE USER DELETION FINISHED');
     } catch (error: any) {
-      console.error('❌ Delete error:', error);
+
       toast({
         title: "❌ Erreur de suppression",
         description: error.message || "Impossible de supprimer l'utilisateur",
@@ -544,7 +518,6 @@ const AdminPanel: React.FC = () => {
 
   const unbanUser = async (userId: string) => {
     try {
-      console.log(`✅ Unbanning user ${userId}...`);
 
       // Try the database function first
       const { data, error } = await supabase.rpc('admin_unban_user', {
@@ -552,10 +525,7 @@ const AdminPanel: React.FC = () => {
         admin_email: 'glowyboy01@gmail.com'
       });
 
-      console.log('Unban function response:', { data, error });
-
       if (error || !data?.success) {
-        console.log('🔄 Function failed, using manual unban...');
 
         // Fall back to manual unbanning
         const { error: manualError } = await supabase
@@ -567,9 +537,8 @@ const AdminPanel: React.FC = () => {
           throw manualError;
         }
 
-        console.log('✅ User unbanned manually');
       } else {
-        console.log('✅ User unbanned via function:', data);
+
       }
 
       toast({
@@ -581,7 +550,7 @@ const AdminPanel: React.FC = () => {
       await fetchBannedUsers();
       await fetchUsers();
     } catch (error: any) {
-      console.error('❌ Unban error:', error);
+
       toast({
         title: "❌ Erreur de débannissement",
         description: error.message || "Impossible de débannir l'utilisateur",
@@ -660,23 +629,22 @@ const AdminPanel: React.FC = () => {
 
   const fetchUserDetails = async (userId: string) => {
     try {
-      console.log('🔍 Fetching ALL details for user:', userId);
 
       // Helper function to safely fetch data and handle RLS errors
       const safeFetch = async (tableName: string, query: any, description: string) => {
         try {
           const result = await query;
           if (result.error) {
-            console.warn(`⚠️ ${description} failed:`, result.error);
+
             if (result.error.code === 'PGRST116' || result.error.message?.includes('JWT')) {
-              console.warn(`🔒 RLS blocking access to ${tableName} for user ${userId}`);
+
             }
             return { data: null, error: result.error };
           }
-          console.log(`✅ ${description} successful:`, result.data?.length || (result.data ? 'found' : 'none'));
+
           return result;
         } catch (err) {
-          console.warn(`⚠️ ${description} exception:`, err);
+
           return { data: null, error: err };
         }
       };
@@ -734,11 +702,10 @@ const AdminPanel: React.FC = () => {
         }
       };
 
-      console.log('📊 User details fetched with errors handled:', details);
       setUserDetails(details);
       setShowUserDetails(true);
     } catch (error) {
-      console.error('❌ Error fetching user details:', error);
+
       toast({
         title: "Erreur",
         description: "Impossible de récupérer les détails de l'utilisateur",
@@ -780,13 +747,12 @@ const AdminPanel: React.FC = () => {
               </div>
             <Button
               onClick={async () => {
-                console.log('🚪 Admin logout - clearing all data...');
 
                 // Clear admin login logs
                 try {
                   await supabase.auth.signOut();
                 } catch (error) {
-                  console.warn('Error signing out:', error);
+
                 }
 
                 // Clear all storage

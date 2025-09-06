@@ -24,12 +24,11 @@ export class ExtremeLocationService {
 
   // 🎯 MAIN METHOD: Get house-level accuracy with validation
   async getHouseLevelLocation(): Promise<ExtremeLocationResult | null> {
-    console.log('🔥 EXTREME LOCATION: Starting house-level precision detection...');
 
     // First, try the most reliable GPS method
     const gpsResult = await this.getReliableGPS();
     if (gpsResult && this.isLocationInAlgeria(gpsResult.coords)) {
-      console.log(`🎯 GPS SUCCESS: ${gpsResult.coords.lat.toFixed(6)}, ${gpsResult.coords.lng.toFixed(6)} - ±${Math.round(gpsResult.accuracy)}m`);
+
       return gpsResult;
     }
 
@@ -47,15 +46,15 @@ export class ExtremeLocationService {
         // Validate location is in Algeria
         if (this.isLocationInAlgeria(result.value.coords)) {
           validResults.push(result.value);
-          console.log(`✅ Method ${index + 1} success: ${result.value.coords.lat.toFixed(6)}, ${result.value.coords.lng.toFixed(6)} - ±${Math.round(result.value.accuracy)}m`);
+
         } else {
-          console.warn(`❌ Method ${index + 1} gave invalid location outside Algeria`);
+
         }
       }
     });
 
     if (validResults.length === 0) {
-      console.log('❌ All methods failed or gave invalid locations, using Batna fallback');
+
       return {
         coords: { lat: 35.5559, lng: 6.1743 }, // Batna center
         accuracy: 1000,
@@ -70,7 +69,6 @@ export class ExtremeLocationService {
       current.accuracy < best.accuracy ? current : best
     );
 
-    console.log(`🎯 BEST RESULT: ${bestResult.method} - ${bestResult.coords.lat.toFixed(6)}, ${bestResult.coords.lng.toFixed(6)} - ±${Math.round(bestResult.accuracy)}m`);
     return bestResult;
   }
 
@@ -81,7 +79,7 @@ export class ExtremeLocationService {
     const isValid = lat >= 18.9 && lat <= 37.1 && lng >= -8.7 && lng <= 12.0;
 
     if (!isValid) {
-      console.warn(`🚫 Invalid location: ${lat.toFixed(6)}, ${lng.toFixed(6)} - Outside Algeria bounds`);
+
     }
 
     return isValid;
@@ -89,7 +87,6 @@ export class ExtremeLocationService {
 
   // Method 1: Reliable GPS with multiple attempts
   private async getReliableGPS(): Promise<ExtremeLocationResult | null> {
-    console.log('📡 Getting reliable GPS location...');
 
     try {
       // Try 3 times with different settings
@@ -101,7 +98,6 @@ export class ExtremeLocationService {
 
       for (let i = 0; i < attempts.length; i++) {
         try {
-          console.log(`📍 GPS attempt ${i + 1}/3...`);
 
           const position = await new Promise<GeolocationPosition>((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, attempts[i]);
@@ -120,14 +116,14 @@ export class ExtremeLocationService {
 
           // Validate the location is reasonable
           if (this.isLocationInAlgeria(result.coords)) {
-            console.log(`✅ GPS attempt ${i + 1} success: ${result.coords.lat.toFixed(6)}, ${result.coords.lng.toFixed(6)} - ±${Math.round(result.accuracy)}m`);
+
             return result;
           } else {
-            console.warn(`❌ GPS attempt ${i + 1} gave invalid location`);
+
           }
 
         } catch (error) {
-          console.warn(`GPS attempt ${i + 1} failed:`, error);
+
           continue;
         }
       }
@@ -135,7 +131,7 @@ export class ExtremeLocationService {
       return null;
 
     } catch (error) {
-      console.warn('All GPS attempts failed:', error);
+
       return null;
     }
   }
@@ -165,14 +161,13 @@ export class ExtremeLocationService {
       };
 
     } catch (error) {
-      console.warn('HTML5 GPS failed:', error);
+
       return null;
     }
   }
 
   // Method 3: Algerian-specific IP Location
   private async getAlgerianIPLocation(): Promise<ExtremeLocationResult | null> {
-    console.log('🇩🇿 Getting Algeria-specific IP location...');
 
     try {
       // Try Algeria-aware IP location services
@@ -193,7 +188,7 @@ export class ExtremeLocationService {
 
       for (const service of services) {
         try {
-          console.log(`🌐 Trying ${service.name}...`);
+
           const response = await fetch(service.url);
           const data = await response.json();
 
@@ -235,13 +230,13 @@ export class ExtremeLocationService {
 
             // Validate it's actually in Algeria
             if (this.isLocationInAlgeria(result.coords)) {
-              console.log(`✅ ${service.name} success: ${city} - ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+
               return result;
             }
           }
 
         } catch (error) {
-          console.warn(`${service.name} failed:`, error);
+
           continue;
         }
       }
@@ -249,7 +244,7 @@ export class ExtremeLocationService {
       return null;
 
     } catch (error) {
-      console.warn('All Algeria IP location services failed:', error);
+
       return null;
     }
   }
@@ -279,7 +274,7 @@ export class ExtremeLocationService {
       };
 
     } catch (error) {
-      console.warn('Browser location failed:', error);
+
       return null;
     }
   }
@@ -317,7 +312,7 @@ export class ExtremeLocationService {
         }
       },
       (error) => {
-        console.warn('Continuous location error:', error);
+
       },
       {
         enableHighAccuracy: true,

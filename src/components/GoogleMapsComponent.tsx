@@ -183,14 +183,14 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
             lng: position.coords.longitude
           };
           setUserLocation(location);
-          console.log('User location:', location);
+
         },
         (error) => {
-          console.error('Error getting location:', error);
+
           // Fallback to Paris center
           const fallbackLocation = { lat: 48.8566, lng: 2.3522 };
           setUserLocation(fallbackLocation);
-          console.log('Using fallback location (Paris):', fallbackLocation);
+
         },
         {
           enableHighAccuracy: true,
@@ -199,7 +199,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
         }
       );
     } else {
-      console.error('Geolocation is not supported by this browser');
+
       const fallbackLocation = { lat: 48.8566, lng: 2.3522 };
       setUserLocation(fallbackLocation);
     }
@@ -207,17 +207,17 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
 
   const fetchLaboratories = async () => {
     try {
-      console.log('Fetching laboratories from database...');
+
       const { data: labs, error } = await supabase
         .from('laboratory_profiles')
         .select('*');
 
       if (error) {
-        console.error('Error fetching laboratories:', error);
+
         // Use sample data if database is empty
         setLaboratories(getSampleLaboratories());
       } else {
-        console.log('Fetched laboratories:', labs);
+
         if (labs && labs.length > 0) {
           setLaboratories(labs);
         } else {
@@ -226,7 +226,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
         }
       }
     } catch (error) {
-      console.error('Error fetching laboratories:', error);
+
       // Use sample data if there's an error
       setLaboratories(getSampleLaboratories());
     } finally {

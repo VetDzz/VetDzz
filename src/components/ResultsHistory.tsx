@@ -83,7 +83,7 @@ const ResultsHistory = () => {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error fetching results:', error);
+
         toast({
           title: t('common.error'),
           description: t('results.loadError'),
@@ -94,7 +94,7 @@ const ResultsHistory = () => {
         setResults(data || []);
       }
     } catch (error) {
-      console.error('Error:', error);
+
       setResults([]);
     } finally {
       setIsLoading(false);
@@ -117,7 +117,7 @@ const ResultsHistory = () => {
         description: `${t('results.downloading')} ${result.file_name}`,
       });
     } catch (error) {
-      console.error('Download error:', error);
+
       toast({
         title: t('results.downloadErrorTitle'),
         description: t('results.downloadErrorDesc'),

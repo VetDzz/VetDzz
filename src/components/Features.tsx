@@ -54,8 +54,6 @@ const Features = () => {
     visible: { opacity: 1, y: 0 }
   };
 
-
-
   return (
     <section id="features" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

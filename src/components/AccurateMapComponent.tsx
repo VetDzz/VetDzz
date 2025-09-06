@@ -97,7 +97,6 @@ const MapNavigator: React.FC<{ dest: [number, number] | null; zoom?: number }> =
   return null;
 };
 
-
 const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
   height = '600px'
 }) => {
@@ -569,7 +568,6 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     }
   };
 
-
   const fetchLaboratories = async () => {
     try {
       // Fetch both laboratories and cliniques in parallel
@@ -759,8 +757,6 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
       setNavDest([lat, lng]);
     }
   };
-
-
 
   // Filter laboratories based on selected filter type
   const filteredLaboratories = laboratories.filter(lab => {

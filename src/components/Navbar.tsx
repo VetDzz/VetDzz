@@ -83,9 +83,7 @@ const Navbar = () => {
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
-                
 
-                
                 <NavigationMenuItem>
                   <button
                     onClick={handleFindLaboratory}

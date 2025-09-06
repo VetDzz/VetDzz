@@ -79,8 +79,7 @@ const TechDetails = () => {
 
                 {/* Progress bar showing flow */}
                 <div className="w-full mb-6">
-                  
-                  
+
                 </div>
                 
                 {/* Product Platform Architecture Diagram */}

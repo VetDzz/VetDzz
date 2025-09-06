@@ -191,8 +191,7 @@ const DevelopmentProcess = () => {
                   </li>
                 </ul>
               </div>
-              
-              
+
             </div>
             
             <div className="mt-12 pt-8 border-t border-gray-200">

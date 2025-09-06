@@ -81,14 +81,14 @@ const DatabaseCheck: React.FC = () => {
       });
 
       if (error) {
-        console.error('Error creating table:', error);
+
         alert('Error creating table. Please run the SQL manually in Supabase.');
       } else {
         alert('PAD_requests table created successfully!');
         checkTables();
       }
     } catch (err) {
-      console.error('Error:', err);
+
       alert('Error creating table. Please run the SQL manually in Supabase.');
     }
   };

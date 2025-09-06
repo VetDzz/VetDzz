@@ -97,14 +97,14 @@ const FreeMapComponent: React.FC<FreeMapComponentProps> = ({
             // Check if accuracy is good enough (less than 100 meters) or if we've tried enough times
             if (position.coords.accuracy <= 100 || attempts >= maxAttempts) {
               setUserLocation(location);
-              console.log(`Location found (attempt ${attempts}):`, location, 'Accuracy:', position.coords.accuracy, 'meters');
+
             } else {
-              console.log(`Accuracy too low (${position.coords.accuracy}m), trying again...`);
+
               setTimeout(tryGetLocation, 1000);
             }
           },
           (error) => {
-            console.error(`Location error (attempt ${attempts}):`, error);
+
             if (attempts < maxAttempts) {
               setTimeout(tryGetLocation, 1000);
             } else {
@@ -121,34 +121,32 @@ const FreeMapComponent: React.FC<FreeMapComponentProps> = ({
 
       tryGetLocation();
     } else {
-      console.error('Geolocation is not supported by this browser');
+
       setUserLocation(null);
     }
   };
 
   const fetchLaboratories = async () => {
     try {
-      console.log('Fetching laboratories from database...');
+
       const { data: labs, error } = await supabase
         .from('laboratory_profiles')
         .select('*');
 
       if (error) {
-        console.error('Error fetching laboratories:', error);
+
         setLaboratories([]);
       } else {
-        console.log('Fetched laboratories:', labs);
+
         setLaboratories(labs || []);
       }
     } catch (error) {
-      console.error('Error fetching laboratories:', error);
+
       setLaboratories([]);
     } finally {
       setIsLoading(false);
     }
   };
-
-
 
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
     const R = 6371; // Earth's radius in km

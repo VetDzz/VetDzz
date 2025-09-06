@@ -82,7 +82,6 @@ const LaboratoryRegistration: React.FC = () => {
       latitude: lat,
       longitude: lng
     }));
-    console.log('Location selected:', { lat, lng });
   };
 
   const handleInputChange = (field: keyof LaboratoryData, value: string) => {
@@ -139,19 +138,15 @@ const LaboratoryRegistration: React.FC = () => {
         .select();
 
       if (error) {
-        console.error('Error creating laboratory profile:', error);
         alert('Erreur lors de la création du profil');
         return;
       }
-
-      console.log('Laboratory profile created:', data);
       alert('Profil de laboratoire créé avec succès! En attente de vérification.');
       
       // Navigate to laboratory dashboard
       navigate('/laboratory-dashboard');
 
     } catch (error) {
-      console.error('Error:', error);
       alert('Erreur lors de la création du profil');
     } finally {
       setIsSubmitting(false);
@@ -202,8 +197,6 @@ const LaboratoryRegistration: React.FC = () => {
                     required
                   />
                 </div>
-
-
 
                 <div>
                   <Label htmlFor="phone">Téléphone *</Label>

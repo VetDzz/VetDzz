@@ -46,12 +46,12 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     try {
       const { data, error } = await getNotifications(user.id);
       if (error) {
-        console.error('Error fetching notifications:', error);
+
       } else {
         setNotifications(data || []);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+
     } finally {
       setIsLoading(false);
     }
@@ -67,13 +67,13 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       });
 
       if (error) {
-        console.error('Error creating notification:', error);
+
       } else {
         // Refresh notifications to get the latest
         await refreshNotifications();
       }
     } catch (error) {
-      console.error('Error creating notification:', error);
+
     }
   };
 
@@ -81,7 +81,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     try {
       const { error } = await markNotificationAsRead(id);
       if (error) {
-        console.error('Error marking notification as read:', error);
+
       } else {
         // Update local state
         setNotifications(prev =>
@@ -91,7 +91,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         );
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+
     }
   };
 
@@ -99,13 +99,13 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     try {
       const { error } = await deleteNotification(id);
       if (error) {
-        console.error('Error deleting notification:', error);
+
       } else {
         // Remove from local state
         setNotifications(prev => prev.filter(notification => notification.id !== id));
       }
     } catch (error) {
-      console.error('Error deleting notification:', error);
+
     }
   };
 

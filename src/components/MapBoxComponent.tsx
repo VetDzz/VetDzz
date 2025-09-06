@@ -167,10 +167,10 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
             latitude: location.lat,
             zoom: 16
           });
-          console.log('High accuracy location:', location, 'Accuracy:', position.coords.accuracy, 'meters');
+
         },
         (error) => {
-          console.error('Error getting location:', error);
+
           setUserLocation(null);
         },
         {
@@ -180,27 +180,27 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
         }
       );
     } else {
-      console.error('Geolocation is not supported by this browser');
+
       setUserLocation(null);
     }
   };
 
   const fetchLaboratories = async () => {
     try {
-      console.log('Fetching laboratories from database...');
+
       const { data: labs, error } = await supabase
         .from('laboratory_profiles')
         .select('*');
 
       if (error) {
-        console.error('Error fetching laboratories:', error);
+
         setLaboratories([]);
       } else {
-        console.log('Fetched laboratories:', labs);
+
         setLaboratories(labs || []);
       }
     } catch (error) {
-      console.error('Error fetching laboratories:', error);
+
       setLaboratories([]);
     } finally {
       setIsLoading(false);
@@ -247,7 +247,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
         }
       }
     } catch (error) {
-      console.error('Error getting directions:', error);
+
       // Fallback to Google Maps
       const url = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${lab.latitude},${lab.longitude}`;
       window.open(url, '_blank');

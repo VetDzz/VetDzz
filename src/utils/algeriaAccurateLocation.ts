@@ -38,7 +38,6 @@ export class AlgeriaAccurateLocation {
 
   // 🎯 Main method: Get accurate location anywhere in Algeria
   static async getAlgeriaLocation(): Promise<AlgeriaLocationResult | null> {
-    console.log('🇩🇿 Getting accurate location in Algeria...');
 
     // Try multiple GPS methods with different configurations
     const methods = [
@@ -51,7 +50,7 @@ export class AlgeriaAccurateLocation {
 
     for (let i = 0; i < methods.length; i++) {
       try {
-        console.log(`📡 Trying GPS method ${i + 1}/${methods.length}...`);
+
         const result = await methods[i]();
         
         if (result && this.validateAlgerianLocation(result.coords)) {
@@ -64,23 +63,15 @@ export class AlgeriaAccurateLocation {
             isInAlgeria: true
           };
 
-          console.log(`✅ Valid location found with method ${i + 1}:`);
-          console.log(`   Location: ${result.coords.lat.toFixed(6)}, ${result.coords.lng.toFixed(6)}`);
-          console.log(`   Accuracy: ±${Math.round(result.accuracy)}m`);
-          console.log(`   Nearest city: ${nearestCity.name} (${Math.round(nearestCity.distance/1000)}km away)`);
-          console.log(`   Region: ${algeriaResult.region}`);
-
           return algeriaResult;
         } else {
-          console.warn(`❌ Method ${i + 1} gave invalid location outside Algeria`);
+
         }
       } catch (error) {
-        console.warn(`Method ${i + 1} failed:`, error);
+
       }
     }
 
-    console.log('❌ All GPS methods failed, trying IP-based location...');
-    
     // Try IP-based location as final backup
     const ipResult = await this.getIPBasedLocation();
     if (ipResult) {
@@ -88,7 +79,7 @@ export class AlgeriaAccurateLocation {
     }
 
     // Ultimate fallback - return null so caller can decide
-    console.log('❌ All location methods failed');
+
     return null;
   }
 
@@ -114,7 +105,7 @@ export class AlgeriaAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Ultra high precision GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -144,7 +135,7 @@ export class AlgeriaAccurateLocation {
           });
         },
         (error) => {
-          console.warn('High precision GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -174,7 +165,7 @@ export class AlgeriaAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Balanced GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -204,7 +195,7 @@ export class AlgeriaAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Network GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -234,7 +225,7 @@ export class AlgeriaAccurateLocation {
           });
         },
         (error) => {
-          console.warn('Fast GPS failed:', error);
+
           resolve(null);
         },
         options
@@ -264,7 +255,7 @@ export class AlgeriaAccurateLocation {
 
       return null;
     } catch (error) {
-      console.warn('IP-based location failed:', error);
+
       return null;
     }
   }
@@ -278,7 +269,7 @@ export class AlgeriaAccurateLocation {
                    lng <= this.ALGERIA_BOUNDS.east;
     
     if (!isValid) {
-      console.warn(`🚫 Location outside Algeria: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+
     }
     
     return isValid;

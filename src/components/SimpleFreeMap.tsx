@@ -45,10 +45,10 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
             lng: position.coords.longitude
           };
           setUserLocation(location);
-          console.log('High accuracy location:', location, 'Accuracy:', position.coords.accuracy, 'meters');
+
         },
         (error) => {
-          console.error('Error getting location:', error);
+
           setUserLocation(null);
         },
         {
@@ -58,27 +58,27 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
         }
       );
     } else {
-      console.error('Geolocation is not supported by this browser');
+
       setUserLocation(null);
     }
   };
 
   const fetchLaboratories = async () => {
     try {
-      console.log('Fetching laboratories from database...');
+
       const { data: labs, error } = await supabase
         .from('laboratory_profiles')
         .select('*');
 
       if (error) {
-        console.error('Error fetching laboratories:', error);
+
         setLaboratories([]);
       } else {
-        console.log('Fetched laboratories:', labs);
+
         setLaboratories(labs || []);
       }
     } catch (error) {
-      console.error('Error fetching laboratories:', error);
+
       setLaboratories([]);
     } finally {
       setIsLoading(false);

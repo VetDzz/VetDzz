@@ -96,7 +96,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
         .upload(filePath, file);
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
+
         const msg = (uploadError as any)?.message?.toLowerCase?.() || '';
         if (msg.includes('bucket') && msg.includes('not found')) {
           toast({
@@ -144,7 +144,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
         ]);
 
       if (dbError) {
-        console.error('Database error:', dbError);
+
         toast({
           title: "Erreur de base de données",
           description: "Impossible de sauvegarder le résultat.",
@@ -179,7 +179,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
       onClose();
 
     } catch (error) {
-      console.error('Error uploading result:', error);
+
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'envoi du résultat.",
