@@ -346,6 +346,23 @@ export const checkUserExists = async (userId: string) => {
   return true;
 };
 
+// Password reset functions
+export const requestPasswordReset = async (email: string) => {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/auth/reset-password`,
+  });
+  
+  return { error };
+};
+
+export const updatePassword = async (newPassword: string) => {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword
+  });
+  
+  return { data, error };
+};
+
 // Laboratory and clinique search functions
 export const searchLaboratories = async (city?: string, services?: string[]) => {
   // Search both laboratories and cliniques using the combined view

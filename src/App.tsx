@@ -40,6 +40,8 @@ import CliniqueRegistration from "./components/CliniqueRegistration";
 import LaboratoryHomePage from "./pages/LaboratoryHomePage";
 import DatabaseStatus from "./pages/DatabaseStatus";
 import CliniqueHome from "./components/CliniqueHome";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 import AdminPage from "./pages/AdminPage";
 
@@ -82,6 +84,8 @@ const App = () => {
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
                   <Route path="/account-removed" element={<UserRemovalNotice />} />
                   <Route path="/banned" element={<BannedPage />} />
                   <Route path="/results" element={<ResultsPage />} />

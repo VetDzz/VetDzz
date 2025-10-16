@@ -298,10 +298,13 @@ const AuthSection = () => {
                       {isLoading ? 'Connexion...' : t('auth.login')}
                     </Button>
                     <div className="text-center space-y-2">
-                      <a href="#" className="text-sm text-laboratory-dark hover:underline">
+                      <button
+                        type="button"
+                        onClick={() => navigate('/forgot-password')}
+                        className="text-sm text-laboratory-dark hover:underline"
+                      >
                         {t('auth.forgotPassword')}
-                      </a>
-
+                      </button>
                     </div>
                   </form>
                 ) : (
