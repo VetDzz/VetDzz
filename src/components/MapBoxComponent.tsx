@@ -7,9 +7,9 @@ import { supabase } from '@/lib/supabase';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-interface Laboratory {
+interface vet {
   id: number;
-  laboratory_name: string;
+  vet_name: string;
   address: string;
   phone: string;
   latitude: number;
@@ -31,14 +31,20 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
-  const [selectedLab, setSelectedLab] = useState<Laboratory | null>(null);
+  const [laboratories, setLaboratories] = useState<vet[]>([]);
+  const [selectedLab, setSelectedLab] = useState<vet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     getCurrentLocation();
-    fetchLaboratories();
   }, []);
+
+  // Fetch vets when userLocation is available
+  useEffect(() => {
+    if (userLocation) {
+      fetchLaboratories();
+    }
+  }, [userLocation]);
 
   // Initialize map
   useEffect(() => {
@@ -94,7 +100,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
     }
   }, [userLocation]);
 
-  // Add laboratory markers
+  // Add vet markers
   useEffect(() => {
     if (map.current && laboratories.length > 0) {
       laboratories.forEach((lab) => {
@@ -122,7 +128,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
           const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
             <div style="padding: 15px; min-width: 200px;">
               <h3 style="margin: 0 0 8px 0; color: #059669; font-size: 16px; font-weight: bold;">
-                ${lab.laboratory_name}
+                ${lab.vet_name}
               </h3>
               <p style="margin: 0 0 5px 0; color: #666; font-size: 14px;">
                 📍 ${lab.address}, ${lab.city}
@@ -135,7 +141,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
               </p>
               ${distance > 0 ? `<p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">📏 ${distance.toFixed(1)} km</p>` : ''}
               <button
-                onclick="window.getDirectionsToLab(${lab.latitude}, ${lab.longitude}, '${lab.laboratory_name}')"
+                onclick="window.getDirectionsToLab(${lab.latitude}, ${lab.longitude}, '${lab.vet_name}')"
                 style="background: #059669; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%;"
               >
                 🧭 Itinéraire
@@ -187,17 +193,25 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
 
   const fetchLaboratories = async () => {
     try {
+      // Use edge function to get only nearby vets (saves 85-90% data)
+      if (!userLocation) {
+        setLaboratories([]);
+        return;
+      }
 
-      const { data: labs, error } = await supabase
-        .from('laboratory_profiles')
-        .select('*');
+      const { data: response, error } = await supabase.functions.invoke('get-nearby-vets', {
+        body: {
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+          radius: 100 // 100km radius
+        }
+      });
 
       if (error) {
-
+        console.error('Error fetching nearby vets:', error);
         setLaboratories([]);
       } else {
-
-        setLaboratories(labs || []);
+        setLaboratories(response?.data || []);
       }
     } catch (error) {
 
@@ -218,7 +232,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
     return R * c;
   };
 
-  const getDirections = async (lab: Laboratory) => {
+  const getDirections = async (lab: vet) => {
     if (!userLocation) return;
 
     // Use MapBox Directions API (free tier: 100,000 requests/month)
@@ -235,7 +249,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
 
         // Show route info and open in Google Maps as fallback
         const confirmed = confirm(
-          `Itinéraire vers ${lab.laboratory_name}:\n` +
+          `Itinéraire vers ${lab.vet_name}:\n` +
           `Distance: ${distance} km\n` +
           `Durée: ${duration} minutes\n\n` +
           `Ouvrir dans Google Maps pour la navigation?`
@@ -259,7 +273,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
     (window as any).getDirectionsToLab = async (lat: number, lng: number, name: string) => {
       if (!userLocation) return;
 
-      const lab = { latitude: lat, longitude: lng, laboratory_name: name };
+      const lab = { latitude: lat, longitude: lng, vet_name: name };
       await getDirections(lab);
     };
   }, [userLocation]);
@@ -285,7 +299,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
         <Button
           onClick={refreshLocation}
           variant="outline"
-          className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+          className="border-vet-primary text-vet-dark hover:bg-vet-light"
         >
           <Navigation className="w-4 h-4 mr-2" />
           Actualiser Position
@@ -303,13 +317,13 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
         {/* MapBox Map */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-laboratory-dark flex items-center justify-between">
+            <CardTitle className="text-vet-dark flex items-center justify-between">
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 mr-2" />
                 Carte Interactive (Gratuite)
               </div>
               {laboratories.length > 0 && (
-                <Badge className="bg-laboratory-primary">
+                <Badge className="bg-vet-primary">
                   {laboratories.length} laboratoires
                 </Badge>
               )}
@@ -330,7 +344,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
                   </p>
                   <Button
                     onClick={getCurrentLocation}
-                    className="bg-laboratory-primary hover:bg-laboratory-accent"
+                    className="bg-vet-primary hover:bg-vet-accent"
                   >
                     <Navigation className="w-4 h-4 mr-2" />
                     Autoriser la localisation
@@ -341,13 +355,13 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
           </CardContent>
         </Card>
 
-        {/* Laboratory List */}
+        {/* vet List */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-laboratory-dark">
+            <CardTitle className="text-vet-dark">
               Laboratoires Proches
               {laboratories.length > 0 && (
-                <Badge className="ml-2 bg-laboratory-primary">
+                <Badge className="ml-2 bg-vet-primary">
                   {laboratories.length}
                 </Badge>
               )}
@@ -356,7 +370,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
           <CardContent className="space-y-4 max-h-96 overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-laboratory-primary mr-2" />
+                <Loader2 className="w-6 h-6 animate-spin text-vet-primary mr-2" />
                 <span className="text-gray-600">Chargement des laboratoires...</span>
               </div>
             ) : laboratories.length === 0 ? (
@@ -369,7 +383,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
                 <Button
                   onClick={fetchLaboratories}
                   variant="outline"
-                  className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                  className="border-vet-primary text-vet-dark hover:bg-vet-light"
                 >
                   Actualiser
                 </Button>
@@ -380,13 +394,13 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
                   key={lab.id}
                   className={`p-4 border rounded-lg cursor-pointer transition-all ${
                     selectedLab?.id === lab.id
-                      ? 'border-laboratory-primary bg-laboratory-light'
-                      : 'border-gray-200 hover:border-laboratory-primary'
+                      ? 'border-vet-primary bg-vet-light'
+                      : 'border-gray-200 hover:border-vet-primary'
                   }`}
                   onClick={() => setSelectedLab(lab)}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium text-laboratory-dark">{lab.laboratory_name}</h4>
+                    <h4 className="font-medium text-vet-dark">{lab.vet_name}</h4>
                     <div className="flex items-center">
                       <Star className="w-4 h-4 text-yellow-400 mr-1" />
                       <span className="text-sm text-gray-600">{lab.rating || '4.5'}</span>
@@ -428,7 +442,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
                         e.stopPropagation();
                         getDirections(lab);
                       }}
-                      className="bg-laboratory-primary hover:bg-laboratory-accent"
+                      className="bg-vet-primary hover:bg-vet-accent"
                     >
                       <Route className="w-3 h-3 mr-1" />
                       Itinéraire
@@ -441,7 +455,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
                           e.stopPropagation();
                           window.open(`tel:${lab.phone}`, '_self');
                         }}
-                        className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                        className="border-vet-primary text-vet-dark hover:bg-vet-light"
                       >
                         <Phone className="w-3 h-3 mr-1" />
                         Appeler

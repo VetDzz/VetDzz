@@ -26,10 +26,10 @@ const labIcon = new L.Icon({
   popupAnchor: [0, -32],
 });
 
-interface LaboratoryLocationFormProps {
+interface vetLocationFormProps {
   isOpen: boolean;
   userData: any;
-  userType?: 'laboratory' | 'clinique';
+  userType?: 'vet' | 'vet';
   onComplete: (data: any) => void;
   onBack: () => void;
 }
@@ -51,10 +51,10 @@ const LocationSelector: React.FC<{
   ) : null;
 };
 
-const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
+const vetLocationForm: React.FC<vetLocationFormProps> = ({
   isOpen,
   userData,
-  userType = 'laboratory',
+  userType = 'vet',
   onComplete,
   onBack
 }) => {
@@ -78,7 +78,7 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
       return;
     }
     if (!labName.trim()) {
-      alert(userType === 'clinique' ? 'Veuillez entrer le nom de votre clinique' : 'Veuillez entrer le nom de votre laboratoire');
+      alert(userType === 'vet' ? 'Veuillez entrer le nom de votre vet' : 'Veuillez entrer le nom de votre laboratoire');
       return;
     }
 
@@ -116,12 +116,12 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
             >
               {/* Header */}
               <div className="text-center">
-                <h1 className={`text-3xl font-bold mb-2 ${userType === 'clinique' ? 'text-laboratory-dark' : 'text-laboratory-dark'}`}>
-                  {userType === 'clinique' ? 'Localisation de votre Clinique' : 'Localisation de votre Laboratoire'}
+                <h1 className={`text-3xl font-bold mb-2 ${userType === 'vet' ? 'text-vet-dark' : 'text-vet-dark'}`}>
+                  {userType === 'vet' ? 'Localisation de votre vet' : 'Localisation de votre Laboratoire'}
                 </h1>
                 <p className="text-gray-600">
-                  {userType === 'clinique' 
-                    ? 'Sélectionnez l\'emplacement exact de votre clinique sur la carte'
+                  {userType === 'vet' 
+                    ? 'Sélectionnez l\'emplacement exact de votre vet sur la carte'
                     : 'Sélectionnez l\'emplacement exact de votre laboratoire sur la carte'
                   }
                 </p>
@@ -133,17 +133,17 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <Building className="w-5 h-5 mr-2" />
-                      {userType === 'clinique' ? 'Informations de la Clinique' : 'Informations du Laboratoire'}
+                      {userType === 'vet' ? 'Informations de la vet' : 'Informations du Laboratoire'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor="labName">{userType === 'clinique' ? 'Nom de la Clinique *' : 'Nom du Laboratoire *'}</Label>
+                      <Label htmlFor="labName">{userType === 'vet' ? 'Nom de la vet *' : 'Nom du Laboratoire *'}</Label>
                       <Input
                         id="labName"
                         value={labName}
                         onChange={(e) => setLabName(e.target.value)}
-                        placeholder={userType === 'clinique' ? 'Ex: Clinique Médicale Centrale' : 'Ex: Laboratoire Central'}
+                        placeholder={userType === 'vet' ? 'Ex: vet Médicale Centrale' : 'Ex: Laboratoire Central'}
                       />
                     </div>
 
@@ -192,7 +192,7 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
                                   selected ? prev.filter(d => d !== day) : [...prev, day]
                                 )
                               }
-                              className={`px-3 py-1 rounded-full border ${selected ? 'bg-laboratory-primary text-white border-laboratory-primary' : 'bg-white text-laboratory-dark border-laboratory-muted'} hover:shadow-sm`}
+                              className={`px-3 py-1 rounded-full border ${selected ? 'bg-vet-primary text-white border-vet-primary' : 'bg-white text-vet-dark border-vet-muted'} hover:shadow-sm`}
                             >
                               {day}
                             </button>
@@ -246,8 +246,8 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
                       Sélectionner l'Emplacement
                     </CardTitle>
                     <p className="text-sm text-gray-600">
-                      {userType === 'clinique' 
-                        ? 'Cliquez sur la carte pour marquer votre clinique'
+                      {userType === 'vet' 
+                        ? 'Cliquez sur la carte pour marquer votre vet'
                         : 'Cliquez sur la carte pour marquer votre laboratoire'
                       }
                     </p>
@@ -289,7 +289,7 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
                 <Button
                   onClick={handleSubmit}
                   disabled={!selectedLocation || !labName.trim()}
-                  className="bg-laboratory-primary hover:bg-laboratory-accent flex items-center w-full sm:w-auto"
+                  className="bg-vet-primary hover:bg-vet-accent flex items-center w-full sm:w-auto"
                   size="default"
                 >
                   <Save className="w-4 h-4 mr-2" />
@@ -304,4 +304,4 @@ const LaboratoryLocationForm: React.FC<LaboratoryLocationFormProps> = ({
   );
 };
 
-export default LaboratoryLocationForm;
+export default vetLocationForm;

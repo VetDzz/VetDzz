@@ -132,7 +132,7 @@ const ClientDashboard = () => {
           animate="visible"
         >
           <motion.div className="mb-8" variants={itemVariants}>
-            <h1 className="text-3xl font-bold text-laboratory-dark mb-2">
+            <h1 className="text-3xl font-bold text-vet-dark mb-2">
               Mon Espace Client
             </h1>
             <p className="text-gray-600">
@@ -161,7 +161,7 @@ const ClientDashboard = () => {
               <motion.div variants={itemVariants}>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-laboratory-dark">Mes Résultats</CardTitle>
+                    <CardTitle className="text-vet-dark">Mes Résultats</CardTitle>
                     <CardDescription>
                       Consultez et téléchargez vos résultats d'analyses
                     </CardDescription>
@@ -169,7 +169,7 @@ const ClientDashboard = () => {
                   <CardContent className="space-y-4">
                     {loading ? (
                       <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-laboratory-primary mx-auto"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-vet-primary mx-auto"></div>
                         <p className="text-gray-500 mt-2">Chargement des résultats...</p>
                       </div>
                     ) : results.length === 0 ? (
@@ -182,11 +182,11 @@ const ClientDashboard = () => {
                       results.map((result) => (
                         <div
                           key={result.id}
-                          className="p-4 border border-laboratory-muted rounded-lg space-y-3"
+                          className="p-4 border border-vet-muted rounded-lg space-y-3"
                         >
                           <div className="flex justify-between items-start">
                             <div>
-                              <h4 className="font-medium text-laboratory-dark">
+                              <h4 className="font-medium text-vet-dark">
                                 {result.title || result.file_name || 'Analyse'}
                               </h4>
                               <p className="text-sm text-gray-600">
@@ -204,7 +204,7 @@ const ClientDashboard = () => {
                             <div className="flex flex-col sm:flex-row gap-2">
                               <Button
                                 size="sm"
-                                className="bg-laboratory-primary hover:bg-laboratory-accent w-full sm:w-auto"
+                                className="bg-vet-primary hover:bg-vet-accent w-full sm:w-auto"
                                 onClick={() => handleDownloadResult(result.id)}
                               >
                                 <Download className="w-4 h-4 mr-2" />
@@ -213,7 +213,7 @@ const ClientDashboard = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light w-full sm:w-auto"
+                                className="border-vet-primary text-vet-dark hover:bg-vet-light w-full sm:w-auto"
                               >
                                 Voir en ligne
                               </Button>
@@ -231,7 +231,7 @@ const ClientDashboard = () => {
               <motion.div variants={itemVariants}>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-laboratory-dark">Notifications</CardTitle>
+                    <CardTitle className="text-vet-dark">Notifications</CardTitle>
                     <CardDescription>
                       Restez informé de vos rendez-vous et résultats
                     </CardDescription>
@@ -239,7 +239,7 @@ const ClientDashboard = () => {
                   <CardContent className="space-y-4">
                     {loading ? (
                       <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-laboratory-primary mx-auto"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-vet-primary mx-auto"></div>
                         <p className="text-gray-500 mt-2">Chargement des notifications...</p>
                       </div>
                     ) : notifications.length === 0 ? (
@@ -255,15 +255,15 @@ const ClientDashboard = () => {
                           className={`p-4 border rounded-lg ${
                             notification.is_read
                               ? 'border-gray-200 bg-gray-50'
-                              : 'border-laboratory-primary bg-laboratory-light'
+                              : 'border-vet-primary bg-vet-light'
                           }`}
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <h4 className={`text-sm font-medium ${notification.is_read ? 'text-gray-700' : 'text-laboratory-dark'}`}>
+                              <h4 className={`text-sm font-medium ${notification.is_read ? 'text-gray-700' : 'text-vet-dark'}`}>
                                 {notification.title}
                               </h4>
-                              <p className={`text-sm ${notification.is_read ? 'text-gray-600' : 'text-laboratory-dark'}`}>
+                              <p className={`text-sm ${notification.is_read ? 'text-gray-600' : 'text-vet-dark'}`}>
                                 {notification.message}
                               </p>
                               <p className="text-xs text-gray-500 mt-1">
@@ -271,7 +271,7 @@ const ClientDashboard = () => {
                               </p>
                             </div>
                             {!notification.is_read && (
-                              <div className="w-2 h-2 bg-laboratory-primary rounded-full flex-shrink-0 mt-2"></div>
+                              <div className="w-2 h-2 bg-vet-primary rounded-full flex-shrink-0 mt-2"></div>
                             )}
                           </div>
                         </div>

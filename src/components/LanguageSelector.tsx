@@ -38,7 +38,7 @@ const LanguageSelector = () => {
           variant="ghost"
           size="sm"
           className={cn(
-            "gap-2 hover:bg-laboratory-light bg-white",
+            "gap-2 hover:bg-vet-light bg-white",
             isScrolled ? "text-gray-700 hover:text-gray-900" : "text-gray-700 hover:text-gray-900"
           )}
         >
@@ -52,7 +52,7 @@ const LanguageSelector = () => {
           <DropdownMenuItem
             key={lang.code}
             onClick={() => setLanguage(lang.code)}
-            className={`cursor-pointer ${language === lang.code ? 'bg-laboratory-light' : ''}`}
+            className={`cursor-pointer ${language === lang.code ? 'bg-vet-light' : ''}`}
           >
             <span className="mr-2">{lang.flag}</span>
             {lang.name}

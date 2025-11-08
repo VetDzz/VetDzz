@@ -55,15 +55,15 @@ const UserRemovalNotice = () => {
               
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <Mail className="w-5 h-5 text-laboratory-primary flex-shrink-0" />
+                  <Mail className="w-5 h-5 text-vet-primary flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-800">Email</p>
-                    <p className="text-sm text-gray-600">support sihaaexpress@gmail.com</p>
+                    <p className="text-sm text-gray-600">support VetDz@gmail.com</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <Phone className="w-5 h-5 text-laboratory-primary flex-shrink-0" />
+                  <Phone className="w-5 h-5 text-vet-primary flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-800">Téléphone</p>
                     <p className="text-sm text-gray-600">01 23 45 67 89</p>
@@ -79,7 +79,7 @@ const UserRemovalNotice = () => {
               
               <Button
                 onClick={() => window.location.href = '/auth'}
-                className="bg-laboratory-primary hover:bg-laboratory-accent"
+                className="bg-vet-primary hover:bg-vet-accent"
               >
                 Retour à l'accueil
               </Button>

@@ -104,7 +104,17 @@ const App = () => {
                       <LaboratoryDashboardPage />
                     </ProtectedRoute>
                   } />
+                  <Route path="/vet-dashboard" element={
+                    <ProtectedRoute>
+                      <LaboratoryDashboardPage />
+                    </ProtectedRoute>
+                  } />
                   <Route path="/laboratory-registration" element={
+                    <ProtectedRoute>
+                      <LaboratoryRegistration />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/vet-registration" element={
                     <ProtectedRoute>
                       <LaboratoryRegistration />
                     </ProtectedRoute>
@@ -115,6 +125,11 @@ const App = () => {
                     </ProtectedRoute>
                   } />
                   <Route path="/laboratory-home" element={
+                    <ProtectedRoute>
+                      <LaboratoryHomePage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/vet-home" element={
                     <ProtectedRoute>
                       <LaboratoryHomePage />
                     </ProtectedRoute>

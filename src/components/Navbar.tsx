@@ -34,10 +34,10 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleFindLaboratory = () => {
+  const handleFindvet = () => {
     if (isAuthenticated) {
-      if (user?.type === 'laboratory' || user?.type === 'clinique') {
-        navigate('/laboratory-dashboard?tab=clients'); // Go to client search tab
+      if (user?.type === 'vet' || user?.type === 'vet') {
+        navigate('/vet-dashboard?tab=clients'); // Go to client search tab
       } else {
         navigate('/find-laboratory');
       }
@@ -57,8 +57,8 @@ const Navbar = () => {
   };
 
   return (
-    <motion.nav className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full backdrop-blur-0", isScrolled ? "bg-white shadow-sm" : "bg-green-400")}
-      style={{ backgroundColor: isScrolled ? '#ffffff' : '#4ade80' }}
+    <motion.nav className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full backdrop-blur-0", isScrolled ? "bg-white shadow-sm" : "bg-vet-primary")}
+      style={{ backgroundColor: isScrolled ? '#ffffff' : '#1E3A8A' }}
       initial={{ opacity: 1, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
     >
@@ -66,8 +66,8 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <span className={cn("text-2xl font-bold", isScrolled ? "text-laboratory-primary" : "text-white")}>
-                SihaaExpress
+              <span className={cn("text-2xl font-bold", isScrolled ? "text-vet-primary" : "text-white")}>
+                VetDz
               </span>
             </Link>
           </div>
@@ -78,7 +78,7 @@ const Navbar = () => {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link to="/" className={cn(navigationMenuTriggerStyle(), isScrolled ? "text-gray-700 hover:text-gray-900" : "text-white hover:text-gray-100 bg-transparent hover:bg-laboratory-dark")}>
+                    <Link to="/" className={cn(navigationMenuTriggerStyle(), isScrolled ? "text-gray-700 hover:text-gray-900" : "text-white hover:text-gray-100 bg-transparent hover:bg-vet-dark")}>
                       {t('nav.home')}
                     </Link>
                   </NavigationMenuLink>
@@ -86,10 +86,10 @@ const Navbar = () => {
 
                 <NavigationMenuItem>
                   <button
-                    onClick={handleFindLaboratory}
-                    className={cn(navigationMenuTriggerStyle(), isScrolled ? "text-gray-700 hover:text-gray-900" : "text-white hover:text-gray-100 bg-transparent hover:bg-laboratory-dark")}
+                    onClick={handleFindvet}
+                    className={cn(navigationMenuTriggerStyle(), isScrolled ? "text-gray-700 hover:text-gray-900" : "text-white hover:text-gray-100 bg-transparent hover:bg-vet-dark")}
                   >
-                    {(user?.type === 'laboratory' || user?.type === 'clinique') ? t('nav.findClient') : t('nav.findLab')}
+                    {(user?.type === 'vet' || user?.type === 'vet') ? t('nav.findClient') : t('nav.findLab')}
                   </button>
                 </NavigationMenuItem>
 
@@ -98,19 +98,19 @@ const Navbar = () => {
                   <NavigationMenuLink asChild>
                     <Link
                       to="/results"
-                      className={cn(navigationMenuTriggerStyle(), isScrolled ? "text-gray-700 hover:text-gray-900" : "text-white hover:text-gray-100 bg-transparent hover:bg-laboratory-dark")}
+                      className={cn(navigationMenuTriggerStyle(), isScrolled ? "text-gray-700 hover:text-gray-900" : "text-white hover:text-gray-100 bg-transparent hover:bg-vet-dark")}
                     >
                       {t('nav.results')}
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {(user?.type === 'laboratory' || user?.type === 'clinique') && (
+                {(user?.type === 'vet' || user?.type === 'vet') && (
                   <NavigationMenuItem>
                     <NavigationMenuLink asChild>
                       <Link
-                        to="/laboratory-dashboard?tab=requests"
-                        className={cn(navigationMenuTriggerStyle(), isScrolled ? "text-gray-700 hover:text-gray-900" : "text-white hover:text-gray-100 bg-transparent hover:bg-laboratory-dark")}
+                        to="/vet-dashboard?tab=requests"
+                        className={cn(navigationMenuTriggerStyle(), isScrolled ? "text-gray-700 hover:text-gray-900" : "text-white hover:text-gray-100 bg-transparent hover:bg-vet-dark")}
                       >
                         {t('nav.PADRequests')}
                       </Link>
@@ -130,7 +130,7 @@ const Navbar = () => {
                   <NavigationMenuItem>
                     <button
                       onClick={handleLogin}
-                      className={cn("px-4 py-2 rounded-md transition-colors", isScrolled ? "bg-laboratory-primary text-white hover:bg-laboratory-accent" : "bg-white text-laboratory-dark hover:bg-gray-100")}
+                      className={cn("px-4 py-2 rounded-md transition-colors", isScrolled ? "bg-vet-primary text-white hover:bg-vet-accent" : "bg-white text-vet-dark hover:bg-gray-100")}
                     >
                       {t('nav.login')}
                     </button>
@@ -141,7 +141,7 @@ const Navbar = () => {
                   <NavigationMenuItem>
                     <button
                       onClick={handleLogin}
-                      className="gap-2 hover:bg-laboratory-light bg-white text-red-600 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      className="gap-2 hover:bg-vet-light bg-white text-red-600 hover:text-red-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                     >
                       {t('nav.logout')}
                     </button>
@@ -159,7 +159,7 @@ const Navbar = () => {
                 "focus:outline-none p-2 rounded-md transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center",
                 isScrolled
                   ? "text-gray-700 hover:bg-gray-100 active:bg-gray-200"
-                  : "text-white hover:bg-laboratory-dark active:bg-laboratory-accent"
+                  : "text-white hover:bg-vet-dark active:bg-vet-accent"
               )}
               aria-label="Toggle menu"
             >
@@ -180,7 +180,7 @@ const Navbar = () => {
           </Link>
 
           <button
-            onClick={handleFindLaboratory}
+            onClick={handleFindvet}
             className="block px-3 py-3 rounded-md text-sm w-full text-left min-h-[44px] flex items-center touch-manipulation text-gray-700 hover:bg-gray-50 active:bg-gray-100"
           >
             {t('nav.findLab')}
@@ -193,8 +193,8 @@ const Navbar = () => {
             {t('nav.results')}
           </Link>
 
-          {(user?.type === 'laboratory' || user?.type === 'clinique') && (
-            <Link to="/laboratory-dashboard?tab=requests" className="block px-3 py-3 rounded-md text-sm min-h-[44px] flex items-center touch-manipulation text-gray-700 hover:bg-gray-50 active:bg-gray-100" onClick={() => {
+          {(user?.type === 'vet' || user?.type === 'vet') && (
+            <Link to="/vet-dashboard?tab=requests" className="block px-3 py-3 rounded-md text-sm min-h-[44px] flex items-center touch-manipulation text-gray-700 hover:bg-gray-50 active:bg-gray-100" onClick={() => {
               setIsMenuOpen(false);
               window.scrollTo(0, 0);
             }}>
@@ -209,7 +209,7 @@ const Navbar = () => {
           {!isAuthenticated && (
             <button
               onClick={handleLogin}
-              className="block w-full text-left px-3 py-3 rounded-md text-sm min-h-[44px] flex items-center touch-manipulation text-laboratory-dark bg-laboratory-light hover:bg-laboratory-primary hover:text-white active:bg-laboratory-accent"
+              className="block w-full text-left px-3 py-3 rounded-md text-sm min-h-[44px] flex items-center touch-manipulation text-vet-dark bg-vet-light hover:bg-vet-primary hover:text-white active:bg-vet-accent"
             >
               {t('nav.login')}
             </button>
@@ -218,7 +218,7 @@ const Navbar = () => {
           {isAuthenticated && (
             <button
               onClick={handleLogin}
-              className="block w-full text-left px-3 py-3 rounded-md text-sm min-h-[44px] flex items-center touch-manipulation whitespace-nowrap bg-white text-laboratory-primary border border-laboratory-primary hover:bg-laboratory-light active:bg-laboratory-accent"
+              className="block w-full text-left px-3 py-3 rounded-md text-sm min-h-[44px] flex items-center touch-manipulation whitespace-nowrap bg-white text-vet-primary border border-vet-primary hover:bg-vet-light active:bg-vet-accent"
             >
               {t('nav.logout')}
             </button>

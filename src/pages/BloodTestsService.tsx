@@ -93,10 +93,10 @@ const BloodTestsService = () => {
           >
             {/* Header */}
             <motion.div className="text-center mb-12" variants={itemVariants}>
-              <div className="w-16 h-16 bg-laboratory-primary rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-vet-primary rounded-full flex items-center justify-center mx-auto mb-6">
                 <TestTube className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-laboratory-dark mb-4">
+              <h1 className="text-4xl font-bold text-vet-dark mb-4">
                 Analyses Sanguines
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -108,10 +108,10 @@ const BloodTestsService = () => {
             {/* Key Benefits */}
             <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12" variants={containerVariants}>
               <motion.div variants={itemVariants}>
-                <Card className="border-laboratory-muted hover:shadow-lg transition-shadow">
+                <Card className="border-vet-muted hover:shadow-lg transition-shadow">
                   <CardHeader className="text-center">
-                    <Clock className="w-8 h-8 text-laboratory-primary mx-auto mb-2" />
-                    <CardTitle className="text-laboratory-dark">Résultats Rapides</CardTitle>
+                    <Clock className="w-8 h-8 text-vet-primary mx-auto mb-2" />
+                    <CardTitle className="text-vet-dark">Résultats Rapides</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 text-center">
@@ -123,10 +123,10 @@ const BloodTestsService = () => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Card className="border-laboratory-muted hover:shadow-lg transition-shadow">
+                <Card className="border-vet-muted hover:shadow-lg transition-shadow">
                   <CardHeader className="text-center">
-                    <Shield className="w-8 h-8 text-laboratory-primary mx-auto mb-2" />
-                    <CardTitle className="text-laboratory-dark">Fiabilité Garantie</CardTitle>
+                    <Shield className="w-8 h-8 text-vet-primary mx-auto mb-2" />
+                    <CardTitle className="text-vet-dark">Fiabilité Garantie</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 text-center">
@@ -138,10 +138,10 @@ const BloodTestsService = () => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Card className="border-laboratory-muted hover:shadow-lg transition-shadow">
+                <Card className="border-vet-muted hover:shadow-lg transition-shadow">
                   <CardHeader className="text-center">
-                    <FileText className="w-8 h-8 text-laboratory-primary mx-auto mb-2" />
-                    <CardTitle className="text-laboratory-dark">Interprétation Médicale</CardTitle>
+                    <FileText className="w-8 h-8 text-vet-primary mx-auto mb-2" />
+                    <CardTitle className="text-vet-dark">Interprétation Médicale</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 text-center">
@@ -155,23 +155,23 @@ const BloodTestsService = () => {
 
             {/* Blood Tests List */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <h2 className="text-3xl font-bold text-laboratory-dark mb-8 text-center">
+              <h2 className="text-3xl font-bold text-vet-dark mb-8 text-center">
                 Nos Analyses Sanguines
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {bloodTests.map((test, index) => (
                   <motion.div key={index} variants={itemVariants}>
-                    <Card className="border-laboratory-muted hover:shadow-lg transition-all duration-300 h-full">
+                    <Card className="border-vet-muted hover:shadow-lg transition-all duration-300 h-full">
                       <CardHeader>
-                        <CardTitle className="text-laboratory-dark flex items-center">
-                          <CheckCircle className="w-5 h-5 text-laboratory-primary mr-2" />
+                        <CardTitle className="text-vet-dark flex items-center">
+                          <CheckCircle className="w-5 h-5 text-vet-primary mr-2" />
                           {test.name}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-gray-600 mb-4">{test.description}</p>
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-laboratory-accent">
+                          <span className="text-vet-accent">
                             Délai: {test.duration}
                           </span>
                           <span className={`px-2 py-1 rounded-full text-xs ${
@@ -191,15 +191,15 @@ const BloodTestsService = () => {
 
             {/* Preparation Instructions */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <Card className="border-laboratory-primary bg-laboratory-light">
+              <Card className="border-vet-primary bg-vet-light">
                 <CardHeader>
-                  <CardTitle className="text-laboratory-dark">
+                  <CardTitle className="text-vet-dark">
                     Préparation pour les Analyses Sanguines
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-laboratory-dark mb-2">Analyses à jeun :</h4>
+                    <h4 className="font-semibold text-vet-dark mb-2">Analyses à jeun :</h4>
                     <ul className="list-disc list-inside text-gray-600 space-y-1">
                       <li>Ne pas manger ni boire (sauf eau) pendant 12h avant le prélèvement</li>
                       <li>Éviter l'alcool 24h avant</li>
@@ -207,7 +207,7 @@ const BloodTestsService = () => {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-laboratory-dark mb-2">Conseils généraux :</h4>
+                    <h4 className="font-semibold text-vet-dark mb-2">Conseils généraux :</h4>
                     <ul className="list-disc list-inside text-gray-600 space-y-1">
                       <li>Bien s'hydrater la veille</li>
                       <li>Éviter l'effort physique intense avant le prélèvement</li>
@@ -220,19 +220,19 @@ const BloodTestsService = () => {
 
             {/* CTA */}
             <motion.div className="text-center" variants={itemVariants}>
-              <Card className="border-laboratory-primary bg-white">
+              <Card className="border-vet-primary bg-white">
                 <CardContent className="p-8">
-                  <h3 className="text-2xl font-bold text-laboratory-dark mb-4">
+                  <h3 className="text-2xl font-bold text-vet-dark mb-4">
                     Prêt pour vos analyses ?
                   </h3>
                   <p className="text-gray-600 mb-6">
                     Trouvez le laboratoire le plus proche et prenez rendez-vous en ligne
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button className="bg-laboratory-primary hover:bg-laboratory-accent">
+                    <Button className="bg-vet-primary hover:bg-vet-accent">
                       Trouver un Laboratoire
                     </Button>
-                    <Button variant="outline" className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light">
+                    <Button variant="outline" className="border-vet-primary text-vet-dark hover:bg-vet-light">
                       Prélèvement à Domicile
                     </Button>
                   </div>

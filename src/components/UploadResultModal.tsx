@@ -131,7 +131,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
         .insert([
           {
             client_id: clientId,
-            laboratory_id: user.id,
+            vet_id: user.id,
             title: title.trim(),
             description: description.trim(),
             file_url: publicUrl,
@@ -206,9 +206,9 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
           exit={{ scale: 0.9, opacity: 0 }}
           className="w-full max-w-md"
         >
-          <Card className="border-laboratory-primary">
+          <Card className="border-vet-primary">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-laboratory-dark">
+              <CardTitle className="text-vet-dark">
                 Envoyer Résultat à {clientName}
               </CardTitle>
               <Button
@@ -256,11 +256,11 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
                     />
                     <label
                       htmlFor="file"
-                      className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-laboratory-primary transition-colors"
+                      className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-vet-primary transition-colors"
                     >
                       {file ? (
                         <div className="text-center">
-                          <FileText className="w-8 h-8 mx-auto mb-2 text-laboratory-primary" />
+                          <FileText className="w-8 h-8 mx-auto mb-2 text-vet-primary" />
                           <p className="text-sm font-medium">{file.name}</p>
                           <p className="text-xs text-gray-500">
                             {(file.size / 1024 / 1024).toFixed(2)} MB
@@ -294,7 +294,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 w-full sm:w-auto bg-laboratory-primary hover:bg-laboratory-accent"
+                    className="flex-1 w-full sm:w-auto bg-vet-primary hover:bg-vet-accent"
                     disabled={isUploading}
                     size="default"
                   >

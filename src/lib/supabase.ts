@@ -34,7 +34,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export interface User {
   id: string;
   email: string;
-  user_type: 'client' | 'laboratory';
+  user_type: 'client' | 'vet';
   created_at: string;
   updated_at: string;
 }
@@ -54,10 +54,10 @@ export interface ClientProfile {
   updated_at: string;
 }
 
-export interface LaboratoryProfile {
+export interface VetProfile {
   id: string;
   user_id: string;
-  lab_name: string;
+  clinic_name: string;
   license_number: string;
   phone: string;
   address: string;
@@ -76,7 +76,7 @@ export interface LaboratoryProfile {
 export interface TestRequest {
   id: string;
   client_id: string;
-  laboratory_id?: string;
+  vet_id?: string;
   test_types: string[];
   status: 'pending' | 'assigned' | 'collected' | 'processing' | 'completed' | 'cancelled';
   collection_type: 'home' | 'lab';
@@ -92,7 +92,7 @@ export interface TestRequest {
 export interface TestResult {
   id: string;
   test_request_id: string;
-  laboratory_id: string;
+  vet_id: string;
   client_id: string;
   test_name: string;
   result_value?: string;
@@ -120,7 +120,7 @@ export interface Notification {
 }
 
 // Authentication functions
-export const signUp = async (email: string, password: string, userType: 'client' | 'laboratory', additionalData: any) => {
+export const signUp = async (email: string, password: string, userType: 'client' | 'vet', additionalData: any) => {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -129,7 +129,7 @@ export const signUp = async (email: string, password: string, userType: 'client'
         user_type: userType,
         first_name: additionalData.firstName,
         last_name: additionalData.lastName,
-        lab_name: additionalData.labName,
+        clinic_name: additionalData.labName,
         ...additionalData
       }
     }
@@ -168,9 +168,9 @@ export const createClientProfile = async (profileData: Omit<ClientProfile, 'id' 
   return { data, error };
 };
 
-export const createLaboratoryProfile = async (profileData: Omit<LaboratoryProfile, 'id' | 'created_at' | 'updated_at' | 'is_verified'>) => {
+export const createVetProfile = async (profileData: Omit<VetProfile, 'id' | 'created_at' | 'updated_at' | 'is_verified'>) => {
   const { data, error } = await supabase
-    .from('laboratory_profiles')
+    .from('vet_profiles')
     .insert([{ ...profileData, is_verified: false }])
     .select()
     .single();
@@ -188,9 +188,9 @@ export const getClientProfile = async (userId: string) => {
   return { data, error };
 };
 
-export const getLaboratoryProfile = async (userId: string) => {
+export const getVetProfile = async (userId: string) => {
   const { data, error } = await supabase
-    .from('laboratory_profiles')
+    .from('vet_profiles')
     .select('*')
     .eq('user_id', userId)
     .single();
@@ -209,17 +209,17 @@ export const createTestRequest = async (requestData: Omit<TestRequest, 'id' | 'c
   return { data, error };
 };
 
-export const getTestRequests = async (userId: string, userType: 'client' | 'laboratory') => {
+export const getTestRequests = async (userId: string, userType: 'client' | 'vet') => {
   let query = supabase.from('test_requests').select(`
     *,
     client_profiles!inner(first_name, last_name, phone),
-    laboratory_profiles(lab_name, phone)
+    vet_profiles(clinic_name, phone)
   `);
   
   if (userType === 'client') {
     query = query.eq('client_id', userId);
   } else {
-    query = query.eq('laboratory_id', userId);
+    query = query.eq('vet_id', userId);
   }
   
   const { data, error } = await query.order('created_at', { ascending: false });
@@ -248,7 +248,7 @@ export const createTestResult = async (resultData: Omit<TestResult, 'id' | 'crea
   return { data, error };
 };
 
-export const getTestResults = async (userId: string, userType: 'client' | 'laboratory') => {
+export const getTestResults = async (userId: string, userType: 'client' | 'vet') => {
   let query = supabase.from('test_results').select(`
     *,
     test_requests!inner(
@@ -256,13 +256,13 @@ export const getTestResults = async (userId: string, userType: 'client' | 'labor
       test_types,
       collection_date
     ),
-    laboratory_profiles!inner(lab_name)
+    vet_profiles!inner(clinic_name)
   `);
   
   if (userType === 'client') {
     query = query.eq('client_id', userId);
   } else {
-    query = query.eq('laboratory_id', userId);
+    query = query.eq('vet_id', userId);
   }
   
   const { data, error } = await query.order('created_at', { ascending: false });
@@ -363,9 +363,9 @@ export const updatePassword = async (newPassword: string) => {
   return { data, error };
 };
 
-// Laboratory and clinique search functions
+// vet and vet search functions
 export const searchLaboratories = async (city?: string, services?: string[]) => {
-  // Search both laboratories and cliniques using the combined view
+  // Search both laboratories and vets using the combined view
   let query = supabase
     .from('all_service_providers')
     .select('*');
@@ -385,7 +385,7 @@ export const searchLaboratories = async (city?: string, services?: string[]) => 
 // Function to get only laboratories
 export const searchOnlyLaboratories = async (city?: string, services?: string[]) => {
   let query = supabase
-    .from('laboratory_profiles')
+    .from('vet_profiles')
     .select('*');
   
   if (city) {
@@ -400,10 +400,10 @@ export const searchOnlyLaboratories = async (city?: string, services?: string[])
   return { data, error };
 };
 
-// Function to get only cliniques
-export const searchOnlyCliniques = async (city?: string, services?: string[]) => {
+// Function to get only vets
+export const searchOnlyvets = async (city?: string, services?: string[]) => {
   let query = supabase
-    .from('clinique_profiles')
+    .from('vet_profiles')
     .select('*');
   
   if (city) {

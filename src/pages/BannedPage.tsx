@@ -40,7 +40,7 @@ const BannedPage: React.FC = () => {
   };
 
   const handleContactSupport = () => {
-    window.location.href = 'mailto:support@ sihaaexpress.com?subject=Demande de révision de bannissement';
+    window.location.href = 'mailto:support@ VetDz.com?subject=Demande de révision de bannissement';
   };
 
   const handleReturnHome = () => {
@@ -72,7 +72,7 @@ const BannedPage: React.FC = () => {
               Votre compte a été temporairement suspendu
             </p>
             <p className="text-sm text-gray-600">
-              Vous ne pouvez pas accéder à  sihaaexpress pour le moment
+              Vous ne pouvez pas accéder à  VetDz pour le moment
             </p>
           </div>
 
@@ -106,7 +106,7 @@ const BannedPage: React.FC = () => {
           <div className="space-y-3">
             <Button
               onClick={handleContactSupport}
-              className="w-full bg-green-400 hover:bg-green-500 text-white"
+              className="w-full bg-vet-primary hover:bg-vet-accent text-white"
             >
               <Mail className="w-4 h-4 mr-2" />
               Contacter le Support

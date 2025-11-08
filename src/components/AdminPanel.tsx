@@ -73,7 +73,7 @@ interface UserProfile {
 
 interface LabProfile {
   id: string;
-  lab_name: string;
+  clinic_name: string;
   email: string;
   phone: string;
   address: string;
@@ -82,10 +82,10 @@ interface LabProfile {
   user_id: string;
 }
 
-interface CliniqueProfile {
+interface VetProfile {
   id: string;
-  lab_name: string; // Same field names as laboratory for compatibility
-  laboratory_name: string;
+  clinic_name: string; // Same field names as vet for compatibility
+  vet_name: string;
   email: string;
   phone: string;
   address: string;
@@ -99,7 +99,7 @@ const AdminPanel: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [clientProfiles, setClientProfiles] = useState<UserProfile[]>([]);
   const [labProfiles, setLabProfiles] = useState<LabProfile[]>([]);
-  const [cliniqueProfiles, setCliniqueProfiles] = useState<CliniqueProfile[]>([]);
+  const [VetProfiles, setVetProfiles] = useState<VetProfile[]>([]);
   const [padRequests, setPadRequests] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -133,34 +133,11 @@ const AdminPanel: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-
-      // Create a function to get auth users (admin only)
-      const { data: authUsers, error } = await supabase.rpc('get_auth_users_admin');
-
-      if (error || !authUsers || authUsers.length === 0) {
-
-        // Always fallback to profiles method since auth.users access is restricted
-        await fetchUsersFromProfiles();
-        return;
-      }
-
-      // Filter out admin users and format
-      const filteredUsers = authUsers
-        .filter((user: any) => user.user_metadata?.role !== 'admin' && user.email !== 'glowyboy01@gmail.com')
-        .map((user: any) => ({
-          id: user.id,
-          email: user.email,
-          created_at: user.created_at,
-          last_sign_in_at: user.last_sign_in_at,
-          user_metadata: user.user_metadata || {}
-        }));
-
-      setUsers(filteredUsers);
-
-    } catch (error) {
-
-      // Fallback to profiles method
+      // Use profiles method directly (more reliable)
       await fetchUsersFromProfiles();
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setUsers([]);
     }
   };
 
@@ -168,10 +145,10 @@ const AdminPanel: React.FC = () => {
     try {
 
       // Fetch users from profiles since we can't access auth.users directly
-      const [clientsResult, labsResult, cliniquesResult] = await Promise.all([
+      const [clientsResult, labsResult, vetsResult] = await Promise.all([
         supabase.from('client_profiles').select('*'),
-        supabase.from('laboratory_profiles').select('*'),
-        supabase.from('clinique_profiles').select('*')
+        supabase.from('vet_profiles').select('*'),
+        supabase.from('vet_profiles').select('*')
       ]);
 
       // Combine and format user data
@@ -200,23 +177,23 @@ const AdminPanel: React.FC = () => {
             created_at: profile.created_at,
             last_sign_in_at: profile.created_at,
             user_metadata: {
-              type: 'laboratory',
-              full_name: profile.lab_name
+              type: 'vet',
+              full_name: profile.clinic_name
             }
           });
         });
       }
 
-      if (cliniquesResult.data) {
-        cliniquesResult.data.forEach(profile => {
+      if (vetsResult.data) {
+        vetsResult.data.forEach(profile => {
           allUsers.push({
             id: profile.user_id,
             email: profile.email,
             created_at: profile.created_at,
             last_sign_in_at: profile.created_at,
             user_metadata: {
-              type: 'clinique',
-              full_name: profile.lab_name || profile.laboratory_name
+              type: 'vet',
+              full_name: profile.clinic_name || profile.vet_name
             }
           });
         });
@@ -236,15 +213,15 @@ const AdminPanel: React.FC = () => {
 
   const fetchProfiles = async () => {
     try {
-      const [clientsResult, labsResult, cliniquesResult] = await Promise.all([
+      const [clientsResult, labsResult, vetsResult] = await Promise.all([
         supabase.from('client_profiles').select('*'),
-        supabase.from('laboratory_profiles').select('*'),
-        supabase.from('clinique_profiles').select('*')
+        supabase.from('vet_profiles').select('*'),
+        supabase.from('vet_profiles').select('*')
       ]);
 
       if (clientsResult.data) setClientProfiles(clientsResult.data);
       if (labsResult.data) setLabProfiles(labsResult.data);
-      if (cliniquesResult.data) setCliniqueProfiles(cliniquesResult.data);
+      if (vetsResult.data) setVetProfiles(vetsResult.data);
     } catch (error) {
       toast({
         title: "Erreur",
@@ -294,17 +271,17 @@ const AdminPanel: React.FC = () => {
             }
           }
           
-          // Get laboratory profile if laboratory_id exists
-          if (request.laboratory_id) {
+          // Get vet profile if vet_id exists
+          if (request.vet_id) {
             try {
               const { data: labProfile } = await supabase
-                .from('laboratory_profiles')
-                .select('lab_name, laboratory_name, email, phone')
-                .eq('user_id', request.laboratory_id)
+                .from('vet_profiles')
+                .select('clinic_name, vet_name, email, phone')
+                .eq('user_id', request.vet_id)
                 .single();
               
               if (labProfile) {
-                enrichedRequest.laboratory_profiles = labProfile;
+                enrichedRequest.vet_profiles = labProfile;
               }
             } catch (labError) {
 
@@ -389,12 +366,12 @@ const AdminPanel: React.FC = () => {
 
     const checks = [
       { name: 'client_profiles', query: supabase.from('client_profiles').select('*').eq('user_id', userId) },
-      { name: 'laboratory_profiles', query: supabase.from('laboratory_profiles').select('*').eq('user_id', userId) },
+      { name: 'vet_profiles', query: supabase.from('vet_profiles').select('*').eq('user_id', userId) },
       { name: 'pad_requests (client)', query: supabase.from('pad_requests').select('*').eq('client_id', userId) },
-      { name: 'pad_requests (lab)', query: supabase.from('pad_requests').select('*').eq('laboratory_id', userId) },
+      { name: 'pad_requests (lab)', query: supabase.from('pad_requests').select('*').eq('vet_id', userId) },
       { name: 'notifications', query: supabase.from('notifications').select('*').eq('user_id', userId) },
       { name: 'medical_results (client)', query: supabase.from('medical_results').select('*').eq('client_id', userId) },
-      { name: 'medical_results (lab)', query: supabase.from('medical_results').select('*').eq('laboratory_id', userId) },
+      { name: 'medical_results (lab)', query: supabase.from('medical_results').select('*').eq('vet_id', userId) },
       { name: 'file_uploads', query: supabase.from('file_uploads').select('*').eq('user_id', userId) },
       { name: 'banned_users', query: supabase.from('banned_users').select('*').eq('user_id', userId) }
     ];
@@ -418,12 +395,12 @@ const AdminPanel: React.FC = () => {
     // Now perform deletions
     const deletions = [
       { name: 'client_profiles', promise: supabase.from('client_profiles').delete().eq('user_id', userId) },
-      { name: 'laboratory_profiles', promise: supabase.from('laboratory_profiles').delete().eq('user_id', userId) },
+      { name: 'vet_profiles', promise: supabase.from('vet_profiles').delete().eq('user_id', userId) },
       { name: 'pad_requests (client)', promise: supabase.from('pad_requests').delete().eq('client_id', userId) },
-      { name: 'pad_requests (lab)', promise: supabase.from('pad_requests').delete().eq('laboratory_id', userId) },
+      { name: 'pad_requests (lab)', promise: supabase.from('pad_requests').delete().eq('vet_id', userId) },
       { name: 'notifications', promise: supabase.from('notifications').delete().eq('user_id', userId) },
       { name: 'medical_results (client)', promise: supabase.from('medical_results').delete().eq('client_id', userId) },
-      { name: 'medical_results (lab)', promise: supabase.from('medical_results').delete().eq('laboratory_id', userId) },
+      { name: 'medical_results (lab)', promise: supabase.from('medical_results').delete().eq('vet_id', userId) },
       { name: 'file_uploads', promise: supabase.from('file_uploads').delete().eq('user_id', userId) },
       { name: 'banned_users', promise: supabase.from('banned_users').delete().eq('user_id', userId) }
     ];
@@ -568,16 +545,16 @@ const AdminPanel: React.FC = () => {
   const getFilteredUsers = (filter: string) => {
     let filtered = users.filter(user => {
       const profile = getUserProfile(user.id);
-      const cliniqueProfile = cliniqueProfiles.find(p => p.user_id === user.id);
+      const VetProfile = VetProfiles.find(p => p.user_id === user.id);
       const searchLower = searchTerm.toLowerCase();
       
       const matchesSearch = (
         user.email?.toLowerCase().includes(searchLower) ||
         profile?.full_name?.toLowerCase().includes(searchLower) ||
         profile?.phone?.includes(searchTerm) ||
-        (profile as LabProfile)?.lab_name?.toLowerCase().includes(searchLower) ||
-        (cliniqueProfile as CliniqueProfile)?.lab_name?.toLowerCase().includes(searchLower) ||
-        (cliniqueProfile as CliniqueProfile)?.laboratory_name?.toLowerCase().includes(searchLower)
+        (profile as LabProfile)?.clinic_name?.toLowerCase().includes(searchLower) ||
+        (VetProfile as VetProfile)?.clinic_name?.toLowerCase().includes(searchLower) ||
+        (VetProfile as VetProfile)?.vet_name?.toLowerCase().includes(searchLower)
       );
       
       if (!matchesSearch) return false;
@@ -585,10 +562,10 @@ const AdminPanel: React.FC = () => {
       switch (filter) {
         case 'clients':
           return clientProfiles.some(cp => cp.user_id === user.id);
-        case 'laboratories':
+        case 'veterinarians':
           return labProfiles.some(lp => lp.user_id === user.id);
-        case 'cliniques':
-          return cliniqueProfiles.some(cp => cp.user_id === user.id);
+        case 'vets':
+          return VetProfiles.some(cp => cp.user_id === user.id);
         case 'banned':
           return isUserBanned(user);
         default:
@@ -603,7 +580,7 @@ const AdminPanel: React.FC = () => {
   
   const getUserPadRequests = (userId: string, asClient: boolean = true) => {
     return padRequests.filter(request => 
-      asClient ? request.client_id === userId : request.laboratory_id === userId
+      asClient ? request.client_id === userId : request.vet_id === userId
     );
   };
   
@@ -661,12 +638,12 @@ const AdminPanel: React.FC = () => {
         banInfo
       ] = await Promise.all([
         safeFetch('client_profiles', supabase.from('client_profiles').select('*').eq('user_id', userId).single(), 'Client profile fetch'),
-        safeFetch('laboratory_profiles', supabase.from('laboratory_profiles').select('*').eq('user_id', userId).single(), 'Lab profile fetch'),
+        safeFetch('vet_profiles', supabase.from('vet_profiles').select('*').eq('user_id', userId).single(), 'Lab profile fetch'),
         safeFetch('pad_requests (client)', supabase.from('pad_requests').select('*').eq('client_id', userId), 'PAD requests as client fetch'),
-        safeFetch('pad_requests (lab)', supabase.from('pad_requests').select('*').eq('laboratory_id', userId), 'PAD requests as lab fetch'),
+        safeFetch('pad_requests (lab)', supabase.from('pad_requests').select('*').eq('vet_id', userId), 'PAD requests as lab fetch'),
         safeFetch('notifications', supabase.from('notifications').select('*').eq('user_id', userId), 'Notifications fetch'),
         safeFetch('medical_results (client)', supabase.from('medical_results').select('*').eq('client_id', userId), 'Medical results as client fetch'),
-        safeFetch('medical_results (lab)', supabase.from('medical_results').select('*').eq('laboratory_id', userId), 'Medical results as lab fetch'),
+        safeFetch('medical_results (lab)', supabase.from('medical_results').select('*').eq('vet_id', userId), 'Medical results as lab fetch'),
         safeFetch('banned_users', supabase.from('banned_users').select('*').eq('user_id', userId), 'Banned users fetch')
       ]);
 
@@ -689,7 +666,7 @@ const AdminPanel: React.FC = () => {
         totalMedicalResults: (medicalResultsAsClient.data?.length || 0) + (medicalResultsAsLab.data?.length || 0),
         isBanned: (banInfo.data && banInfo.data.length > 0) || bannedUsers.includes(userId),
         userType: (clientProfile.data || fallbackClientProfile) ? 'Client' : 
-                 (labProfile.data || fallbackLabProfile) ? 'Laboratoire' : 'Inconnu',
+                 (labProfile.data || fallbackLabProfile) ? 'Vétérinaire' : 'Inconnu',
         errors: {
           clientProfileError: clientProfile.error,
           labProfileError: labProfile.error,
@@ -809,7 +786,7 @@ const AdminPanel: React.FC = () => {
                     <Building2 className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 font-medium">Laboratoires</p>
+                    <p className="text-sm text-gray-600 font-medium">Vétérinaires</p>
                     <p className="text-2xl font-bold text-purple-700">{labProfiles.length}</p>
                   </div>
                 </div>
@@ -823,8 +800,8 @@ const AdminPanel: React.FC = () => {
                     <Building2 className="w-6 h-6 text-indigo-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 font-medium">Cliniques</p>
-                    <p className="text-2xl font-bold text-indigo-700">{cliniqueProfiles.length}</p>
+                    <p className="text-sm text-gray-600 font-medium">vets</p>
+                    <p className="text-2xl font-bold text-indigo-700">{VetProfiles.length}</p>
                   </div>
                 </div>
               </CardContent>
@@ -871,13 +848,13 @@ const AdminPanel: React.FC = () => {
                     <UserCheck className="w-4 h-4" />
                     Clients ({clientProfiles.length})
                   </TabsTrigger>
-                  <TabsTrigger value="laboratories" className="flex items-center gap-2">
+                  <TabsTrigger value="veterinarians" className="flex items-center gap-2">
                     <Building2 className="w-4 h-4" />
-                    Labos ({labProfiles.length})
+                    Vétérinaires ({labProfiles.length})
                   </TabsTrigger>
-                  <TabsTrigger value="cliniques" className="flex items-center gap-2">
+                  <TabsTrigger value="vets" className="flex items-center gap-2">
                     <Building2 className="w-4 h-4" />
-                    Cliniques ({cliniqueProfiles.length})
+                    vets ({VetProfiles.length})
                   </TabsTrigger>
                   <TabsTrigger value="banned" className="flex items-center gap-2">
                     <Ban className="w-4 h-4" />
@@ -909,11 +886,11 @@ const AdminPanel: React.FC = () => {
                               <div className="flex items-center gap-2">
                                 {isLab ? <Building2 className="w-5 h-5 text-blue-600" /> : <Users className="w-5 h-5 text-green-600" />}
                                 <span className="font-semibold text-base sm:text-lg text-gray-800">
-                                  {profile?.full_name || (profile as LabProfile)?.lab_name || 'Nom non disponible'}
+                                  {profile?.full_name || (profile as LabProfile)?.clinic_name || 'Nom non disponible'}
                                 </span>
                               </div>
                               <Badge variant={isLab ? "secondary" : "default"} className="text-xs font-medium">
-                                {isLab ? 'Laboratoire' : 'Client'}
+                                {isLab ? 'Vétérinaire' : 'Client'}
                               </Badge>
                               {isBanned && (
                                 <Badge variant="destructive" className="text-xs font-medium animate-pulse">
@@ -1049,7 +1026,7 @@ const AdminPanel: React.FC = () => {
                                       <div className="font-bold text-red-600">⚠️ ATTENTION: SUPPRESSION TOTALE ET IRRÉVERSIBLE</div>
                                       <div>Cette action supprimera TOUT ce qui concerne cet utilisateur :</div>
                                       <ul className="list-disc list-inside space-y-1 text-sm">
-                                        <li><strong>Profils</strong> - Client/Laboratoire</li>
+                                        <li><strong>Profils</strong> - Client/Vétérinaire</li>
                                         <li><strong>Demandes PAD</strong> - Envoyées et reçues</li>
                                         <li><strong>Notifications</strong> - Toutes les notifications</li>
                                         <li><strong>Résultats médicaux</strong> - Tous les résultats</li>
@@ -1142,15 +1119,15 @@ const AdminPanel: React.FC = () => {
                     </Card>
                   )}
 
-                  {/* Laboratory Profile */}
+                  {/* vet Profile */}
                   {userDetails.labProfile && (
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Profil Laboratoire</CardTitle>
+                        <CardTitle className="text-lg">Profil Vétérinaire</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div><strong>Nom du laboratoire:</strong> {userDetails.labProfile.lab_name}</div>
+                          <div><strong>Nom de la clinique:</strong> {userDetails.labProfile.clinic_name}</div>
                           <div><strong>Email:</strong> {userDetails.labProfile.email}</div>
                           <div><strong>Téléphone:</strong> {userDetails.labProfile.phone}</div>
                           <div><strong>SIRET:</strong> {userDetails.labProfile.siret}</div>
@@ -1189,7 +1166,7 @@ const AdminPanel: React.FC = () => {
                           <CardTitle className="text-lg">Demandes PAD Client ({userDetails.padRequestsAsClient.length})</CardTitle>
                           <div className="flex items-center gap-2">
                             <Input
-                              placeholder="Rechercher laboratoires..."
+                              placeholder="Rechercher vétérinaires..."
                               value={detailSearchTerm}
                               onChange={(e) => setDetailSearchTerm(e.target.value)}
                               className="max-w-xs text-sm"
@@ -1197,7 +1174,7 @@ const AdminPanel: React.FC = () => {
                           </div>
                         </div>
                         <CardDescription>
-                          Laboratoires contactés par ce client
+                          Vétérinaires contactés par ce client
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -1206,21 +1183,21 @@ const AdminPanel: React.FC = () => {
                             {userDetails.padRequestsAsClient
                               .filter((request: any) => {
                                 const searchLower = detailSearchTerm.toLowerCase();
-                                const labProfile = labProfiles.find(lab => lab.user_id === request.laboratory_id);
+                                const labProfile = labProfiles.find(lab => lab.user_id === request.vet_id);
                                 return !searchLower || 
-                                  labProfile?.lab_name?.toLowerCase().includes(searchLower) ||
+                                  labProfile?.clinic_name?.toLowerCase().includes(searchLower) ||
                                   labProfile?.email?.toLowerCase().includes(searchLower) ||
                                   request.status?.toLowerCase().includes(searchLower);
                               })
                               .map((request: any, index: number) => {
-                                const labProfile = labProfiles.find(lab => lab.user_id === request.laboratory_id);
+                                const labProfile = labProfiles.find(lab => lab.user_id === request.vet_id);
                                 return (
                                   <div key={index} className={`border rounded-lg p-3 ${getStatusBadgeColor(request.status)} bg-opacity-10`}>
                                     <div className="flex items-center justify-between mb-2">
                                       <div className="flex items-center gap-2">
                                         <Building2 className="w-4 h-4 text-blue-600" />
                                         <span className="font-semibold text-sm">
-                                          {labProfile?.lab_name || 'Laboratoire inconnu'}
+                                          {labProfile?.clinic_name || 'Vétérinaire inconnu'}
                                         </span>
                                       </div>
                                       <div className="flex items-center gap-1">
@@ -1261,12 +1238,12 @@ const AdminPanel: React.FC = () => {
                     </Card>
                   )}
 
-                  {/* PAD Requests for Laboratories */}
+                  {/* PAD Requests for Veterinarians */}
                   {userDetails.labProfile && (
                     <Card>
                       <CardHeader>
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg">Demandes PAD Laboratoire ({userDetails.padRequestsAsLab.length})</CardTitle>
+                          <CardTitle className="text-lg">Demandes PAD Vétérinaire ({userDetails.padRequestsAsLab.length})</CardTitle>
                           <div className="flex items-center gap-2">
                             <Input
                               placeholder="Rechercher clients..."
@@ -1277,7 +1254,7 @@ const AdminPanel: React.FC = () => {
                           </div>
                         </div>
                         <CardDescription>
-                          Clients qui ont contacté ce laboratoire
+                          Clients qui ont contacté ce vétérinaire
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -1386,7 +1363,7 @@ const AdminPanel: React.FC = () => {
                           ))}
                           {userDetails.medicalResultsAsLab.map((result: any, index: number) => (
                             <div key={`lab-${index}`} className="border-l-4 border-indigo-400 pl-3 text-sm">
-                              <div><strong>Type:</strong> Résultat envoyé (Laboratoire)</div>
+                              <div><strong>Type:</strong> Résultat envoyé (Vétérinaire)</div>
                               <div><strong>Titre:</strong> {result.title}</div>
                               <div><strong>Description:</strong> {result.description}</div>
                               <div><strong>Date:</strong> {new Date(result.created_at).toLocaleString('fr-FR')}</div>

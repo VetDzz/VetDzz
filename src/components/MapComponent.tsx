@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Navigation, Search, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-export interface Laboratory {
+export interface vet {
   id: number;
   name: string;
   address: string;
@@ -19,7 +19,7 @@ export interface MapComponentHandles {
 }
 
 interface MapComponentProps {
-  laboratories?: Laboratory[];
+  laboratories?: vet[];
   onLocationSelect?: (lat: number, lng: number) => void;
   mode?: 'view' | 'select';
   height?: string;
@@ -34,7 +34,7 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
   const { t } = useLanguage();
   const mapRef = useRef<HTMLDivElement>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [selectedLab, setSelectedLab] = useState<Laboratory | null>(null);
+  const [selectedLab, setSelectedLab] = useState<vet | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   // Expose imperative handle to allow parent to focus a lab on the map
@@ -140,7 +140,7 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
         <Button
           onClick={getCurrentLocation}
           variant="outline"
-          className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+          className="border-vet-primary text-vet-dark hover:bg-vet-light"
         >
           <Navigation className="w-4 h-4 mr-2" />
           {t('findLab.myLocation')}
@@ -152,7 +152,7 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-laboratory-dark">Carte Interactive</CardTitle>
+              <CardTitle className="text-vet-dark">Carte Interactive</CardTitle>
             </CardHeader>
             <CardContent>
               <div
@@ -162,7 +162,7 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
               >
                 {!isMapLoaded ? (
                   <div className="flex flex-col items-center space-y-2">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-laboratory-primary"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-vet-primary"></div>
                     <p className="text-sm text-gray-500">Chargement de la carte...</p>
                   </div>
                 ) : (
@@ -220,7 +220,7 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
                         </div>
                       )}
 
-                      {/* Laboratory markers */}
+                      {/* vet markers */}
                       {labsToShow.map((lab, index) => (
                         <div
                           key={lab.id}
@@ -234,10 +234,10 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
                           title={lab.name}
                         >
                           <div className="relative">
-                            <div className="w-8 h-8 bg-laboratory-primary rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+                            <div className="w-8 h-8 bg-vet-primary rounded-full border-2 border-white shadow-lg flex items-center justify-center">
                               <MapPin className="w-5 h-5 text-white" />
                             </div>
-                            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-laboratory-primary text-white text-xs px-2 py-1 rounded whitespace-nowrap max-w-32 truncate">
+                            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-vet-primary text-white text-xs px-2 py-1 rounded whitespace-nowrap max-w-32 truncate">
                               {lab.name}
                             </div>
                           </div>
@@ -258,7 +258,7 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
                             <span>Votre position</span>
                           </div>
                           <div className="flex items-center">
-                            <div className="w-3 h-3 bg-laboratory-primary rounded-full mr-2"></div>
+                            <div className="w-3 h-3 bg-vet-primary rounded-full mr-2"></div>
                             <span>Laboratoires ({labsToShow.length})</span>
                           </div>
                           {userLocation && (
@@ -271,11 +271,11 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
                       </div>
                     </div>
 
-                    {/* Laboratory markers */}
+                    {/* vet markers */}
                     {labsToShow.map((lab, index) => (
                       <div
                         key={lab.id}
-                        className="absolute w-6 h-6 bg-laboratory-primary rounded-full border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition-transform"
+                        className="absolute w-6 h-6 bg-vet-primary rounded-full border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition-transform"
                         style={{
                           left: `${20 + index * 15}%`,
                           top: `${30 + index * 10}%`
@@ -308,11 +308,11 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
           </Card>
         </div>
 
-        {/* Laboratory List */}
+        {/* vet List */}
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-laboratory-dark">
+              <CardTitle className="text-vet-dark">
                 Laboratoires à proximité
                 {userLocation && (
                   <span className="text-sm font-normal text-gray-500 ml-2">
@@ -327,23 +327,23 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
                   key={lab.id}
                   className={`p-3 border rounded-lg cursor-pointer transition-all ${
                     selectedLab?.id === lab.id
-                      ? 'border-laboratory-primary bg-laboratory-light'
-                      : 'border-gray-200 hover:border-laboratory-muted'
+                      ? 'border-vet-primary bg-vet-light'
+                      : 'border-gray-200 hover:border-vet-muted'
                   }`}
                   onClick={() => setSelectedLab(lab)}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h4 className="font-medium text-laboratory-dark">{lab.name}</h4>
+                      <h4 className="font-medium text-vet-dark">{lab.name}</h4>
                       <p className="text-sm text-gray-600 mt-1">{lab.address}</p>
                       <p className="text-sm text-gray-500">{lab.phone}</p>
                       {userLocation && 'distance' in lab && (
-                        <p className="text-xs text-laboratory-accent mt-1">
+                        <p className="text-xs text-vet-accent mt-1">
                           À {(lab as any).distance.toFixed(1)} km
                         </p>
                       )}
                     </div>
-                    <MapPin className="w-5 h-5 text-laboratory-primary flex-shrink-0" />
+                    <MapPin className="w-5 h-5 text-vet-primary flex-shrink-0" />
                   </div>
 
                   <div className="mt-2">
@@ -351,7 +351,7 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
                       {lab.services.slice(0, 2).map((service, index) => (
                         <span
                           key={index}
-                          className="px-2 py-1 bg-laboratory-muted text-laboratory-dark text-xs rounded-full"
+                          className="px-2 py-1 bg-vet-muted text-vet-dark text-xs rounded-full"
                         >
                           {service}
                         </span>
@@ -371,9 +371,9 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
       </div>
 
       {selectedLab && (
-        <Card className="border-laboratory-primary">
+        <Card className="border-vet-primary">
           <CardHeader>
-            <CardTitle className="text-laboratory-dark">{selectedLab.name}</CardTitle>
+            <CardTitle className="text-vet-dark">{selectedLab.name}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -388,14 +388,14 @@ const MapComponent = forwardRef<MapComponentHandles, MapComponentProps>(({
               </div>
               <div className="flex gap-2">
                 <Button
-                  className="flex-1 bg-laboratory-primary hover:bg-laboratory-accent"
+                  className="flex-1 bg-vet-primary hover:bg-vet-accent"
                   onClick={() => window.open(`tel:${selectedLab.phone}`, '_self')}
                 >
                   Appeler
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                  className="flex-1 border-vet-primary text-vet-dark hover:bg-vet-light"
                 >
                   Prélèvement à domicile
                 </Button>

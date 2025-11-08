@@ -12,7 +12,7 @@ import { searchLaboratories, supabase } from '@/lib/supabase';
 import AccurateMapComponent from '@/components/AccurateMapComponent';
 import { useRef } from 'react';
 
-const FindLaboratory = () => {
+const Findvet = () => {
   const [location, setLocation] = useState('');
   const [laboratories, setLaboratories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -87,7 +87,7 @@ const FindLaboratory = () => {
           setGlobalPadLock({
             active: true,
             until: new Date(lock.expires_at).getTime(),
-            activeLab: lock.laboratory_id,
+            activeLab: lock.vet_id,
             requestId: lock.request_id
           });
         } else {
@@ -97,7 +97,7 @@ const FindLaboratory = () => {
         // Fallback to original method if database functions not available
         const { data: pending } = await supabase
           .from('PAD_requests')
-          .select('id, laboratory_id, status, created_at')
+          .select('id, vet_id, status, created_at')
           .eq('client_id', user.id)
           .eq('status', 'pending')
           .order('created_at', { ascending: false })
@@ -113,7 +113,7 @@ const FindLaboratory = () => {
             setGlobalPadLock({
               active: true,
               until,
-              activeLab: req.laboratory_id,
+              activeLab: req.vet_id,
               requestId: req.id
             });
           } else {
@@ -265,7 +265,7 @@ const FindLaboratory = () => {
     }
   };
 
-  const sendPADRequest = async (laboratory: any) => {
+  const sendPADRequest = async (vet: any) => {
     if (!user) {
       toast({
         title: t('common.error'),
@@ -277,7 +277,7 @@ const FindLaboratory = () => {
 
     try {
       // Check if there's a global lock and this lab is not the active one
-      if (globalPadLock?.active && laboratory.user_id !== globalPadLock.activeLab) {
+      if (globalPadLock?.active && vet.user_id !== globalPadLock.activeLab) {
         const minutesLeft = Math.ceil((globalPadLock.until - Date.now()) / (60 * 1000));
         toast({ 
           title: 'Demande PAD en cours', 
@@ -288,7 +288,7 @@ const FindLaboratory = () => {
       }
       
       // If this is the active lab and already has a pending request
-      if (globalPadLock?.active && laboratory.user_id === globalPadLock.activeLab) {
+      if (globalPadLock?.active && vet.user_id === globalPadLock.activeLab) {
         toast({ 
           title: 'Demande déjà envoyée', 
           description: 'Vous avez déjà une demande en attente pour ce laboratoire.', 
@@ -312,7 +312,7 @@ const FindLaboratory = () => {
         .insert([
           {
             client_id: user.id,
-            laboratory_id: laboratory.user_id,
+            vet_id: vet.user_id,
             status: 'pending',
             message: t('PAD.defaultMessage'),
             client_location_lat: userLocation?.lat || null,
@@ -360,12 +360,12 @@ const FindLaboratory = () => {
         setGlobalPadLock({
           active: true,
           until: createdAt + twoHoursMs,
-          activeLab: laboratory.user_id,
+          activeLab: vet.user_id,
           requestId: inserted?.[0]?.id || ''
         });
         toast({
           title: t('PAD.sendSuccess'),
-          description: t('PAD.sendSuccessDesc', { labName: laboratory.lab_name || laboratory.laboratory_name }),
+          description: t('PAD.sendSuccessDesc', { labName: vet.clinic_name || vet.vet_name }),
         });
       }
     } catch (error) {
@@ -400,7 +400,7 @@ const FindLaboratory = () => {
   };
 
   return (
-    <section id="find-laboratory" className="py-16 bg-white">
+    <section id="find-vet" className="py-16 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="max-w-6xl mx-auto"
@@ -409,11 +409,11 @@ const FindLaboratory = () => {
           animate="visible"
         >
           <motion.div className="text-center mb-12" variants={itemVariants}>
-            <h2 className="text-3xl font-bold text-laboratory-dark mb-4">
-              Trouver des Laboratoires et Cliniques
+            <h2 className="text-3xl font-bold text-vet-dark mb-4">
+              Trouver des Laboratoires et vets
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Localisez facilement des laboratoires et cliniques près de chez vous pour vos analyses médicales
+              Localisez facilement des laboratoires et vets près de chez vous pour vos analyses médicales
             </p>
           </motion.div>
 
@@ -424,14 +424,14 @@ const FindLaboratory = () => {
                   placeholder={t('findLab.placeholder')}
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="border-laboratory-muted focus:border-laboratory-primary"
+                  className="border-vet-muted focus:border-vet-primary"
                 />
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   onClick={handleGetCurrentLocation}
                   variant="outline"
-                  className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light w-full sm:w-auto"
+                  className="border-vet-primary text-vet-dark hover:bg-vet-light w-full sm:w-auto"
                   size="default"
                 >
                   <Navigation className="w-4 h-4 mr-2" />
@@ -439,7 +439,7 @@ const FindLaboratory = () => {
                 </Button>
                 <Button
                   onClick={handleLocationSearch}
-                  className="bg-laboratory-primary hover:bg-laboratory-accent w-full sm:w-auto"
+                  className="bg-vet-primary hover:bg-vet-accent w-full sm:w-auto"
                   size="default"
                 >
                   <MapPin className="w-4 h-4 mr-2" />
@@ -453,15 +453,15 @@ const FindLaboratory = () => {
             <AccurateMapComponent height="500px" />
           </motion.div>
 
-          {/* Laboratory Results */}
+          {/* vet Results */}
           <motion.div className="mt-12" variants={itemVariants}>
-            <h3 className="text-2xl font-bold text-laboratory-dark mb-6 text-center">
+            <h3 className="text-2xl font-bold text-vet-dark mb-6 text-center">
               {isLoading ? t('findLab.searching') : t('findLab.found', { count: laboratories.length })}
             </h3>
 
             {isLoading ? (
               <div className="flex justify-center items-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-laboratory-primary" />
+                <Loader2 className="w-8 h-8 animate-spin text-vet-primary" />
                 <span className="ml-2 text-gray-600">{t('findLab.loading')}</span>
               </div>
             ) : null}
@@ -470,10 +470,10 @@ const FindLaboratory = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {laboratories.map((lab, index) => (
                   <motion.div key={lab.id || index} variants={itemVariants}>
-                    <Card className="border-laboratory-muted hover:shadow-lg transition-shadow h-full">
+                    <Card className="border-vet-muted hover:shadow-lg transition-shadow h-full">
                       <CardHeader>
-                        <CardTitle className="text-laboratory-dark flex items-center justify-between">
-                          <span>{lab.lab_name || lab.laboratory_name || t('findLab.defaultName')}</span>
+                        <CardTitle className="text-vet-dark flex items-center justify-between">
+                          <span>{lab.clinic_name || lab.vet_name || t('findLab.defaultName')}</span>
                           <div className="flex items-center text-yellow-500">
                             <Star className="w-4 h-4 fill-current" />
                             <span className="ml-1 text-sm text-gray-600">{lab.rating?.toFixed(1)}</span>
@@ -481,13 +481,13 @@ const FindLaboratory = () => {
                         </CardTitle>
                         <div className="flex items-center justify-between mb-2">
                           <Badge 
-                            variant={lab.provider_type === 'clinique' ? 'secondary' : 'default'} 
+                            variant={lab.provider_type === 'vet' ? 'secondary' : 'default'} 
                             className="flex items-center gap-1"
                           >
-                            {lab.provider_type === 'clinique' ? (
+                            {lab.provider_type === 'vet' ? (
                               <>
                                 <Stethoscope className="w-3 h-3" />
-                                Clinique
+                                vet
                               </>
                             ) : (
                               <>
@@ -519,7 +519,7 @@ const FindLaboratory = () => {
                               )}
                             </span>
                           </div>
-                          <div className="flex items-center text-laboratory-primary font-semibold">
+                          <div className="flex items-center text-vet-primary font-semibold">
                             <Navigation className="w-4 h-4 mr-2" />
                             <span>{lab.distance}</span>
                           </div>
@@ -530,7 +530,7 @@ const FindLaboratory = () => {
                                 {lab.services_offered.slice(0, 3).map((service: string, index: number) => (
                                   <span
                                     key={index}
-                                    className="px-2 py-1 bg-laboratory-light text-laboratory-dark text-xs rounded-full"
+                                    className="px-2 py-1 bg-vet-light text-vet-dark text-xs rounded-full"
                                   >
                                     {service}
                                   </span>
@@ -584,7 +584,7 @@ const FindLaboratory = () => {
                                 onClick={() => {
                                   // Center the embedded map on this lab (no Google Maps)
                                   mapRef.current?.focusLab(lab.id);
-                                  toast({ title: t('findLab.mapCentered'), description: t('findLab.mapCenteredDesc', { labName: lab.lab_name || lab.laboratory_name }) });
+                                  toast({ title: t('findLab.mapCentered'), description: t('findLab.mapCenteredDesc', { labName: lab.clinic_name || lab.vet_name }) });
                                 }}
                                 size="sm"
                               >
@@ -592,7 +592,7 @@ const FindLaboratory = () => {
                               </Button>
                               <Button
                                 variant="outline"
-                                className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                                className="border-vet-primary text-vet-dark hover:bg-vet-light"
                                 onClick={() => { if (lab.phone) window.open(`tel:${lab.phone}`, '_self'); }}
                                 size="sm"
                               >
@@ -613,7 +613,7 @@ const FindLaboratory = () => {
                 </p>
                 <Button
                   variant="outline"
-                  className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                  className="border-vet-primary text-vet-dark hover:bg-vet-light"
                   onClick={() => loadLaboratories()}
                 >
                   Actualiser la recherche
@@ -627,4 +627,4 @@ const FindLaboratory = () => {
   );
 };
 
-export default FindLaboratory;
+export default Findvet;

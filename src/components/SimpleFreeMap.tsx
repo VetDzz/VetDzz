@@ -5,9 +5,9 @@ import { MapPin, Navigation, Route, Phone, Clock, Star, Loader2, ExternalLink } 
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase';
 
-interface Laboratory {
+interface vet {
   id: number;
-  laboratory_name: string;
+  vet_name: string;
   address: string;
   phone: string;
   latitude: number;
@@ -27,14 +27,20 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
   height = '600px' 
 }) => {
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
-  const [selectedLab, setSelectedLab] = useState<Laboratory | null>(null);
+  const [laboratories, setLaboratories] = useState<vet[]>([]);
+  const [selectedLab, setSelectedLab] = useState<vet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     getCurrentLocation();
-    fetchLaboratories();
   }, []);
+
+  // Fetch vets when userLocation is available
+  useEffect(() => {
+    if (userLocation) {
+      fetchLaboratories();
+    }
+  }, [userLocation]);
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -65,17 +71,25 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
 
   const fetchLaboratories = async () => {
     try {
+      // Use edge function to get only nearby vets (saves 85-90% data)
+      if (!userLocation) {
+        setLaboratories([]);
+        return;
+      }
 
-      const { data: labs, error } = await supabase
-        .from('laboratory_profiles')
-        .select('*');
+      const { data: response, error } = await supabase.functions.invoke('get-nearby-vets', {
+        body: {
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+          radius: 100 // 100km radius
+        }
+      });
 
       if (error) {
-
+        console.error('Error fetching nearby vets:', error);
         setLaboratories([]);
       } else {
-
-        setLaboratories(labs || []);
+        setLaboratories(response?.data || []);
       }
     } catch (error) {
 
@@ -96,7 +110,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
     return R * c;
   };
 
-  const getDirections = (lab: Laboratory) => {
+  const getDirections = (lab: vet) => {
     if (userLocation && lab.latitude && lab.longitude) {
       // Multiple FREE options for directions
       const options = [
@@ -116,7 +130,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
 
       // Show options to user
       const choice = confirm(
-        `🧭 Itinéraire vers ${lab.laboratory_name}\n\n` +
+        `🧭 Itinéraire vers ${lab.vet_name}\n\n` +
         `Choisir l'application de navigation:\n\n` +
         `OK = Google Maps\n` +
         `Annuler = Voir toutes les options`
@@ -204,7 +218,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
         <Button
           onClick={refreshLocation}
           variant="outline"
-          className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+          className="border-vet-primary text-vet-dark hover:bg-vet-light"
         >
           <Navigation className="w-4 h-4 mr-2" />
           Actualiser Position
@@ -212,7 +226,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
         <Button
           onClick={openInMap}
           variant="outline"
-          className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+          className="border-vet-primary text-vet-dark hover:bg-vet-light"
         >
           <ExternalLink className="w-4 h-4 mr-2" />
           Ouvrir Carte Complète
@@ -230,13 +244,13 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
         {/* FREE OpenStreetMap Embed */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-laboratory-dark flex items-center justify-between">
+            <CardTitle className="text-vet-dark flex items-center justify-between">
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 mr-2" />
                 Carte 100% Gratuite (OpenStreetMap)
               </div>
               {laboratories.length > 0 && (
-                <Badge className="bg-laboratory-primary">
+                <Badge className="bg-vet-primary">
                   {laboratories.length} laboratoires
                 </Badge>
               )}
@@ -268,7 +282,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
                   </p>
                   <Button
                     onClick={getCurrentLocation}
-                    className="bg-laboratory-primary hover:bg-laboratory-accent"
+                    className="bg-vet-primary hover:bg-vet-accent"
                   >
                     <Navigation className="w-4 h-4 mr-2" />
                     Autoriser la localisation
@@ -282,13 +296,13 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
           </CardContent>
         </Card>
 
-        {/* Laboratory List */}
+        {/* vet List */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-laboratory-dark">
+            <CardTitle className="text-vet-dark">
               Laboratoires Proches
               {laboratories.length > 0 && (
-                <Badge className="ml-2 bg-laboratory-primary">
+                <Badge className="ml-2 bg-vet-primary">
                   {laboratories.length}
                 </Badge>
               )}
@@ -297,7 +311,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
           <CardContent className="space-y-4 max-h-96 overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-laboratory-primary mr-2" />
+                <Loader2 className="w-6 h-6 animate-spin text-vet-primary mr-2" />
                 <span className="text-gray-600">Chargement des laboratoires...</span>
               </div>
             ) : laboratories.length === 0 ? (
@@ -310,7 +324,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
                 <Button
                   onClick={fetchLaboratories}
                   variant="outline"
-                  className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                  className="border-vet-primary text-vet-dark hover:bg-vet-light"
                 >
                   Actualiser
                 </Button>
@@ -321,13 +335,13 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
                   key={lab.id}
                   className={`p-4 border rounded-lg cursor-pointer transition-all ${
                     selectedLab?.id === lab.id
-                      ? 'border-laboratory-primary bg-laboratory-light'
-                      : 'border-gray-200 hover:border-laboratory-primary'
+                      ? 'border-vet-primary bg-vet-light'
+                      : 'border-gray-200 hover:border-vet-primary'
                   }`}
                   onClick={() => setSelectedLab(lab)}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium text-laboratory-dark">{lab.laboratory_name}</h4>
+                    <h4 className="font-medium text-vet-dark">{lab.vet_name}</h4>
                     <div className="flex items-center">
                       <Star className="w-4 h-4 text-yellow-400 mr-1" />
                       <span className="text-sm text-gray-600">{lab.rating || '4.5'}</span>
@@ -369,7 +383,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
                         e.stopPropagation();
                         getDirections(lab);
                       }}
-                      className="bg-laboratory-primary hover:bg-laboratory-accent"
+                      className="bg-vet-primary hover:bg-vet-accent"
                     >
                       <Route className="w-3 h-3 mr-1" />
                       Itinéraire (Gratuit)
@@ -382,7 +396,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
                           e.stopPropagation();
                           window.open(`tel:${lab.phone}`, '_self');
                         }}
-                        className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                        className="border-vet-primary text-vet-dark hover:bg-vet-light"
                       >
                         <Phone className="w-3 h-3 mr-1" />
                         Appeler

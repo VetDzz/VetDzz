@@ -6,9 +6,9 @@ const LaboratoryDashboardPage = () => {
   return (
     <PageLayout>
       <SEO
-        title="Tableau de Bord Laboratoire - Gestion des Analyses"
-        description="Interface professionnelle pour gérer les demandes de prélèvement, télécharger les résultats et configurer votre laboratoire."
-        keywords={['tableau de bord laboratoire', 'gestion analyses', 'prélèvement domicile', 'résultats médicaux']}
+        title="Tableau de Bord Vétérinaire - Gestion des Consultations"
+        description="Interface professionnelle pour gérer les demandes de visite, télécharger les résultats et configurer votre clinique."
+        keywords={['tableau de bord vétérinaire', 'gestion consultations', 'visite domicile', 'résultats médicaux']}
       />
       <LaboratoryDashboard />
     </PageLayout>

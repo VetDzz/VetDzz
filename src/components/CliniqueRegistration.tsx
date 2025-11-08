@@ -14,8 +14,8 @@ import 'leaflet/dist/leaflet.css';
 // Fix for default markers - disable default external images
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
-interface CliniqueData {
-  clinique_name: string;
+interface vetData {
+  vet_name: string;
   address: string;
   phone: string;
   email: string;
@@ -27,8 +27,8 @@ interface CliniqueData {
   longitude: number | null;
 }
 
-// Custom clinique marker (identical to laboratory marker for consistency)
-const cliniqueIcon = new L.Icon({
+// Custom vet marker (identical to vet marker for consistency)
+const vetIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64,' + btoa(`
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#059669"/>
@@ -54,16 +54,16 @@ const LocationSelector: React.FC<{
   });
 
   return selectedLocation ? (
-    <Marker position={[selectedLocation.lat, selectedLocation.lng]} icon={cliniqueIcon} />
+    <Marker position={[selectedLocation.lat, selectedLocation.lng]} icon={vetIcon} />
   ) : null;
 };
 
-const CliniqueRegistration: React.FC = () => {
+const vetRegistration: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [formData, setFormData] = useState<CliniqueData>({
-    clinique_name: '',
+  const [formData, setFormData] = useState<vetData>({
+    vet_name: '',
     address: '',
     phone: '',
     email: '',
@@ -100,7 +100,7 @@ const CliniqueRegistration: React.FC = () => {
     }));
   };
 
-  const handleInputChange = (field: keyof CliniqueData, value: string) => {
+  const handleInputChange = (field: keyof vetData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -115,7 +115,7 @@ const CliniqueRegistration: React.FC = () => {
       return;
     }
 
-    if (!formData.clinique_name || !formData.address || !formData.phone) {
+    if (!formData.vet_name || !formData.address || !formData.phone) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
@@ -131,13 +131,13 @@ const CliniqueRegistration: React.FC = () => {
         return;
       }
 
-      // Create clinique profile
+      // Create vet profile
       const { data, error } = await supabase
-        .from('clinique_profiles')
+        .from('vet_profiles')
         .insert([
           {
             user_id: user.id,
-            clinique_name: formData.clinique_name,
+            vet_name: formData.vet_name,
             address: formData.address,
             phone: formData.phone,
             email: formData.email || user.email,
@@ -158,10 +158,10 @@ const CliniqueRegistration: React.FC = () => {
         alert('Erreur lors de la création du profil');
         return;
       }
-      alert('Profil de clinique créé avec succès! En attente de vérification.');
+      alert('Profil de vet créé avec succès! En attente de vérification.');
       
-      // Navigate to clinique dashboard
-      navigate('/clinique-home');
+      // Navigate to vet dashboard
+      navigate('/vet-home');
 
     } catch (error) {
       alert('Erreur lors de la création du profil');
@@ -174,11 +174,11 @@ const CliniqueRegistration: React.FC = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-laboratory-dark mb-2">
-            Localisation de votre Clinique
+          <h1 className="text-3xl font-bold text-vet-dark mb-2">
+            Localisation de votre vet
           </h1>
           <p className="text-gray-600">
-            Sélectionnez l'emplacement exact de votre clinique sur la carte
+            Sélectionnez l'emplacement exact de votre vet sur la carte
           </p>
         </div>
 
@@ -189,17 +189,17 @@ const CliniqueRegistration: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Building2 className="w-5 h-5 mr-2" />
-                  Informations de la Clinique
+                  Informations de la vet
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="clinique_name">Nom de la Clinique *</Label>
+                  <Label htmlFor="vet_name">Nom de la vet *</Label>
                   <Input
-                    id="clinique_name"
-                    value={formData.clinique_name}
-                    onChange={(e) => handleInputChange('clinique_name', e.target.value)}
-                    placeholder="Ex: Clinique Médicale Centrale"
+                    id="vet_name"
+                    value={formData.vet_name}
+                    onChange={(e) => handleInputChange('vet_name', e.target.value)}
+                    placeholder="Ex: vet Médicale Centrale"
                     required
                   />
                 </div>
@@ -255,7 +255,7 @@ const CliniqueRegistration: React.FC = () => {
                           }}
                           className={`px-3 py-1 rounded-full border text-sm ${
                             selected 
-                              ? 'bg-laboratory-primary text-laboratory-dark border-laboratory-primary' 
+                              ? 'bg-vet-primary text-vet-dark border-vet-primary' 
                               : 'bg-white text-gray-700 border-gray-300'
                           } hover:shadow-sm transition-colors`}
                         >
@@ -285,7 +285,7 @@ const CliniqueRegistration: React.FC = () => {
                           }}
                           className={`px-3 py-2 rounded-md border text-sm text-left ${
                             selected 
-                              ? 'bg-laboratory-primary text-laboratory-dark border-laboratory-primary' 
+                              ? 'bg-vet-primary text-vet-dark border-vet-primary' 
                               : 'bg-white text-gray-700 border-gray-300'
                           } hover:shadow-sm transition-colors`}
                         >
@@ -297,12 +297,12 @@ const CliniqueRegistration: React.FC = () => {
                 </div>
 
                 {selectedLocation && (
-                  <div className="p-3 bg-laboratory-light border border-laboratory-muted rounded-md">
-                    <div className="flex items-center text-laboratory-dark">
+                  <div className="p-3 bg-vet-light border border-vet-muted rounded-md">
+                    <div className="flex items-center text-vet-dark">
                       <MapPin className="w-4 h-4 mr-2" />
                       <span className="font-medium">Emplacement sélectionné:</span>
                     </div>
-                    <p className="text-sm text-laboratory-dark mt-1">
+                    <p className="text-sm text-vet-dark mt-1">
                       Latitude: {selectedLocation.lat.toFixed(6)}, 
                       Longitude: {selectedLocation.lng.toFixed(6)}
                     </p>
@@ -319,7 +319,7 @@ const CliniqueRegistration: React.FC = () => {
                   Sélectionner l'Emplacement
                 </CardTitle>
                 <p className="text-sm text-gray-600">
-                  Cliquez sur la carte pour marquer votre clinique
+                  Cliquez sur la carte pour marquer votre vet
                 </p>
               </CardHeader>
               <CardContent>
@@ -355,7 +355,7 @@ const CliniqueRegistration: React.FC = () => {
             <Button
               type="submit"
               disabled={isSubmitting || !selectedLocation}
-              className="bg-laboratory-primary hover:bg-laboratory-accent text-laboratory-dark px-8 py-3"
+              className="bg-vet-primary hover:bg-vet-accent text-vet-dark px-8 py-3"
             >
               {isSubmitting ? (
                 <>
@@ -365,7 +365,7 @@ const CliniqueRegistration: React.FC = () => {
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Créer le Profil de Clinique
+                  Créer le Profil de vet
                 </>
               )}
             </Button>
@@ -376,4 +376,4 @@ const CliniqueRegistration: React.FC = () => {
   );
 };
 
-export default CliniqueRegistration;
+export default vetRegistration;

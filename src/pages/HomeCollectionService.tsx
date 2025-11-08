@@ -38,22 +38,22 @@ const HomeCollectionService = () => {
 
   const advantages = [
     {
-      icon: <Home className="w-8 h-8 text-laboratory-primary" />,
+      icon: <Home className="w-8 h-8 text-vet-primary" />,
       title: 'Confort de votre domicile',
       description: 'Évitez les déplacements et les files d\'attente'
     },
     {
-      icon: <Shield className="w-8 h-8 text-laboratory-primary" />,
+      icon: <Shield className="w-8 h-8 text-vet-primary" />,
       title: 'Sécurité sanitaire',
       description: 'Respect strict des protocoles d\'hygiène et de sécurité'
     },
     {
-      icon: <Users className="w-8 h-8 text-laboratory-primary" />,
+      icon: <Users className="w-8 h-8 text-vet-primary" />,
       title: 'Personnel qualifié',
       description: 'Infirmiers diplômés et préleveurs expérimentés'
     },
     {
-      icon: <Clock className="w-8 h-8 text-laboratory-primary" />,
+      icon: <Clock className="w-8 h-8 text-vet-primary" />,
       title: 'Horaires flexibles',
       description: 'Service disponible 7j/7, même le week-end'
     }
@@ -115,10 +115,10 @@ const HomeCollectionService = () => {
           >
             {/* Header */}
             <motion.div className="text-center mb-12" variants={itemVariants}>
-              <div className="w-16 h-16 bg-laboratory-primary rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-vet-primary rounded-full flex items-center justify-center mx-auto mb-6">
                 <Home className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-laboratory-dark mb-4">
+              <h1 className="text-4xl font-bold text-vet-dark mb-4">
                 Prélèvement à Domicile
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -131,12 +131,12 @@ const HomeCollectionService = () => {
             <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" variants={containerVariants}>
               {advantages.map((advantage, index) => (
                 <motion.div key={index} variants={itemVariants}>
-                  <Card className="border-laboratory-muted hover:shadow-lg transition-shadow h-full">
+                  <Card className="border-vet-muted hover:shadow-lg transition-shadow h-full">
                     <CardHeader className="text-center">
-                      <div className="w-12 h-12 bg-laboratory-light rounded-full flex items-center justify-center mx-auto mb-2">
+                      <div className="w-12 h-12 bg-vet-light rounded-full flex items-center justify-center mx-auto mb-2">
                         {advantage.icon}
                       </div>
-                      <CardTitle className="text-laboratory-dark text-lg">{advantage.title}</CardTitle>
+                      <CardTitle className="text-vet-dark text-lg">{advantage.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-gray-600 text-center text-sm">
@@ -150,23 +150,23 @@ const HomeCollectionService = () => {
 
             {/* Services */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <h2 className="text-3xl font-bold text-laboratory-dark mb-8 text-center">
+              <h2 className="text-3xl font-bold text-vet-dark mb-8 text-center">
                 Nos Services à Domicile
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {services.map((service, index) => (
                   <motion.div key={index} variants={itemVariants}>
-                    <Card className="border-laboratory-muted hover:shadow-lg transition-all duration-300">
+                    <Card className="border-vet-muted hover:shadow-lg transition-all duration-300">
                       <CardHeader>
-                        <CardTitle className="text-laboratory-dark flex items-center">
-                          <CheckCircle className="w-5 h-5 text-laboratory-primary mr-2" />
+                        <CardTitle className="text-vet-dark flex items-center">
+                          <CheckCircle className="w-5 h-5 text-vet-primary mr-2" />
                           {service.name}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-gray-600 mb-4">{service.description}</p>
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-laboratory-accent">
+                          <span className="text-vet-accent">
                             Durée: {service.duration}
                           </span>
                           <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
@@ -182,18 +182,18 @@ const HomeCollectionService = () => {
 
             {/* Process */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <h2 className="text-3xl font-bold text-laboratory-dark mb-8 text-center">
+              <h2 className="text-3xl font-bold text-vet-dark mb-8 text-center">
                 Comment ça marche ?
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {process.map((step, index) => (
                   <motion.div key={index} variants={itemVariants}>
-                    <Card className="border-laboratory-muted hover:shadow-lg transition-shadow h-full">
+                    <Card className="border-vet-muted hover:shadow-lg transition-shadow h-full">
                       <CardHeader className="text-center">
-                        <div className="w-12 h-12 bg-laboratory-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                        <div className="w-12 h-12 bg-vet-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                           {step.step}
                         </div>
-                        <CardTitle className="text-laboratory-dark text-lg">{step.title}</CardTitle>
+                        <CardTitle className="text-vet-dark text-lg">{step.title}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-gray-600 text-center text-sm">
@@ -208,15 +208,15 @@ const HomeCollectionService = () => {
 
             {/* Pricing and Coverage */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <Card className="border-laboratory-primary bg-laboratory-light">
+              <Card className="border-vet-primary bg-vet-light">
                 <CardHeader>
-                  <CardTitle className="text-laboratory-dark">
+                  <CardTitle className="text-vet-dark">
                     Tarifs et Prise en Charge
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-laboratory-dark mb-2">Tarification :</h4>
+                    <h4 className="font-semibold text-vet-dark mb-2">Tarification :</h4>
                     <ul className="list-disc list-inside text-gray-600 space-y-1">
                       <li>Frais de déplacement : 25€ (pris en charge par la Sécurité Sociale sur prescription)</li>
                       <li>Analyses : selon nomenclature en vigueur</li>
@@ -224,7 +224,7 @@ const HomeCollectionService = () => {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-laboratory-dark mb-2">Zone de couverture :</h4>
+                    <h4 className="font-semibold text-vet-dark mb-2">Zone de couverture :</h4>
                     <ul className="list-disc list-inside text-gray-600 space-y-1">
                       <li>Paris et petite couronne (92, 93, 94)</li>
                       <li>Rayon de 30 km autour de nos laboratoires</li>
@@ -232,7 +232,7 @@ const HomeCollectionService = () => {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-laboratory-dark mb-2">Conditions :</h4>
+                    <h4 className="font-semibold text-vet-dark mb-2">Conditions :</h4>
                     <ul className="list-disc list-inside text-gray-600 space-y-1">
                       <li>Prescription médicale obligatoire</li>
                       <li>Prise de rendez-vous 24h à l'avance minimum</li>
@@ -245,25 +245,25 @@ const HomeCollectionService = () => {
 
             {/* CTA */}
             <motion.div className="text-center" variants={itemVariants}>
-              <Card className="border-laboratory-primary bg-white">
+              <Card className="border-vet-primary bg-white">
                 <CardContent className="p-8">
-                  <h3 className="text-2xl font-bold text-laboratory-dark mb-4">
+                  <h3 className="text-2xl font-bold text-vet-dark mb-4">
                     Réservez votre prélèvement à domicile
                   </h3>
                   <p className="text-gray-600 mb-6">
                     Service disponible 7j/7, même le week-end et les jours fériés
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button className="bg-laboratory-primary hover:bg-laboratory-accent">
+                    <Button className="bg-vet-primary hover:bg-vet-accent">
                       <MapPin className="w-4 h-4 mr-2" />
                       Prendre Rendez-vous
                     </Button>
-                    <Button variant="outline" className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light">
+                    <Button variant="outline" className="border-vet-primary text-vet-dark hover:bg-vet-light">
                       Vérifier la Zone de Couverture
                     </Button>
                   </div>
                   <p className="text-sm text-gray-500 mt-4">
-                    Ou appelez-nous au <span className="font-semibold text-laboratory-dark">01 23 45 67 89</span>
+                    Ou appelez-nous au <span className="font-semibold text-vet-dark">01 23 45 67 89</span>
                   </p>
                 </CardContent>
               </Card>

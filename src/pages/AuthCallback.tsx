@@ -34,8 +34,8 @@ const AuthCallback = () => {
           // Navigate based on user type
           if (user?.type === 'client') {
             navigate('/client-dashboard');
-          } else if (user?.type === 'laboratory') {
-            navigate('/laboratory-dashboard');
+          } else if (user?.type === 'vet') {
+            navigate('/vet-dashboard');
           } else {
             navigate('/');
           }
@@ -54,7 +54,7 @@ const AuthCallback = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-laboratory-primary mx-auto mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vet-primary mx-auto mb-4"></div>
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Confirmation en cours...</h2>
         <p className="text-gray-600">Veuillez patienter pendant que nous confirmons votre compte.</p>
       </div>

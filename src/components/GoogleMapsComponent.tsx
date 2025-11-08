@@ -6,9 +6,9 @@ import { MapPin, Navigation, Route, Phone, Clock, Star, Loader2 } from 'lucide-r
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase';
 
-interface Laboratory {
+interface vet {
   id: number;
-  laboratory_name: string;
+  vet_name: string;
   address: string;
   phone: string;
   latitude: number;
@@ -28,7 +28,7 @@ interface GoogleMapsComponentProps {
 interface MapProps {
   center: google.maps.LatLngLiteral;
   zoom: number;
-  laboratories: Laboratory[];
+  laboratories: vet[];
   userLocation: google.maps.LatLngLiteral | null;
 }
 
@@ -75,7 +75,7 @@ const MapComponent: React.FC<MapProps> = ({ center, zoom, laboratories, userLoca
     }
   }, [map, userLocation]);
 
-  // Add laboratory markers
+  // Add vet markers
   useEffect(() => {
     if (map && laboratories.length > 0) {
       laboratories.forEach((lab) => {
@@ -83,7 +83,7 @@ const MapComponent: React.FC<MapProps> = ({ center, zoom, laboratories, userLoca
           const marker = new window.google.maps.Marker({
             position: { lat: lab.latitude, lng: lab.longitude },
             map,
-            title: lab.laboratory_name,
+            title: lab.vet_name,
             icon: {
               url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                 <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -102,7 +102,7 @@ const MapComponent: React.FC<MapProps> = ({ center, zoom, laboratories, userLoca
             content: `
               <div style="padding: 10px; max-width: 250px;">
                 <h3 style="margin: 0 0 8px 0; color: #059669; font-size: 16px; font-weight: bold;">
-                  ${lab.laboratory_name}
+                  ${lab.vet_name}
                 </h3>
                 <p style="margin: 0 0 5px 0; color: #666; font-size: 14px;">
                   📍 ${lab.address}, ${lab.city}
@@ -140,7 +140,7 @@ const render = (status: Status) => {
     case Status.LOADING:
       return (
         <div className="flex items-center justify-center h-full bg-gray-100">
-          <Loader2 className="w-8 h-8 animate-spin text-laboratory-primary mr-2" />
+          <Loader2 className="w-8 h-8 animate-spin text-vet-primary mr-2" />
           <span>Chargement de Google Maps...</span>
         </div>
       );
@@ -162,14 +162,20 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
   height = '600px'
 }) => {
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
-  const [selectedLab, setSelectedLab] = useState<Laboratory | null>(null);
+  const [laboratories, setLaboratories] = useState<vet[]>([]);
+  const [selectedLab, setSelectedLab] = useState<vet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     getCurrentLocation();
-    fetchLaboratories();
   }, []);
+
+  // Fetch vets when userLocation is available
+  useEffect(() => {
+    if (userLocation) {
+      fetchLaboratories();
+    }
+  }, [userLocation]);
 
   // Auto-center map when user location and labs are loaded
   const mapCenter = userLocation || { lat: 48.8566, lng: 2.3522 };
@@ -207,13 +213,23 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
 
   const fetchLaboratories = async () => {
     try {
+      // Use edge function to get only nearby vets (saves 85-90% data)
+      if (!userLocation) {
+        setLaboratories(getSampleLaboratories());
+        return;
+      }
 
-      const { data: labs, error } = await supabase
-        .from('laboratory_profiles')
-        .select('*');
+      const { data: response, error } = await supabase.functions.invoke('get-nearby-vets', {
+        body: {
+          latitude: userLocation.lat,
+          longitude: userLocation.lng,
+          radius: 100 // 100km radius
+        }
+      });
 
-      if (error) {
+      const labs = response?.data || [];
 
+      if (error || labs.length === 0) {
         // Use sample data if database is empty
         setLaboratories(getSampleLaboratories());
       } else {
@@ -235,10 +251,10 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
   };
 
   // Sample laboratories for testing (near Paris)
-  const getSampleLaboratories = (): Laboratory[] => [
+  const getSampleLaboratories = (): vet[] => [
     {
       id: 1,
-      laboratory_name: 'Laboratoire Central Paris',
+      vet_name: 'Laboratoire Central Paris',
       address: '123 Rue de Rivoli',
       city: 'Paris',
       phone: '01 42 60 30 30',
@@ -250,7 +266,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
     },
     {
       id: 2,
-      laboratory_name: 'Bio-Lab Montparnasse',
+      vet_name: 'Bio-Lab Montparnasse',
       address: '45 Boulevard du Montparnasse',
       city: 'Paris',
       phone: '01 45 48 55 55',
@@ -262,7 +278,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
     },
     {
       id: 3,
-      laboratory_name: 'Laboratoire Saint-Germain',
+      vet_name: 'Laboratoire Saint-Germain',
       address: '78 Rue de Seine',
       city: 'Paris',
       phone: '01 43 26 85 85',
@@ -285,7 +301,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
     return R * c;
   };
 
-  const getDirections = (lab: Laboratory) => {
+  const getDirections = (lab: vet) => {
     if (userLocation && lab.latitude && lab.longitude) {
       const url = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${lab.latitude},${lab.longitude}`;
       window.open(url, '_blank');
@@ -316,7 +332,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
         <Button
           onClick={refreshLocation}
           variant="outline"
-          className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+          className="border-vet-primary text-vet-dark hover:bg-vet-light"
         >
           <Navigation className="w-4 h-4 mr-2" />
           Actualiser Position
@@ -333,13 +349,13 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
         {/* Real Google Maps */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-laboratory-dark flex items-center justify-between">
+            <CardTitle className="text-vet-dark flex items-center justify-between">
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 mr-2" />
                 Carte Google Maps
               </div>
               {laboratories.length > 0 && (
-                <Badge className="bg-laboratory-primary">
+                <Badge className="bg-vet-primary">
                   {laboratories.length} laboratoires
                 </Badge>
               )}
@@ -365,13 +381,13 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
           </CardContent>
         </Card>
 
-        {/* Laboratory List */}
+        {/* vet List */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-laboratory-dark">
+            <CardTitle className="text-vet-dark">
               Laboratoires Proches
               {laboratories.length > 0 && (
-                <Badge className="ml-2 bg-laboratory-primary">
+                <Badge className="ml-2 bg-vet-primary">
                   {laboratories.length}
                 </Badge>
               )}
@@ -380,7 +396,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
           <CardContent className="space-y-4 max-h-96 overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-laboratory-primary mr-2" />
+                <Loader2 className="w-6 h-6 animate-spin text-vet-primary mr-2" />
                 <span className="text-gray-600">Chargement des laboratoires...</span>
               </div>
             ) : laboratories.length === 0 ? (
@@ -393,7 +409,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
                 <Button
                   onClick={fetchLaboratories}
                   variant="outline"
-                  className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                  className="border-vet-primary text-vet-dark hover:bg-vet-light"
                 >
                   Actualiser
                 </Button>
@@ -404,13 +420,13 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
                   key={lab.id}
                   className={`p-4 border rounded-lg cursor-pointer transition-all ${
                     selectedLab?.id === lab.id 
-                      ? 'border-laboratory-primary bg-laboratory-light' 
-                      : 'border-gray-200 hover:border-laboratory-primary'
+                      ? 'border-vet-primary bg-vet-light' 
+                      : 'border-gray-200 hover:border-vet-primary'
                   }`}
                   onClick={() => setSelectedLab(lab)}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium text-laboratory-dark">{lab.laboratory_name}</h4>
+                    <h4 className="font-medium text-vet-dark">{lab.vet_name}</h4>
                     <div className="flex items-center">
                       <Star className="w-4 h-4 text-yellow-400 mr-1" />
                       <span className="text-sm text-gray-600">{lab.rating || '4.5'}</span>
@@ -452,7 +468,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
                         e.stopPropagation();
                         getDirections(lab);
                       }}
-                      className="bg-laboratory-primary hover:bg-laboratory-accent"
+                      className="bg-vet-primary hover:bg-vet-accent"
                     >
                       <Route className="w-3 h-3 mr-1" />
                       Itinéraire
@@ -465,7 +481,7 @@ const GoogleMapsComponent: React.FC<GoogleMapsComponentProps> = ({
                           e.stopPropagation();
                           window.open(`tel:${lab.phone}`, '_self');
                         }}
-                        className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                        className="border-vet-primary text-vet-dark hover:bg-vet-light"
                       >
                         <Phone className="w-3 h-3 mr-1" />
                         Appeler

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Navigation, Route, Phone, Clock, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-interface Laboratory {
+interface vet {
   id: number;
   name: string;
   address: string;
@@ -18,7 +18,7 @@ interface Laboratory {
 }
 
 interface ProfessionalMapProps {
-  laboratories?: Laboratory[];
+  laboratories?: vet[];
   onLocationSelect?: (lat: number, lng: number) => void;
   height?: string;
 }
@@ -30,11 +30,11 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [selectedLab, setSelectedLab] = useState<Laboratory | null>(null);
+  const [selectedLab, setSelectedLab] = useState<vet | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   // Sample laboratories for demonstration
-  const sampleLabs: Laboratory[] = [
+  const sampleLabs: vet[] = [
     {
       id: 1,
       name: 'Laboratoire Central Paris',
@@ -119,7 +119,7 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
     return R * c;
   };
 
-  const getDirections = (lab: Laboratory) => {
+  const getDirections = (lab: vet) => {
     if (userLocation) {
       const url = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${lab.lat},${lab.lng}`;
       window.open(url, '_blank');
@@ -142,7 +142,7 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
         <Button
           onClick={getCurrentLocation}
           variant="outline"
-          className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+          className="border-vet-primary text-vet-dark hover:bg-vet-light"
         >
           <Navigation className="w-4 h-4 mr-2" />
           Ma Position
@@ -153,7 +153,7 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
         {/* Professional Map */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-laboratory-dark flex items-center">
+            <CardTitle className="text-vet-dark flex items-center">
               <MapPin className="w-5 h-5 mr-2" />
               Carte Interactive
             </CardTitle>
@@ -166,7 +166,7 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
             >
               {!isMapLoaded ? (
                 <div className="flex flex-col items-center justify-center h-full bg-gray-100">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-laboratory-primary"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-vet-primary"></div>
                   <p className="text-sm text-gray-500 mt-2">Chargement de la carte...</p>
                 </div>
               ) : (
@@ -217,7 +217,7 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
                     </div>
                   )}
                   
-                  {/* Laboratory markers */}
+                  {/* vet markers */}
                   {labsWithDistance.slice(0, 5).map((lab, index) => (
                     <div
                       key={lab.id}
@@ -230,10 +230,10 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
                       onClick={() => setSelectedLab(lab)}
                     >
                       <div className="relative">
-                        <div className="w-10 h-10 bg-laboratory-primary rounded-full border-3 border-white shadow-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-vet-primary rounded-full border-3 border-white shadow-lg flex items-center justify-center">
                           <MapPin className="w-6 h-6 text-white" />
                         </div>
-                        <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-laboratory-primary text-white text-xs px-2 py-1 rounded whitespace-nowrap max-w-32 truncate">
+                        <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-vet-primary text-white text-xs px-2 py-1 rounded whitespace-nowrap max-w-32 truncate">
                           {lab.name}
                         </div>
                       </div>
@@ -248,7 +248,7 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
                         <span>Votre position</span>
                       </div>
                       <div className="flex items-center">
-                        <div className="w-3 h-3 bg-laboratory-primary rounded-full mr-2"></div>
+                        <div className="w-3 h-3 bg-vet-primary rounded-full mr-2"></div>
                         <span>Laboratoires ({labsWithDistance.length})</span>
                       </div>
                     </div>
@@ -259,10 +259,10 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
           </CardContent>
         </Card>
 
-        {/* Laboratory List */}
+        {/* vet List */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-laboratory-dark">Laboratoires Proches</CardTitle>
+            <CardTitle className="text-vet-dark">Laboratoires Proches</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 max-h-96 overflow-y-auto">
             {labsWithDistance.map((lab) => (
@@ -270,13 +270,13 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
                 key={lab.id}
                 className={`p-4 border rounded-lg cursor-pointer transition-all ${
                   selectedLab?.id === lab.id 
-                    ? 'border-laboratory-primary bg-laboratory-light' 
-                    : 'border-gray-200 hover:border-laboratory-primary'
+                    ? 'border-vet-primary bg-vet-light' 
+                    : 'border-gray-200 hover:border-vet-primary'
                 }`}
                 onClick={() => setSelectedLab(lab)}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-medium text-laboratory-dark">{lab.name}</h4>
+                  <h4 className="font-medium text-vet-dark">{lab.name}</h4>
                   <div className="flex items-center">
                     <Star className="w-4 h-4 text-yellow-400 mr-1" />
                     <span className="text-sm text-gray-600">{lab.rating}</span>
@@ -316,7 +316,7 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
                       e.stopPropagation();
                       getDirections(lab);
                     }}
-                    className="bg-laboratory-primary hover:bg-laboratory-accent"
+                    className="bg-vet-primary hover:bg-vet-accent"
                   >
                     <Route className="w-3 h-3 mr-1" />
                     Itinéraire
@@ -328,7 +328,7 @@ const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
                       e.stopPropagation();
                       window.open(`tel:${lab.phone}`, '_self');
                     }}
-                    className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                    className="border-vet-primary text-vet-dark hover:bg-vet-light"
                   >
                     <Phone className="w-3 h-3 mr-1" />
                     Appeler

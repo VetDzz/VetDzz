@@ -39,12 +39,12 @@ const VerificationWaiting = ({ email, onResendEmail, onClose }: VerificationWait
         exit={{ opacity: 0, scale: 0.9 }}
         className="w-full max-w-md"
       >
-        <Card className="border-laboratory-primary shadow-2xl">
+        <Card className="border-vet-primary shadow-2xl">
           <CardHeader className="text-center pb-4">
-            <div className="mx-auto mb-4 w-16 h-16 bg-laboratory-light rounded-full flex items-center justify-center">
-              <Mail className="w-8 h-8 text-laboratory-primary" />
+            <div className="mx-auto mb-4 w-16 h-16 bg-vet-light rounded-full flex items-center justify-center">
+              <Mail className="w-8 h-8 text-vet-primary" />
             </div>
-            <CardTitle className="text-2xl font-bold text-laboratory-dark">
+            <CardTitle className="text-2xl font-bold text-vet-dark">
               Vérification en attente
             </CardTitle>
             <CardDescription className="text-gray-600">
@@ -53,8 +53,8 @@ const VerificationWaiting = ({ email, onResendEmail, onClose }: VerificationWait
           </CardHeader>
           
           <CardContent className="space-y-6">
-            <div className="bg-laboratory-light/30 rounded-lg p-4 text-center">
-              <p className="font-medium text-laboratory-dark mb-2">Email envoyé à :</p>
+            <div className="bg-vet-light/30 rounded-lg p-4 text-center">
+              <p className="font-medium text-vet-dark mb-2">Email envoyé à :</p>
               <p className="text-sm text-gray-700 bg-white rounded px-3 py-2 font-mono">
                 {email}
               </p>
@@ -70,7 +70,7 @@ const VerificationWaiting = ({ email, onResendEmail, onClose }: VerificationWait
                 <span>Vérifiez vos spams/courriers indésirables</span>
               </div>
               <div className="flex items-center space-x-3 text-sm text-gray-600">
-                <Clock className="w-5 h-5 text-laboratory-primary flex-shrink-0" />
+                <Clock className="w-5 h-5 text-vet-primary flex-shrink-0" />
                 <span>Cliquez sur le lien de confirmation</span>
               </div>
             </div>
@@ -84,7 +84,7 @@ const VerificationWaiting = ({ email, onResendEmail, onClose }: VerificationWait
                 onClick={handleResend}
                 disabled={!canResend}
                 variant="outline"
-                className="w-full border-laboratory-primary text-laboratory-primary hover:bg-laboratory-light"
+                className="w-full border-vet-primary text-vet-primary hover:bg-vet-light"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${!canResend ? 'animate-spin' : ''}`} />
                 {canResend ? 'Renvoyer l\'email' : `Renvoyer dans ${timeLeft}s`}

@@ -3,7 +3,7 @@ import SEO from '@/components/SEO';
 import AccurateMapComponent from '@/components/AccurateMapComponent';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const FindLaboratoryPage = () => {
+const FindvetPage = () => {
   const { t } = useLanguage();
   return (
     <PageLayout showFooter={false}>
@@ -16,7 +16,7 @@ const FindLaboratoryPage = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-laboratory-dark mb-4">
+              <h1 className="text-4xl font-bold text-vet-dark mb-4">
                 {t('findLab.title')}
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -31,4 +31,4 @@ const FindLaboratoryPage = () => {
   );
 };
 
-export default FindLaboratoryPage;
+export default FindvetPage;

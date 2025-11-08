@@ -149,7 +149,7 @@ const SendTestResults = ({ testRequest, onResultSent }: SendTestResultsProps) =>
       for (const result of results) {
         const { error } = await createTestResult({
           test_request_id: testRequest.id,
-          laboratory_id: user.id, // This should be the laboratory profile ID
+          vet_id: user.id, // This should be the vet profile ID
           client_id: testRequest.client_id,
           test_name: result.test_name,
           result_value: result.result_value,
@@ -199,7 +199,7 @@ const SendTestResults = ({ testRequest, onResultSent }: SendTestResultsProps) =>
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center text-laboratory-dark">
+        <CardTitle className="flex items-center text-vet-dark">
           <FileText className="w-5 h-5 mr-2" />
           Envoyer les Résultats d'Analyse
         </CardTitle>
@@ -212,7 +212,7 @@ const SendTestResults = ({ testRequest, onResultSent }: SendTestResultsProps) =>
       <CardContent className="space-y-6">
         {/* Test Results Form */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-laboratory-dark">Résultats des Analyses</h3>
+          <h3 className="text-lg font-semibold text-vet-dark">Résultats des Analyses</h3>
 
           {results.map((result, index) => (
             <motion.div
@@ -220,10 +220,10 @@ const SendTestResults = ({ testRequest, onResultSent }: SendTestResultsProps) =>
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="p-4 border border-laboratory-muted rounded-lg space-y-4"
+              className="p-4 border border-vet-muted rounded-lg space-y-4"
             >
               <div className="flex items-center justify-between">
-                <h4 className="font-medium text-laboratory-dark">{result.test_name}</h4>
+                <h4 className="font-medium text-vet-dark">{result.test_name}</h4>
                 <Badge className={getStatusColor(result.status)}>
                   {getStatusIcon(result.status)}
                   <span className="ml-1 capitalize">{result.status}</span>
@@ -325,7 +325,7 @@ const SendTestResults = ({ testRequest, onResultSent }: SendTestResultsProps) =>
           <Button
             onClick={handleSendResults}
             disabled={isLoading}
-            className="bg-laboratory-primary hover:bg-laboratory-accent w-full sm:w-auto"
+            className="bg-vet-primary hover:bg-vet-accent w-full sm:w-auto"
             size="default"
           >
             {isLoading ? (

@@ -17,7 +17,7 @@ const DatabaseCheck: React.FC = () => {
   const requiredTables = [
     'pad_requests',
     'client_profiles',
-    'laboratory_profiles',
+    'vet_profiles',
     'notifications',
     'medical_results'
   ];
@@ -58,7 +58,7 @@ const DatabaseCheck: React.FC = () => {
           CREATE TABLE IF NOT EXISTS PAD_requests (
             id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
             client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-            laboratory_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+            vet_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
             status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected')),
             message TEXT,
             client_location_lat DECIMAL(10, 8),
@@ -73,10 +73,10 @@ const DatabaseCheck: React.FC = () => {
           ALTER TABLE PAD_requests ENABLE ROW LEVEL SECURITY;
           
           CREATE POLICY "Users can view their PAD requests" ON PAD_requests 
-            FOR SELECT USING (auth.uid() = client_id OR auth.uid() = laboratory_id);
+            FOR SELECT USING (auth.uid() = client_id OR auth.uid() = vet_id);
           
           CREATE POLICY "Users can create PAD requests" ON PAD_requests 
-            FOR INSERT WITH CHECK (auth.uid() = client_id OR auth.uid() = laboratory_id);
+            FOR INSERT WITH CHECK (auth.uid() = client_id OR auth.uid() = vet_id);
         `
       });
 

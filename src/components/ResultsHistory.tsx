@@ -21,14 +21,14 @@ interface MedicalResult {
   status: string;
   created_at: string;
   client_id: string;
-  laboratory_id: string;
+  vet_id: string;
   client_profiles?: {
     full_name: string;
     email: string;
   };
-  laboratory_profiles?: {
-    laboratory_name: string;
-    lab_name: string;
+  vet_profiles?: {
+    vet_name: string;
+    clinic_name: string;
   };
 }
 
@@ -54,7 +54,7 @@ const ResultsHistory = () => {
         result.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         result.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         result.client_profiles?.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        result.laboratory_profiles?.laboratory_name.toLowerCase().includes(searchTerm.toLowerCase())
+        result.vet_profiles?.vet_name.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredResults(filtered);
     } else {
@@ -76,8 +76,8 @@ const ResultsHistory = () => {
       // Filter based on user type
       if (user.type === 'client') {
         query = query.eq('client_id', user.id);
-      } else if (user.type === 'laboratory') {
-        query = query.eq('laboratory_id', user.id);
+      } else if (user.type === 'vet') {
+        query = query.eq('vet_id', user.id);
       }
 
       const { data, error } = await query;
@@ -172,11 +172,11 @@ const ResultsHistory = () => {
           animate="visible"
         >
           <motion.div className="mb-8" variants={itemVariants}>
-            <h1 className="text-3xl font-bold text-laboratory-dark mb-2">
+            <h1 className="text-3xl font-bold text-vet-dark mb-2">
               {t('results.title')}
             </h1>
             <p className="text-gray-600">
-              {user?.type === 'laboratory'
+              {user?.type === 'vet'
                 ? t('results.labHistory')
                 : t('results.clientHistory')
               }
@@ -211,7 +211,7 @@ const ResultsHistory = () => {
               <CardContent>
                 {isLoading ? (
                   <div className="flex justify-center items-center py-12">
-                    <div className="w-8 h-8 border-4 border-laboratory-primary border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-8 h-8 border-4 border-vet-primary border-t-transparent rounded-full animate-spin"></div>
                     <span className="ml-2 text-gray-600">{t('results.loadingResults')}...</span>
                   </div>
                 ) : filteredResults.length > 0 ? (
@@ -219,11 +219,11 @@ const ResultsHistory = () => {
                     {filteredResults.map((result) => (
                       <div
                         key={result.id}
-                        className="p-4 border border-laboratory-muted rounded-lg hover:border-laboratory-primary transition-colors"
+                        className="p-4 border border-vet-muted rounded-lg hover:border-vet-primary transition-colors"
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex-1">
-                            <h4 className="font-medium text-laboratory-dark mb-1">
+                            <h4 className="font-medium text-vet-dark mb-1">
                               {result.title}
                             </h4>
                             {result.description && (
@@ -236,17 +236,17 @@ const ResultsHistory = () => {
                                 <Calendar className="w-3 h-3 mr-1" />
                                 {new Date(result.created_at).toLocaleDateString('fr-FR')}
                               </div>
-                              {user?.type === 'laboratory' && result.client_profiles && (
+                              {user?.type === 'vet' && result.client_profiles && (
                                 <div className="flex items-center">
                                   <User className="w-3 h-3 mr-1" />
                                   {result.client_profiles.full_name}
                                   {result.client_profiles.email ? <span className="ml-2 text-gray-400">({result.client_profiles.email})</span> : null}
                                 </div>
                               )}
-                              {user?.type === 'client' && result.laboratory_profiles && (
+                              {user?.type === 'client' && result.vet_profiles && (
                                 <div className="flex items-center">
                                   <Building className="w-3 h-3 mr-1" />
-                                  {result.laboratory_profiles.laboratory_name || result.laboratory_profiles.lab_name}
+                                  {result.vet_profiles.vet_name || result.vet_profiles.clinic_name}
                                 </div>
                               )}
                               <span>{formatFileSize(result.file_size)}</span>
@@ -258,7 +258,7 @@ const ResultsHistory = () => {
                               size="sm"
                               variant="outline"
                               onClick={() => downloadResult(result)}
-                              className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light w-full sm:w-auto"
+                              className="border-vet-primary text-vet-dark hover:bg-vet-light w-full sm:w-auto"
                             >
                               <Download className="w-4 h-4 mr-1" />
                               {t('results.download')}
@@ -274,7 +274,7 @@ const ResultsHistory = () => {
                     <p>
                       {searchTerm
                         ? 'Aucun résultat trouvé pour cette recherche'
-                        : user?.type === 'laboratory'
+                        : user?.type === 'vet'
                         ? 'Aucun résultat envoyé pour le moment'
                         : 'Aucun résultat disponible pour le moment'
                       }

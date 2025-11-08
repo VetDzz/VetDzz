@@ -1,0 +1,35 @@
+-- ============================================================================
+-- ADMIN ACCOUNT SETUP FOR VETDZ
+-- ============================================================================
+-- 
+-- IMPORTANT: This script creates the admin account for VetDz
+-- 
+-- Admin Credentials:
+-- Email: glowyboy01@gmail.com
+-- Password: Mindup2019@
+-- 
+-- INSTRUCTIONS:
+-- 1. Go to your Supabase Dashboard: https://plwfbeqtupboeerqiplw.supabase.co
+-- 2. Click on "Authentication" in the left sidebar
+-- 3. Click on "Users" tab
+-- 4. Click "Add user" button (top right)
+-- 5. Select "Create new user" option
+-- 6. Fill in:
+--    - Email: glowyboy01@gmail.com
+--    - Password: Mindup2019@
+--    - Auto Confirm User: YES (check this box!)
+-- 7. Click "Create user"
+-- 
+-- That's it! The admin account will be created and you can login immediately.
+-- 
+-- ============================================================================
+-- 
+-- ALTERNATIVE METHOD (if you prefer SQL):
+-- You can also run this in the SQL Editor, but it requires the service_role key
+-- which is not recommended for security reasons. Use the UI method above instead.
+-- 
+-- ============================================================================
+
+-- Note: The admin check in the code looks for the email 'glowyboy01@gmail.com'
+-- No additional database tables or roles are needed.
+-- The admin functionality is built into the AuthContext.tsx file.

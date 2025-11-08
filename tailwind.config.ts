@@ -70,13 +70,13 @@ export default {
 					accent: '#C8C8C9',
 					muted: '#F1F1F1'
 				},
-				laboratory: {
-					primary: '#90EE90',
-					secondary: '#98FB98',
-					dark: '#228B22',
-					light: '#F0FFF0',
-					accent: '#32CD32',
-					muted: '#E6FFE6'
+				vet: {
+					primary: '#1E3A8A',
+					secondary: '#2563EB',
+					dark: '#0F172A',
+					light: '#EFF6FF',
+					accent: '#3B82F6',
+					muted: '#DBEAFE'
 				}
 			},
 			borderRadius: {

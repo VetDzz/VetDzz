@@ -116,10 +116,10 @@ const UrineTestsService = () => {
           >
             {/* Header */}
             <motion.div className="text-center mb-12" variants={itemVariants}>
-              <div className="w-16 h-16 bg-laboratory-primary rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-vet-primary rounded-full flex items-center justify-center mx-auto mb-6">
                 <Droplets className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-laboratory-dark mb-4">
+              <h1 className="text-4xl font-bold text-vet-dark mb-4">
                 Analyses d'Urine
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -132,10 +132,10 @@ const UrineTestsService = () => {
             {/* Key Benefits */}
             <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12" variants={containerVariants}>
               <motion.div variants={itemVariants}>
-                <Card className="border-laboratory-muted hover:shadow-lg transition-shadow">
+                <Card className="border-vet-muted hover:shadow-lg transition-shadow">
                   <CardHeader className="text-center">
-                    <Clock className="w-8 h-8 text-laboratory-primary mx-auto mb-2" />
-                    <CardTitle className="text-laboratory-dark">Résultats Rapides</CardTitle>
+                    <Clock className="w-8 h-8 text-vet-primary mx-auto mb-2" />
+                    <CardTitle className="text-vet-dark">Résultats Rapides</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 text-center">
@@ -147,10 +147,10 @@ const UrineTestsService = () => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Card className="border-laboratory-muted hover:shadow-lg transition-shadow">
+                <Card className="border-vet-muted hover:shadow-lg transition-shadow">
                   <CardHeader className="text-center">
-                    <Shield className="w-8 h-8 text-laboratory-primary mx-auto mb-2" />
-                    <CardTitle className="text-laboratory-dark">Prélèvement Simple</CardTitle>
+                    <Shield className="w-8 h-8 text-vet-primary mx-auto mb-2" />
+                    <CardTitle className="text-vet-dark">Prélèvement Simple</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 text-center">
@@ -162,10 +162,10 @@ const UrineTestsService = () => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Card className="border-laboratory-muted hover:shadow-lg transition-shadow">
+                <Card className="border-vet-muted hover:shadow-lg transition-shadow">
                   <CardHeader className="text-center">
-                    <FileText className="w-8 h-8 text-laboratory-primary mx-auto mb-2" />
-                    <CardTitle className="text-laboratory-dark">Diagnostic Précis</CardTitle>
+                    <FileText className="w-8 h-8 text-vet-primary mx-auto mb-2" />
+                    <CardTitle className="text-vet-dark">Diagnostic Précis</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 text-center">
@@ -179,23 +179,23 @@ const UrineTestsService = () => {
 
             {/* Urine Tests List */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <h2 className="text-3xl font-bold text-laboratory-dark mb-8 text-center">
+              <h2 className="text-3xl font-bold text-vet-dark mb-8 text-center">
                 Nos Analyses d'Urine
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {urineTests.map((test, index) => (
                   <motion.div key={index} variants={itemVariants}>
-                    <Card className="border-laboratory-muted hover:shadow-lg transition-all duration-300 h-full">
+                    <Card className="border-vet-muted hover:shadow-lg transition-all duration-300 h-full">
                       <CardHeader>
-                        <CardTitle className="text-laboratory-dark flex items-center">
-                          <CheckCircle className="w-5 h-5 text-laboratory-primary mr-2" />
+                        <CardTitle className="text-vet-dark flex items-center">
+                          <CheckCircle className="w-5 h-5 text-vet-primary mr-2" />
                           {test.name}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-gray-600 mb-4">{test.description}</p>
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-laboratory-accent">
+                          <span className="text-vet-accent">
                             Délai: {test.duration}
                           </span>
                           <span className={`px-2 py-1 rounded-full text-xs ${getTypeColor(test.type)}`}>
@@ -211,15 +211,15 @@ const UrineTestsService = () => {
 
             {/* Collection Instructions */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <Card className="border-laboratory-primary bg-laboratory-light">
+              <Card className="border-vet-primary bg-vet-light">
                 <CardHeader>
-                  <CardTitle className="text-laboratory-dark">
+                  <CardTitle className="text-vet-dark">
                     Instructions de Prélèvement
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-laboratory-dark mb-2">Prélèvement standard (ECBU) :</h4>
+                    <h4 className="font-semibold text-vet-dark mb-2">Prélèvement standard (ECBU) :</h4>
                     <ul className="list-disc list-inside text-gray-600 space-y-1">
                       <li>Utiliser le flacon stérile fourni par le laboratoire</li>
                       <li>Faire une toilette intime soigneuse</li>
@@ -228,7 +228,7 @@ const UrineTestsService = () => {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-laboratory-dark mb-2">Urines des 24h :</h4>
+                    <h4 className="font-semibold text-vet-dark mb-2">Urines des 24h :</h4>
                     <ul className="list-disc list-inside text-gray-600 space-y-1">
                       <li>Commencer le recueil après la première miction du matin</li>
                       <li>Recueillir toutes les urines pendant 24h</li>
@@ -237,7 +237,7 @@ const UrineTestsService = () => {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-laboratory-dark mb-2">Conseils généraux :</h4>
+                    <h4 className="font-semibold text-vet-dark mb-2">Conseils généraux :</h4>
                     <ul className="list-disc list-inside text-gray-600 space-y-1">
                       <li>Éviter les urines du matin pour certains tests</li>
                       <li>Signaler tout traitement antibiotique en cours</li>
@@ -250,19 +250,19 @@ const UrineTestsService = () => {
 
             {/* CTA */}
             <motion.div className="text-center" variants={itemVariants}>
-              <Card className="border-laboratory-primary bg-white">
+              <Card className="border-vet-primary bg-white">
                 <CardContent className="p-8">
-                  <h3 className="text-2xl font-bold text-laboratory-dark mb-4">
+                  <h3 className="text-2xl font-bold text-vet-dark mb-4">
                     Besoin d'analyses d'urine ?
                   </h3>
                   <p className="text-gray-600 mb-6">
                     Nos laboratoires vous accueillent sans rendez-vous pour vos analyses d'urine
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button className="bg-laboratory-primary hover:bg-laboratory-accent">
+                    <Button className="bg-vet-primary hover:bg-vet-accent">
                       Trouver un Laboratoire
                     </Button>
-                    <Button variant="outline" className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light">
+                    <Button variant="outline" className="border-vet-primary text-vet-dark hover:bg-vet-light">
                       Conseils de Prélèvement
                     </Button>
                   </div>

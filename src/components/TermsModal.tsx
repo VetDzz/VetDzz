@@ -14,7 +14,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TermsModalProps {
   children: React.ReactNode;
-  type?: 'client' | 'laboratory';
+  type?: 'client' | 'vet';
   onAccept?: () => void;
 }
 
@@ -72,7 +72,7 @@ Ces conditions peuvent être modifiées à tout moment. Les utilisateurs en sero
 Les présentes CGU sont soumises au droit français.
   `;
 
-  const laboratoryTerms = `
+  const vetTerms = `
 CONDITIONS PROFESSIONNELLES - LABORATOIRES
 
 1. OBJET
@@ -137,7 +137,7 @@ Ces conditions sont soumises au droit français et aux réglementations sanitair
         </DialogHeader>
         <ScrollArea className="h-96 w-full rounded-md border p-4" onScrollCapture={handleScroll}>
           <div className="whitespace-pre-line text-sm">
-            {type === 'client' ? clientTerms : laboratoryTerms}
+            {type === 'client' ? clientTerms : vetTerms}
           </div>
         </ScrollArea>
         <div className="flex items-center justify-end mt-4">
@@ -149,7 +149,7 @@ Ces conditions sont soumises au droit français et aux réglementations sanitair
                 }
               }}
               disabled={!hasReadAll}
-              className="bg-laboratory-primary hover:bg-laboratory-accent disabled:opacity-50"
+              className="bg-vet-primary hover:bg-vet-accent disabled:opacity-50"
             >
               Continuer
             </Button>

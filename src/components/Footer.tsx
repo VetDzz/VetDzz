@@ -14,8 +14,8 @@ const Footer = () => {
   const { t } = useLanguage();
 
   const handleGmailContact = () => {
-    const emailAddress = 'sihaaexpress@gmail.com';
-    const subject = 'Contact SihaaExpress';
+    const emailAddress = 'VetDz@gmail.com';
+    const subject = 'Contact VetDz';
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${emailAddress}&su=${encodeURIComponent(subject)}`;
     window.open(gmailUrl, '_blank');
   };
@@ -82,16 +82,16 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-laboratory-light pt-16 pb-8 w-full border-t border-laboratory-muted">
+    <footer className="bg-vet-light pt-16 pb-8 w-full border-t border-vet-muted">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 pb-10 border-b border-laboratory-muted">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 pb-10 border-b border-vet-muted">
           <div className="lg:col-span-2">
             <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-laboratory-primary rounded-full flex items-center justify-center mr-3">
+              <div className="w-12 h-12 bg-vet-primary rounded-full flex items-center justify-center mr-3">
                 <span className="text-white font-bold text-xl">L</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-laboratory-dark"> sihaaexpress</h3>
+                <h3 className="text-xl font-bold text-vet-dark"> VetDz</h3>
                 <p className="text-sm text-gray-600">{t('footer.subtitle')}</p>
               </div>
             </div>
@@ -100,22 +100,22 @@ const Footer = () => {
             </p>
             <div className="space-y-2 mb-6">
               <div className="flex items-center text-gray-600">
-                <MapPin className="w-4 h-4 mr-2 text-laboratory-primary" />
+                <MapPin className="w-4 h-4 mr-2 text-vet-primary" />
                 <span className="text-sm">33 El khroub Constantine</span>
               </div>
               <button 
                 onClick={handleWhatsAppContact}
                 className="flex items-center text-gray-600 hover:text-green-600 transition-colors cursor-pointer"
               >
-                <Phone className="w-4 h-4 mr-2 text-laboratory-primary" />
+                <Phone className="w-4 h-4 mr-2 text-vet-primary" />
                 <span className="text-sm">+213 797 49 55 68</span>
               </button>
               <button 
                 onClick={handleGmailContact}
                 className="flex items-center text-gray-600 hover:text-red-600 transition-colors cursor-pointer"
               >
-                <Mail className="w-4 h-4 mr-2 text-laboratory-primary" />
-                <span className="text-sm">sihaaexpress@gmail.com</span>
+                <Mail className="w-4 h-4 mr-2 text-vet-primary" />
+                <span className="text-sm">VetDz@gmail.com</span>
               </button>
             </div>
             <div className="flex space-x-4">
@@ -145,23 +145,23 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-4 text-laboratory-dark">{t('footer.services')}</h3>
+            <h3 className="text-lg font-bold mb-4 text-vet-dark">{t('footer.services')}</h3>
             <ul className="space-y-3">
-              <li><Link to="/services/blood-tests" className="text-gray-600 hover:text-laboratory-dark transition-colors">{t('services.bloodTests')}</Link></li>
-              <li><Link to="/services/urine-tests" className="text-gray-600 hover:text-laboratory-dark transition-colors">{t('services.urineTests')}</Link></li>
-              <li><Link to="/services/home-collection" className="text-gray-600 hover:text-laboratory-dark transition-colors">{t('services.homeCollection')}</Link></li>
-              <li><Link to="/services/rapid-results" className="text-gray-600 hover:text-laboratory-dark transition-colors">{t('services.rapidResults')}</Link></li>
+              <li><Link to="/services/blood-tests" className="text-gray-600 hover:text-vet-dark transition-colors">{t('services.bloodTests')}</Link></li>
+              <li><Link to="/services/urine-tests" className="text-gray-600 hover:text-vet-dark transition-colors">{t('services.urineTests')}</Link></li>
+              <li><Link to="/services/home-collection" className="text-gray-600 hover:text-vet-dark transition-colors">{t('services.homeCollection')}</Link></li>
+              <li><Link to="/services/rapid-results" className="text-gray-600 hover:text-vet-dark transition-colors">{t('services.rapidResults')}</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()}  sihaaexpress. {t('footer.rights')}
+            © {new Date().getFullYear()}  VetDz. {t('footer.rights')}
           </p>
           <div className="flex space-x-6">
-            <Link to="/privacy-policy" className="text-sm text-gray-500 hover:text-laboratory-dark transition-colors">{t('footer.privacy')}</Link>
-            <Link to="/terms" className="text-sm text-gray-500 hover:text-laboratory-dark transition-colors">{t('footer.terms')}</Link>
+            <Link to="/privacy-policy" className="text-sm text-gray-500 hover:text-vet-dark transition-colors">{t('footer.privacy')}</Link>
+            <Link to="/terms" className="text-sm text-gray-500 hover:text-vet-dark transition-colors">{t('footer.terms')}</Link>
           </div>
         </div>
       </div>

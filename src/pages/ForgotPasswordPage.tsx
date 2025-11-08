@@ -50,19 +50,19 @@ const ForgotPasswordPage = () => {
         .single();
 
       const { data: labProfile } = await supabase
-        .from('laboratory_profiles')
+        .from('vet_profiles')
         .select('email')
         .eq('email', email)
         .single();
 
-      const { data: cliniqueProfile } = await supabase
-        .from('clinique_profiles')
+      const { data: VetProfile } = await supabase
+        .from('vet_profiles')
         .select('email')
         .eq('email', email)
         .single();
 
       // If email doesn't exist in any profile table
-      if (!clientProfile && !labProfile && !cliniqueProfile) {
+      if (!clientProfile && !labProfile && !VetProfile) {
         toast({
           title: "Email introuvable",
           description: "Aucun compte n'est associé à cette adresse email.",
@@ -107,7 +107,7 @@ const ForgotPasswordPage = () => {
         description="Réinitialisez votre mot de passe pour accéder à votre espace client ou laboratoire."
         keywords={['mot de passe oublié', 'réinitialiser', 'reset password', 'récupération compte']}
       />
-      <div className="bg-laboratory-light">
+      <div className="bg-vet-light">
         <section className="py-16">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <motion.div
@@ -117,7 +117,7 @@ const ForgotPasswordPage = () => {
                 animate="visible"
               >
                 <motion.div className="text-center mb-8" variants={itemVariants}>
-                  <h2 className="text-3xl font-bold text-laboratory-dark mb-4">
+                  <h2 className="text-3xl font-bold text-vet-dark mb-4">
                     Mot de passe oublié
                   </h2>
                   <p className="text-gray-600">
@@ -126,10 +126,10 @@ const ForgotPasswordPage = () => {
                 </motion.div>
 
                 <motion.div variants={itemVariants}>
-                  <Card className="border-laboratory-muted">
+                  <Card className="border-vet-muted">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Mail className="w-5 h-5 text-laboratory-primary" />
+                        <Mail className="w-5 h-5 text-vet-primary" />
                         Réinitialisation du mot de passe
                       </CardTitle>
                       <CardDescription>
@@ -147,14 +147,14 @@ const ForgotPasswordPage = () => {
                               placeholder="votre@email.com"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
-                              className="border-laboratory-muted focus:border-laboratory-primary"
+                              className="border-vet-muted focus:border-vet-primary"
                               required
                             />
                           </div>
                           
                           <Button
                             type="submit"
-                            className="w-full bg-laboratory-primary hover:bg-laboratory-accent"
+                            className="w-full bg-vet-primary hover:bg-vet-accent"
                             disabled={isLoading || !email}
                           >
                             {isLoading ? 'Envoi en cours...' : 'Envoyer le lien de réinitialisation'}
@@ -166,7 +166,7 @@ const ForgotPasswordPage = () => {
                             <CheckCircle className="w-16 h-16 text-green-500" />
                           </div>
                           <div>
-                            <h3 className="text-lg font-semibold text-laboratory-dark mb-2">
+                            <h3 className="text-lg font-semibold text-vet-dark mb-2">
                               Email envoyé !
                             </h3>
                             <p className="text-gray-600 mb-4">
@@ -183,7 +183,7 @@ const ForgotPasswordPage = () => {
                         <Button
                           variant="ghost"
                           onClick={() => navigate('/auth')}
-                          className="text-laboratory-dark hover:text-laboratory-primary"
+                          className="text-vet-dark hover:text-vet-primary"
                         >
                           <ArrowLeft className="w-4 h-4 mr-2" />
                           Retour à la connexion

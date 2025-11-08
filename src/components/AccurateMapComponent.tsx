@@ -14,19 +14,19 @@ import { useLanguage } from '@/contexts/LanguageContext';
 // Fix for default markers in React-Leaflet - disable default external images
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
-interface Laboratory {
+interface vet {
   id: number;
-  laboratory_name?: string;
-  clinique_name?: string;
+  vet_name?: string;
+  vet_name?: string;
   name: string; // computed field for display
-  type: 'laboratory' | 'clinique';
+  type: 'vet' | 'vet';
   address: string;
   phone: string;
   latitude?: number | string | null;
   longitude?: number | string | null;
   city: string;
   services_offered?: string[];
-  specialities?: string[]; // for cliniques
+  specialities?: string[]; // for vets
   opening_hours?: string;
   opening_days?: string[];
   rating?: number;
@@ -50,13 +50,13 @@ const userLocationIcon = new L.Icon({
   iconAnchor: [12, 12],
 });
 
-// Custom laboratory icon (green geolocation pin)
+// Custom vet icon (dark blue geolocation pin)
 const labIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64,' + btoa(`
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#059669"/>
+      <path d="M16 0C10.48 0 6 4.48 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.52-4.48-10-10-10z" fill="#1E3A8A"/>
       <circle cx="16" cy="10" r="5" fill="white"/>
-      <path d="M16 6l1.5 3h3l-2.5 2L19 14l-3-1.5L13 14l1-3-2.5-2h3L16 6z" fill="#059669"/>
+      <path d="M16 6l1.5 3h3l-2.5 2L19 14l-3-1.5L13 14l1-3-2.5-2h3L16 6z" fill="#1E3A8A"/>
     </svg>
   `),
   iconSize: [32, 32],
@@ -64,7 +64,7 @@ const labIcon = new L.Icon({
   popupAnchor: [0, -32],
 });
 
-// Note: Both laboratories and cliniques use the same labIcon for consistency
+// Note: Both laboratories and vets use the same labIcon for consistency
 
 // Component to update map center when location changes
 const MapUpdater: React.FC<{ center: [number, number] }> = ({ center }) => {
@@ -101,10 +101,10 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
   height = '600px'
 }) => {
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
-  const [selectedLab, setSelectedLab] = useState<Laboratory | null>(null);
+  const [laboratories, setLaboratories] = useState<vet[]>([]);
+  const [selectedLab, setSelectedLab] = useState<vet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [filterType, setFilterType] = useState<'all' | 'laboratory' | 'clinique'>('all');
+  const [filterType, setFilterType] = useState<'all'>('all');
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const { user } = useAuth();
@@ -123,8 +123,14 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
     // Always request fresh location when component loads
     getCurrentLocation();
-    fetchLaboratories();
   }, []);
+
+  // Fetch vets when userLocation is available
+  useEffect(() => {
+    if (userLocation) {
+      fetchLaboratories();
+    }
+  }, [userLocation]);
 
   const getCurrentLocation = async () => {
     setIsGettingLocation(true);
@@ -570,37 +576,35 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
   const fetchLaboratories = async () => {
     try {
-      // Fetch both laboratories and cliniques in parallel
-      const [labResponse, cliniqueResponse] = await Promise.all([
-        supabase.from('laboratory_profiles').select('*'),
-        supabase.from('clinique_profiles').select('*')
-      ]);
-
-      let allLocations: Laboratory[] = [];
-
-      // Process laboratories
-      if (labResponse.data && !labResponse.error) {
-        const laboratories = labResponse.data.map((lab: any) => ({
-          ...lab,
-          name: lab.laboratory_name,
-          type: 'laboratory' as const,
-          city: lab.address?.split(',').pop()?.trim() || 'Batna'
-        }));
-        allLocations = [...allLocations, ...laboratories];
-      } else if (labResponse.error) {
+      // Use edge function to get only nearby vets (saves 85-90% data)
+      if (!userLocation) {
+        setLaboratories([]);
+        return;
       }
 
-      // Process cliniques
-      if (cliniqueResponse.data && !cliniqueResponse.error) {
-        const cliniques = cliniqueResponse.data.map((clinique: any) => ({
-          ...clinique,
-          name: clinique.clinique_name,
-          type: 'clinique' as const,
-          laboratory_name: clinique.clinique_name, // For compatibility
-          city: clinique.address?.split(',').pop()?.trim() || 'Batna'
+      const { data: response, error: vetError } = await supabase.functions.invoke('get-nearby-vets', {
+        body: {
+          latitude: userLocation.lat,
+          longitude: userLocation.lng,
+          radius: 100 // 100km radius
+        }
+      });
+
+      const vetData = response?.data || [];
+
+      let allLocations: vet[] = [];
+
+      // Process veterinarians
+      if (vetData && !vetError) {
+        const vets = vetData.map((vet: any) => ({
+          ...vet,
+          name: vet.vet_name || vet.clinic_name,
+          type: 'vet' as const,
+          city: vet.city || vet.address?.split(',').pop()?.trim() || 'Alger'
         }));
-        allLocations = [...allLocations, ...cliniques];
-      } else if (cliniqueResponse.error) {
+        allLocations = [...allLocations, ...vets];
+      } else if (vetError) {
+        console.error('Error fetching veterinarians:', vetError);
       }
 
       setLaboratories(allLocations);
@@ -623,18 +627,18 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     return R * c;
   };
 
-  const getDirections = (lab: Laboratory) => {
+  const getDirections = (lab: vet) => {
     if (userLocation && lab.latitude && lab.longitude) {
       const url = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${lab.latitude},${lab.longitude}`;
       window.open(url, '_blank');
     } else {
       const search = [lab.address, lab.city].filter(Boolean).join(', ');
-      const url = `https://www.google.com/maps/search/${encodeURIComponent(search || lab.laboratory_name)}`;
+      const url = `https://www.google.com/maps/search/${encodeURIComponent(search || lab.vet_name)}`;
       window.open(url, '_blank');
     }
   };
 
-  const sendPADRequest = async (lab: Laboratory) => {
+  const sendPADRequest = async (lab: vet) => {
     if (!user) {
       toast({
         title: t('common.error'),
@@ -650,7 +654,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         .from('pad_requests')
         .select('id,status,created_at,updated_at')
         .eq('client_id', user.id)
-        .eq('laboratory_id', (lab as any).user_id)
+        .eq('vet_id', (lab as any).user_id)
         .order('created_at', { ascending: false })
         .limit(1);
 
@@ -661,7 +665,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         if (lastRequest.status === 'pending') {
           toast({ 
             title: 'Demande en attente', 
-            description: 'Vous avez déjà une demande PAD en attente pour ce laboratoire.', 
+            description: 'Vous avez déjà une demande PAD en attente pour ce vétérinaire.', 
             variant: 'default' 
           });
           return;
@@ -676,7 +680,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
             const timeLeft = Math.ceil((acceptedTime.getTime() + 60 * 60 * 1000 - Date.now()) / (1000 * 60));
             toast({ 
               title: 'Demande récemment acceptée', 
-              description: `Attendez ${timeLeft} minutes avant de renvoyer une demande à ce laboratoire.`, 
+              description: `Attendez ${timeLeft} minutes avant de renvoyer une demande à ce vétérinaire.`, 
               variant: 'default' 
             });
             return;
@@ -697,7 +701,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         .insert([
           {
             client_id: user.id,
-            laboratory_id: (lab as any).user_id,
+            vet_id: (lab as any).user_id,
             status: 'pending',
             message: t('PAD.requestMessage'),
             client_location_lat: userLocation?.lat || null,
@@ -713,7 +717,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
       if (error) {
         toast({ title: t('common.error'), description: t('PAD.sendError'), variant: 'destructive' });
       } else {
-        // Notify laboratory
+        // Notify vet
         await supabase.from('notifications').insert([
           {
             user_id: (lab as any).user_id,
@@ -725,7 +729,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
             related_entity_id: inserted.id
           }
         ]);
-        toast({ title: t('PAD.sentTitle'), description: `${t('PAD.sentDesc')} ${lab.laboratory_name}` });
+        toast({ title: t('PAD.sentTitle'), description: `${t('PAD.sentDesc')} ${lab.vet_name}` });
       }
     } catch (err) {
       toast({ title: 'Erreur', description: 'Une erreur est survenue.', variant: 'destructive' });
@@ -750,7 +754,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     setNavDest([userLocation.lat, userLocation.lng]);
   };
 
-  const goToLabLocation = (lab: Laboratory) => {
+  const goToLabLocation = (lab: vet) => {
     const lat = typeof lab.latitude === 'string' ? parseFloat(lab.latitude) : lab.latitude;
     const lng = typeof lab.longitude === 'string' ? parseFloat(lab.longitude) : lab.longitude;
     if (typeof lat === 'number' && !isNaN(lat) && typeof lng === 'number' && !isNaN(lng)) {
@@ -758,11 +762,8 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     }
   };
 
-  // Filter laboratories based on selected filter type
-  const filteredLaboratories = laboratories.filter(lab => {
-    if (filterType === 'all') return true;
-    return lab.type === filterType;
-  });
+  // Show all veterinarians (no filtering needed since we only have vets)
+  const filteredLaboratories = laboratories;
 
   const labsWithDistance = userLocation && filteredLaboratories.length > 0
     ? filteredLaboratories
@@ -778,7 +779,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
             };
           }
           // Keep labs without coordinates; no distance value
-          return { ...lab } as Laboratory;
+          return { ...lab } as vet;
         })
         .sort((a: any, b: any) => {
           const da = typeof a.distance === 'number' ? a.distance : Number.POSITIVE_INFINITY;
@@ -809,8 +810,8 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
   const getAccuracyColor = () => {
     if (!locationAccuracy) return "bg-gray-50 border-gray-200";
-    if (locationAccuracy <= 50) return "bg-green-50 border-green-200";
-    if (locationAccuracy <= 100) return "bg-laboratory-light border-laboratory-muted";
+    if (locationAccuracy <= 50) return "bg-vet-light border-vet-muted";
+    if (locationAccuracy <= 100) return "bg-vet-light border-vet-muted";
     if (locationAccuracy <= 500) return "bg-yellow-50 border-yellow-200";
     return "bg-orange-50 border-orange-200";
   };
@@ -822,7 +823,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           onClick={refreshLocation}
           disabled={isGettingLocation}
           variant="outline"
-          className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+          className="border-vet-primary text-vet-dark hover:bg-vet-light"
         >
           {isGettingLocation ? (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -835,7 +836,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         <Button
           onClick={goToMyPlace}
           variant="outline"
-          className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+          className="border-vet-primary text-vet-dark hover:bg-vet-light"
         >
           <Navigation className="w-4 h-4 mr-2" />
           {t('map.goToMyPlace')}
@@ -843,47 +844,16 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
         {/* Filter Controls */}
         <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md">
-          <Button
-            onClick={() => setFilterType('all')}
-            variant={filterType === 'all' ? 'default' : 'ghost'}
-            size="sm"
-            className={`h-8 px-3 text-xs ${
-              filterType === 'all'
-                ? 'bg-laboratory-primary text-white hover:bg-laboratory-accent'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            Tous ({laboratories.length})
-          </Button>
-          <Button
-            onClick={() => setFilterType('laboratory')}
-            variant={filterType === 'laboratory' ? 'default' : 'ghost'}
-            size="sm"
-            className={`h-8 px-3 text-xs ${
-              filterType === 'laboratory'
-                ? 'bg-laboratory-primary text-laboratory-dark hover:bg-laboratory-accent'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            Laboratoires ({laboratories.filter(l => l.type === 'laboratory').length})
-          </Button>
-          <Button
-            onClick={() => setFilterType('clinique')}
-            variant={filterType === 'clinique' ? 'default' : 'ghost'}
-            size="sm"
-            className={`h-8 px-3 text-xs ${
-              filterType === 'clinique'
-                ? 'bg-laboratory-primary text-laboratory-dark hover:bg-laboratory-accent'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            Cliniques ({laboratories.filter(l => l.type === 'clinique').length})
-          </Button>
+          <div className="flex items-center gap-2 bg-white border border-vet-muted rounded-md px-4 py-2">
+            <span className="text-sm font-medium text-vet-dark">
+              {laboratories.length} Vétérinaire{laboratories.length !== 1 ? 's' : ''} trouvé{laboratories.length !== 1 ? 's' : ''}
+            </span>
+          </div>
         </div>
 
         {userLocation && (
           <div className={`flex items-center text-sm text-gray-600 px-3 py-2 rounded-md ${getAccuracyColor()}`}>
-            <div className="w-2 h-2 bg-laboratory-primary rounded-full mr-2 animate-pulse"></div>
+            <div className="w-2 h-2 bg-vet-primary rounded-full mr-2 animate-pulse"></div>
             <span className="font-medium">{getAccuracyText()}:</span>
             <span className="ml-1">{userLocation.lat.toFixed(6)}, {userLocation.lng.toFixed(6)}</span>
             {locationAccuracy && (
@@ -897,13 +867,13 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         {/* Accurate Map */}
         <Card className="h-full">
           <CardHeader>
-            <CardTitle className="text-laboratory-dark flex items-center justify-between">
+            <CardTitle className="text-vet-dark flex items-center justify-between">
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 mr-2" />
                 {t('map.interactiveMap')}
               </div>
               {laboratories.length > 0 && (
-                <Badge className="bg-laboratory-primary">
+                <Badge className="bg-vet-primary">
                   {laboratories.length} {t('map.laboratories')}
                 </Badge>
               )}
@@ -955,7 +925,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                     </Marker>
                   )}
 
-                  {/* Laboratory and Clinique markers (only render when coordinates are valid) */}
+                  {/* vet and vet markers (only render when coordinates are valid) */}
                   {labsWithDistance
                     .filter(lab => typeof lab.latitude === 'number' && !isNaN(lab.latitude as any) && typeof lab.longitude === 'number' && !isNaN(lab.longitude as any))
                     .map((lab) => (
@@ -968,19 +938,19 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                         <Popup>
                           <div style={{ minWidth: '200px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                              <h3 style={{ margin: '0', color: lab.type === 'laboratory' ? '#059669' : '#228B22', fontSize: '16px', fontWeight: 'bold' }}>
+                              <h3 style={{ margin: '0', color: '#1E3A8A', fontSize: '16px', fontWeight: 'bold' }}>
                                 {lab.name}
                               </h3>
                               <span style={{
                                 marginLeft: '8px',
                                 padding: '2px 6px',
-                                backgroundColor: lab.type === 'laboratory' ? '#059669' : '#90EE90',
-                                color: lab.type === 'laboratory' ? 'white' : '#228B22',
+                                backgroundColor: '#1E3A8A',
+                                color: 'white',
                                 fontSize: '10px',
                                 borderRadius: '4px',
                                 textTransform: 'uppercase'
                               }}>
-                                {lab.type === 'laboratory' ? 'Laboratoire' : 'Clinique'}
+                                Vétérinaire
                               </span>
                             </div>
                             <p style={{ margin: '0 0 5px 0', color: '#666', fontSize: '14px' }}>
@@ -1000,8 +970,8 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                             <button
                               onClick={() => getDirections(lab)}
                               style={{
-                                background: lab.type === 'laboratory' ? '#059669' : '#90EE90',
-                                color: lab.type === 'laboratory' ? 'white' : '#228B22',
+                                background: '#1E3A8A',
+                                color: 'white',
                                 border: 'none',
                                 padding: '8px 16px',
                                 borderRadius: '4px',
@@ -1028,7 +998,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                     <Button
                       onClick={getCurrentLocation}
                       disabled={isGettingLocation}
-                      className="bg-laboratory-primary hover:bg-laboratory-accent"
+                      className="bg-vet-primary hover:bg-vet-accent"
                     >
                       {isGettingLocation ? (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1065,7 +1035,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                         }
                       }}
                       variant="outline"
-                      className="border-laboratory-primary text-laboratory-primary hover:bg-laboratory-primary hover:text-white"
+                      className="border-vet-primary text-vet-primary hover:bg-vet-primary hover:text-white"
                     >
                       🔐 Autoriser la géolocalisation
                     </Button>
@@ -1076,15 +1046,15 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           </CardContent>
         </Card>
 
-        {/* Laboratory List */}
+        {/* vet List */}
         <Card className="h-full">
           <CardHeader className="sticky top-0 z-10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-            <CardTitle className="text-laboratory-dark">
+            <CardTitle className="text-vet-dark">
               <div className="flex items-center justify-between">
                 <span>{t('map.nearbyLabs')}</span>
                 <div className="flex items-center gap-2">
                   {laboratories.length > 0 && (
-                    <Badge className="bg-laboratory-primary">{laboratories.length}</Badge>
+                    <Badge className="bg-vet-primary">{laboratories.length}</Badge>
                   )}
                   <span className="text-xs text-gray-500">{t('map.scrollHint')}</span>
                 </div>
@@ -1094,7 +1064,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           <CardContent className="space-y-4 overflow-y-auto" style={{ height }}>
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-laboratory-primary mr-2" />
+                <Loader2 className="w-6 h-6 animate-spin text-vet-primary mr-2" />
                 <span className="text-gray-600">{t('map.loadingLabs')}</span>
               </div>
             ) : laboratories.length === 0 ? (
@@ -1107,7 +1077,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                 <Button
                   onClick={fetchLaboratories}
                   variant="outline"
-                  className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light"
+                  className="border-vet-primary text-vet-dark hover:bg-vet-light"
                 >
                   Actualiser
                 </Button>
@@ -1118,8 +1088,8 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                   key={lab.id}
                   className={`p-4 border rounded-lg cursor-pointer transition-all ${
                     selectedLab?.id === lab.id
-                      ? 'border-laboratory-primary bg-laboratory-light'
-                      : 'border-gray-200 hover:border-laboratory-primary'
+                      ? 'border-vet-primary bg-vet-light'
+                      : 'border-gray-200 hover:border-vet-primary'
                   }`}
                   onClick={() => {
                     setSelectedLab(lab);
@@ -1133,16 +1103,12 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-laboratory-dark">{lab.name}</h4>
+                      <h4 className="font-medium text-vet-dark">{lab.name}</h4>
                       <Badge 
-                        className={`text-xs ${
-                          lab.type === 'laboratory'
-                            ? 'bg-green-100 text-green-800 border-green-200'
-                            : 'bg-laboratory-light text-laboratory-dark border-laboratory-muted'
-                        }`}
+                        className="text-xs bg-vet-light text-vet-dark border-vet-muted"
                         variant="outline"
                       >
-                        {lab.type === 'laboratory' ? 'Laboratoire' : 'Clinique'}
+                        Vétérinaire
                       </Badge>
                     </div>
                   </div>
@@ -1156,7 +1122,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                       <>
                         <span className="mx-2">•</span>
                         <button
-                          className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded hover:bg-green-200"
+                          className="text-xs bg-vet-light text-vet-dark px-2 py-0.5 rounded hover:bg-vet-muted"
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedLab(selectedLab?.id === lab.id ? null : lab);
@@ -1178,7 +1144,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                     <div className="mb-3 text-sm text-gray-700">
                       <div className="grid grid-cols-2 gap-1">
                         {lab.opening_days.map((d, i) => (
-                          <span key={i} className="bg-green-50 border border-green-200 rounded px-2 py-1">{d}</span>
+                          <span key={i} className="bg-vet-light border border-vet-muted rounded px-2 py-1">{d}</span>
                         ))}
                       </div>
                     </div>
@@ -1206,7 +1172,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                         e.stopPropagation();
                         getDirections(lab);
                       }}
-                      className="bg-laboratory-primary hover:bg-laboratory-accent text-xs px-2 py-1"
+                      className="bg-vet-primary hover:bg-vet-accent text-xs px-2 py-1"
                     >
                       <Route className="w-3 h-3 mr-1" />
                       {t('map.directions')}
@@ -1218,7 +1184,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                         e.stopPropagation();
                         goToLabLocation(lab);
                       }}
-                      className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light text-xs px-2 py-1"
+                      className="border-vet-primary text-vet-dark hover:bg-vet-light text-xs px-2 py-1"
                     >
                       <MapPin className="w-3 h-3 mr-1" />
                       {t('map.goToLocation')}
@@ -1230,7 +1196,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                           e.stopPropagation();
                           sendPADRequest(lab);
                         }}
-                        className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1"
+                        className="bg-vet-primary hover:bg-vet-accent !text-white text-xs px-2 py-1"
                       >
                         <Send className="w-3 h-3 mr-1" />
                         {t('map.requestPAD')}
@@ -1244,7 +1210,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                           e.stopPropagation();
                           window.open(`tel:${lab.phone}`, '_self');
                         }}
-                        className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light text-xs px-2 py-1"
+                        className="border-vet-primary text-vet-dark hover:bg-vet-light text-xs px-2 py-1"
                       >
                         <Phone className="w-3 h-3 mr-1" />
                         {t('map.call')}

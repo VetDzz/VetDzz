@@ -12,12 +12,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import TermsModal from '@/components/TermsModal';
 import VerificationWaiting from '@/components/VerificationWaiting';
-import LaboratoryLocationForm from '@/components/GeolocationModal';
+import GeolocationModal from '@/components/GeolocationModal';
 import { supabase } from '@/lib/supabase';
 
 const AuthSection = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [userType, setUserType] = useState<'client' | 'laboratory' | 'clinique'>('client');
+  const [userType, setUserType] = useState<'client' | 'vet'>('client');
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -95,14 +95,14 @@ const AuthSection = () => {
         ...locationData
       };
 
-      const success = await register(userDataWithLocation, userType === 'clinique' ? 'clinique' : 'laboratory');
+      const success = await register(userDataWithLocation, userType === 'vet' ? 'vet' : 'vet');
 
       if (success) {
         setShowLocationForm(false);
         setPendingLabData(null);
         setRegisteredEmail(pendingLabData.email);
 
-        // Show verification modal for laboratory too
+        // Show verification modal for vet too
         setShowVerification(true);
         toast({
           title: "Inscription réussie",
@@ -148,10 +148,10 @@ const AuthSection = () => {
         const actualUserType = result.userType || 'client';
 
         // Navigate to appropriate dashboard based on user type
-        if (actualUserType === 'laboratory') {
-          navigate('/laboratory-home');
-        } else if (actualUserType === 'clinique') {
-          navigate('/clinique-home');
+        if (actualUserType === 'vet') {
+          navigate('/vet-home');
+        } else if (actualUserType === 'vet') {
+          navigate('/vet-home');
         } else {
           navigate('/');
         }
@@ -183,8 +183,8 @@ const AuthSection = () => {
     // Debug: Log the form data
 
     try {
-      // For laboratory and clinique users, DON'T register yet - show location form first
-      if (userType === 'laboratory' || userType === 'clinique') {
+      // For vet users, DON'T register yet - show location form first
+      if (userType === 'vet') {
         setPendingLabData(userData);
         setShowLocationForm(true);
         // No registration yet, no toast
@@ -219,7 +219,7 @@ const AuthSection = () => {
   };
 
   return (
-    <section id="login" className="py-16 bg-laboratory-light">
+    <section id="login" className="py-16 bg-vet-light">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="max-w-md mx-auto"
@@ -229,7 +229,7 @@ const AuthSection = () => {
           viewport={{ once: true }}
         >
           <motion.div className="text-center mb-8" variants={itemVariants}>
-            <h2 className="text-3xl font-bold text-laboratory-dark mb-4">
+            <h2 className="text-3xl font-bold text-vet-dark mb-4">
               {isLogin ? t('auth.loginTitle') : t('auth.signupTitle')}
             </h2>
             <p className="text-gray-600">
@@ -241,13 +241,13 @@ const AuthSection = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="border-laboratory-muted">
+            <Card className="border-vet-muted">
               <CardHeader>
                 <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mb-4">
                   <Button
                     variant={isLogin ? "default" : "outline"}
                     onClick={() => setIsLogin(true)}
-                    className={`w-full sm:w-auto ${isLogin ? "bg-laboratory-primary hover:bg-laboratory-accent" : ""}`}
+                    className={`w-full sm:w-auto ${isLogin ? "bg-vet-primary hover:bg-vet-accent" : ""}`}
                     size="default"
                   >
                     <LogIn className="w-4 h-4 mr-2" />
@@ -256,7 +256,7 @@ const AuthSection = () => {
                   <Button
                     variant={!isLogin ? "default" : "outline"}
                     onClick={() => setIsLogin(false)}
-                    className={`w-full sm:w-auto ${!isLogin ? "bg-laboratory-primary hover:bg-laboratory-accent" : ""}`}
+                    className={`w-full sm:w-auto ${!isLogin ? "bg-vet-primary hover:bg-vet-accent" : ""}`}
                     size="default"
                   >
                     <UserPlus className="w-4 h-4 mr-2" />
@@ -274,7 +274,7 @@ const AuthSection = () => {
                         name="email"
                         type="email"
                         placeholder="votre@email.com"
-                        className="border-laboratory-muted focus:border-laboratory-primary"
+                        className="border-vet-muted focus:border-vet-primary"
                         required
                       />
                     </div>
@@ -285,13 +285,13 @@ const AuthSection = () => {
                         name="password"
                         type="password"
                         placeholder="••••••••"
-                        className="border-laboratory-muted focus:border-laboratory-primary"
+                        className="border-vet-muted focus:border-vet-primary"
                         required
                       />
                     </div>
                     <Button
                       type="submit"
-                      className="w-full bg-laboratory-primary hover:bg-laboratory-accent"
+                      className="w-full bg-vet-primary hover:bg-vet-accent"
                       disabled={isLoading}
                       size="default"
                     >
@@ -301,7 +301,7 @@ const AuthSection = () => {
                       <button
                         type="button"
                         onClick={() => navigate('/forgot-password')}
-                        className="text-sm text-laboratory-dark hover:underline"
+                        className="text-sm text-vet-dark hover:underline"
                       >
                         {t('auth.forgotPassword')}
                       </button>
@@ -309,19 +309,15 @@ const AuthSection = () => {
                   </form>
                 ) : (
                   <form className="space-y-6" onSubmit={handleRegister}>
-                    <Tabs value={userType} onValueChange={(value) => setUserType(value as 'client' | 'laboratory' | 'clinique')}>
-                      <TabsList className="grid w-full grid-cols-3">
+                    <Tabs value={userType} onValueChange={(value) => setUserType(value as 'client' | 'vet')}>
+                      <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="client" className="flex items-center">
                           <User className="w-4 h-4 mr-2" />
-                          {t('auth.client')}
+                          Propriétaire d'animal
                         </TabsTrigger>
-                        <TabsTrigger value="laboratory" className="flex items-center">
+                        <TabsTrigger value="vet" className="flex items-center">
                           <Building2 className="w-4 h-4 mr-2" />
-                          {t('auth.laboratory')}
-                        </TabsTrigger>
-                        <TabsTrigger value="clinique" className="flex items-center">
-                          <Building2 className="w-4 h-4 mr-2" />
-                          {t('auth.clinique')}
+                          Vétérinaire
                         </TabsTrigger>
                       </TabsList>
                       
@@ -333,7 +329,7 @@ const AuthSection = () => {
                               id="firstName"
                               name="firstName"
                               placeholder="Jean"
-                              className="border-laboratory-muted focus:border-laboratory-primary"
+                              className="border-vet-muted focus:border-vet-primary"
                               required
                             />
                           </div>
@@ -343,7 +339,7 @@ const AuthSection = () => {
                               id="lastName"
                               name="lastName"
                               placeholder="Dupont"
-                              className="border-laboratory-muted focus:border-laboratory-primary"
+                              className="border-vet-muted focus:border-vet-primary"
                               required
                             />
                           </div>
@@ -355,7 +351,7 @@ const AuthSection = () => {
                             name="email"
                             type="email"
                             placeholder="jean.dupont@email.com"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                             required
                           />
                         </div>
@@ -366,7 +362,7 @@ const AuthSection = () => {
                             name="phone"
                             type="tel"
                             placeholder="+33 6 12 34 56 78"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                           />
                         </div>
                         <div className="space-y-2">
@@ -375,7 +371,7 @@ const AuthSection = () => {
                             id="birthDate"
                             name="dateOfBirth"
                             type="date"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                           />
                         </div>
                         <div className="space-y-2">
@@ -384,7 +380,7 @@ const AuthSection = () => {
                             id="clientAddress"
                             name="address"
                             placeholder="123 Rue de la République"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                           />
                         </div>
 
@@ -397,7 +393,7 @@ const AuthSection = () => {
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => handlePasswordChange(e.target.value)}
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                             required
                           />
                         </div>
@@ -410,7 +406,7 @@ const AuthSection = () => {
                             placeholder="••••••••"
                             value={confirmPassword}
                             onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                             required
                           />
                         </div>
@@ -445,14 +441,14 @@ const AuthSection = () => {
                               id="terms"
                               name="agreeToTerms"
                               required
-                              className="rounded border-laboratory-muted cursor-pointer"
+                              className="rounded border-vet-muted cursor-pointer"
                               checked={clientTermsAccepted}
                               readOnly
                             />
                           </TermsModal>
                           <Label htmlFor="terms" className="text-sm">
                             <TermsModal type="client" onAccept={() => setClientTermsAccepted(true)}>
-                              <span className="text-laboratory-dark hover:underline cursor-pointer">
+                              <span className="text-vet-dark hover:underline cursor-pointer">
                                 {t('auth.terms')}
                               </span>
                             </TermsModal>
@@ -461,14 +457,14 @@ const AuthSection = () => {
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="laboratory" className="space-y-4 mt-4">
+                      <TabsContent value="vet" className="space-y-4 mt-4">
                         <div className="space-y-2">
-                          <Label htmlFor="labName">{t('auth.labName')}</Label>
+                          <Label htmlFor="labName">Nom de la clinique vétérinaire</Label>
                           <Input
                             id="labName"
                             name="labName"
-                            placeholder="Laboratoire Central"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            placeholder="Clinique Vétérinaire Centrale"
+                            className="border-vet-muted focus:border-vet-primary"
                             required
                           />
                         </div>
@@ -479,7 +475,7 @@ const AuthSection = () => {
                             name="email"
                             type="email"
                             placeholder="contact@laboratoire.com"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                             required
                           />
                         </div>
@@ -490,7 +486,7 @@ const AuthSection = () => {
                             name="phone"
                             type="tel"
                             placeholder="+33 1 23 45 67 89"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                             required
                           />
                         </div>
@@ -501,7 +497,7 @@ const AuthSection = () => {
                             id="address"
                             name="address"
                             placeholder="123 Rue de la Santé"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                             required
                           />
                         </div>
@@ -515,7 +511,7 @@ const AuthSection = () => {
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => handlePasswordChange(e.target.value)}
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                             required
                           />
                         </div>
@@ -528,7 +524,7 @@ const AuthSection = () => {
                             placeholder="••••••••"
                             value={confirmPassword}
                             onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-                            className="border-laboratory-muted focus:border-laboratory-primary"
+                            className="border-vet-muted focus:border-vet-primary"
                             required
                           />
                         </div>
@@ -557,138 +553,20 @@ const AuthSection = () => {
                           </div>
                         )}
                         <div className="flex items-center space-x-2">
-                          <TermsModal type="laboratory" onAccept={() => setLabTermsAccepted(true)}>
+                          <TermsModal type="vet" onAccept={() => setLabTermsAccepted(true)}>
                             <input
                               type="checkbox"
                               id="labTerms"
                               name="agreeToTerms"
                               required
-                              className="rounded border-laboratory-muted cursor-pointer"
+                              className="rounded border-vet-muted cursor-pointer"
                               checked={labTermsAccepted}
                               readOnly
                             />
                           </TermsModal>
                           <Label htmlFor="labTerms" className="text-sm">
-                            <TermsModal type="laboratory" onAccept={() => setLabTermsAccepted(true)}>
-                              <span className="text-laboratory-dark hover:underline cursor-pointer">
-                                {t('auth.professionalTerms')}
-                              </span>
-                            </TermsModal>
-                            <span className="text-red-500 ml-1">*</span>
-                          </Label>
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="clinique" className="space-y-4 mt-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="cliniqueLabName">{t('auth.cliniqueName')}</Label>
-                          <Input
-                            id="cliniqueLabName"
-                            name="labName"
-                            placeholder="Clinique Centrale"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cliniqueEmail">{t('auth.professionalEmail')}</Label>
-                          <Input
-                            id="cliniqueEmail"
-                            name="email"
-                            type="email"
-                            placeholder="contact@clinique.com"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cliniquePhone">{t('auth.phone')}</Label>
-                          <Input
-                            id="cliniquePhone"
-                            name="phone"
-                            type="tel"
-                            placeholder="+33 1 23 45 67 89"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
-                            required
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="cliniqueAddress">{t('auth.address')}</Label>
-                          <Input
-                            id="cliniqueAddress"
-                            name="address"
-                            placeholder="123 Rue de la Santé"
-                            className="border-laboratory-muted focus:border-laboratory-primary"
-                            required
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="cliniquePassword">{t('auth.password')}</Label>
-                          <Input
-                            id="cliniquePassword"
-                            name="password"
-                            type="password"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => handlePasswordChange(e.target.value)}
-                            className="border-laboratory-muted focus:border-laboratory-primary"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cliniqueConfirmPassword">Confirmer le mot de passe</Label>
-                          <Input
-                            id="cliniqueConfirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            placeholder="••••••••"
-                            value={confirmPassword}
-                            onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-                            className="border-laboratory-muted focus:border-laboratory-primary"
-                            required
-                          />
-                        </div>
-
-                        {/* Password validation indicators */}
-                        {password && (
-                          <div className="space-y-2 p-3 bg-gray-50 rounded-md">
-                            <p className="text-sm font-medium text-gray-700">Exigences du mot de passe:</p>
-                            <div className="space-y-1">
-                              <div className={`flex items-center text-xs ${passwordValidation.length ? 'text-green-600' : 'text-red-600'}`}>
-                                {passwordValidation.length ? '✓' : '✗'} Au moins 8 caractères
-                              </div>
-                              <div className={`flex items-center text-xs ${passwordValidation.uppercase ? 'text-green-600' : 'text-red-600'}`}>
-                                {passwordValidation.uppercase ? '✓' : '✗'} Une lettre majuscule
-                              </div>
-                              <div className={`flex items-center text-xs ${passwordValidation.lowercase ? 'text-green-600' : 'text-red-600'}`}>
-                                {passwordValidation.lowercase ? '✓' : '✗'} Une lettre minuscule
-                              </div>
-                              <div className={`flex items-center text-xs ${passwordValidation.number ? 'text-green-600' : 'text-red-600'}`}>
-                                {passwordValidation.number ? '✓' : '✗'} Un chiffre
-                              </div>
-                              <div className={`flex items-center text-xs ${passwordValidation.match ? 'text-green-600' : 'text-red-600'}`}>
-                                {passwordValidation.match ? '✓' : '✗'} Les mots de passe correspondent
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        <div className="flex items-center space-x-2">
-                          <TermsModal type="laboratory" onAccept={() => setLabTermsAccepted(true)}>
-                            <input
-                              type="checkbox"
-                              id="cliniqueTerms"
-                              name="agreeToTerms"
-                              required
-                              className="rounded border-laboratory-muted cursor-pointer"
-                              checked={labTermsAccepted}
-                              readOnly
-                            />
-                          </TermsModal>
-                          <Label htmlFor="cliniqueTerms" className="text-sm">
-                            <TermsModal type="laboratory" onAccept={() => setLabTermsAccepted(true)}>
-                              <span className="text-laboratory-dark hover:underline cursor-pointer">
+                            <TermsModal type="vet" onAccept={() => setLabTermsAccepted(true)}>
+                              <span className="text-vet-dark hover:underline cursor-pointer">
                                 {t('auth.professionalTerms')}
                               </span>
                             </TermsModal>
@@ -700,16 +578,16 @@ const AuthSection = () => {
 
                     <Button
                       type="submit"
-                      className="w-full bg-laboratory-primary hover:bg-laboratory-accent"
+                      className="w-full bg-vet-primary hover:bg-vet-accent"
                       disabled={
                         isLoading ||
                         (password && !Object.values(passwordValidation).every(Boolean)) ||
                         (userType === 'client' && !clientTermsAccepted) ||
-                        ((userType === 'laboratory' || userType === 'clinique') && !labTermsAccepted)
+                        ((userType === 'vet' || userType === 'vet') && !labTermsAccepted)
                       }
                       size="default"
                     >
-                      {isLoading ? 'Création...' : `${t('auth.createAccount')} ${userType === 'client' ? t('auth.client').toLowerCase() : userType === 'laboratory' ? t('auth.laboratory').toLowerCase() : t('auth.clinique').toLowerCase()}`}
+                      {isLoading ? 'Création...' : `${t('auth.createAccount')} ${userType === 'client' ? t('auth.client').toLowerCase() : userType === 'vet' ? t('auth.vet').toLowerCase() : t('auth.vet').toLowerCase()}`}
                     </Button>
                   </form>
                 )}
@@ -734,8 +612,8 @@ const AuthSection = () => {
         />
       )}
 
-      {/* Location Form for Laboratory Registration */}
-      <LaboratoryLocationForm
+      {/* Location Form for vet Registration */}
+      <GeolocationModal
         isOpen={showLocationForm}
         userData={pendingLabData}
         userType={userType}

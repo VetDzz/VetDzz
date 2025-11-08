@@ -50,22 +50,22 @@ const RapidResultsService = () => {
 
   const features = [
     {
-      icon: <Zap className="w-8 h-8 text-laboratory-primary" />,
+      icon: <Zap className="w-8 h-8 text-vet-primary" />,
       title: 'Résultats Ultra-Rapides',
       description: 'De 5 minutes à 2 heures selon l\'analyse'
     },
     {
-      icon: <Smartphone className="w-8 h-8 text-laboratory-primary" />,
+      icon: <Smartphone className="w-8 h-8 text-vet-primary" />,
       title: 'Accès Digital',
       description: 'Consultation en ligne 24h/24 sur votre espace patient'
     },
     {
-      icon: <Shield className="w-8 h-8 text-laboratory-primary" />,
+      icon: <Shield className="w-8 h-8 text-vet-primary" />,
       title: 'Fiabilité Garantie',
       description: 'Même niveau de qualité que les analyses standard'
     },
     {
-      icon: <Clock className="w-8 h-8 text-laboratory-primary" />,
+      icon: <Clock className="w-8 h-8 text-vet-primary" />,
       title: 'Service Continu',
       description: 'Disponible 7j/7, même les week-ends et jours fériés'
     }
@@ -148,10 +148,10 @@ const RapidResultsService = () => {
           >
             {/* Header */}
             <motion.div className="text-center mb-12" variants={itemVariants}>
-              <div className="w-16 h-16 bg-laboratory-primary rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-vet-primary rounded-full flex items-center justify-center mx-auto mb-6">
                 <Zap className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-laboratory-dark mb-4">
+              <h1 className="text-4xl font-bold text-vet-dark mb-4">
                 Résultats Rapides
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -164,12 +164,12 @@ const RapidResultsService = () => {
             <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" variants={containerVariants}>
               {features.map((feature, index) => (
                 <motion.div key={index} variants={itemVariants}>
-                  <Card className="border-laboratory-muted hover:shadow-lg transition-shadow h-full">
+                  <Card className="border-vet-muted hover:shadow-lg transition-shadow h-full">
                     <CardHeader className="text-center">
-                      <div className="w-12 h-12 bg-laboratory-light rounded-full flex items-center justify-center mx-auto mb-2">
+                      <div className="w-12 h-12 bg-vet-light rounded-full flex items-center justify-center mx-auto mb-2">
                         {feature.icon}
                       </div>
-                      <CardTitle className="text-laboratory-dark text-lg">{feature.title}</CardTitle>
+                      <CardTitle className="text-vet-dark text-lg">{feature.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-gray-600 text-center text-sm">
@@ -183,23 +183,23 @@ const RapidResultsService = () => {
 
             {/* Rapid Tests */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <h2 className="text-3xl font-bold text-laboratory-dark mb-8 text-center">
+              <h2 className="text-3xl font-bold text-vet-dark mb-8 text-center">
                 Analyses avec Résultats Rapides
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {rapidTests.map((test, index) => (
                   <motion.div key={index} variants={itemVariants}>
-                    <Card className="border-laboratory-muted hover:shadow-lg transition-all duration-300">
+                    <Card className="border-vet-muted hover:shadow-lg transition-all duration-300">
                       <CardHeader>
-                        <CardTitle className="text-laboratory-dark flex items-center">
-                          <CheckCircle className="w-5 h-5 text-laboratory-primary mr-2" />
+                        <CardTitle className="text-vet-dark flex items-center">
+                          <CheckCircle className="w-5 h-5 text-vet-primary mr-2" />
                           {test.name}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <p className="text-gray-600 mb-4">{test.description}</p>
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-laboratory-accent font-semibold">
+                          <span className="text-vet-accent font-semibold">
                             {test.duration}
                           </span>
                           <span className={`px-2 py-1 rounded-full text-xs ${getTypeColor(test.type)}`}>
@@ -215,18 +215,18 @@ const RapidResultsService = () => {
 
             {/* Digital Platform */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <h2 className="text-3xl font-bold text-laboratory-dark mb-8 text-center">
+              <h2 className="text-3xl font-bold text-vet-dark mb-8 text-center">
                 Plateforme Digitale
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {digitalFeatures.map((feature, index) => (
                   <motion.div key={index} variants={itemVariants}>
-                    <Card className="border-laboratory-muted hover:shadow-lg transition-shadow h-full">
+                    <Card className="border-vet-muted hover:shadow-lg transition-shadow h-full">
                       <CardContent className="p-6">
                         <div className="flex items-start space-x-3">
-                          <CheckCircle className="w-5 h-5 text-laboratory-primary mt-1 flex-shrink-0" />
+                          <CheckCircle className="w-5 h-5 text-vet-primary mt-1 flex-shrink-0" />
                           <div>
-                            <h4 className="font-semibold text-laboratory-dark mb-2">
+                            <h4 className="font-semibold text-vet-dark mb-2">
                               {feature.title}
                             </h4>
                             <p className="text-gray-600 text-sm">
@@ -243,37 +243,37 @@ const RapidResultsService = () => {
 
             {/* How it works */}
             <motion.div className="mb-12" variants={itemVariants}>
-              <Card className="border-laboratory-primary bg-laboratory-light">
+              <Card className="border-vet-primary bg-vet-light">
                 <CardHeader>
-                  <CardTitle className="text-laboratory-dark">
+                  <CardTitle className="text-vet-dark">
                     Comment accéder à vos résultats ?
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center">
-                      <div className="w-12 h-12 bg-laboratory-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                      <div className="w-12 h-12 bg-vet-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                         1
                       </div>
-                      <h4 className="font-semibold text-laboratory-dark mb-2">Création de compte</h4>
+                      <h4 className="font-semibold text-vet-dark mb-2">Création de compte</h4>
                       <p className="text-gray-600 text-sm">
                         Créez votre espace patient lors de votre première visite
                       </p>
                     </div>
                     <div className="text-center">
-                      <div className="w-12 h-12 bg-laboratory-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                      <div className="w-12 h-12 bg-vet-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                         2
                       </div>
-                      <h4 className="font-semibold text-laboratory-dark mb-2">Notification</h4>
+                      <h4 className="font-semibold text-vet-dark mb-2">Notification</h4>
                       <p className="text-gray-600 text-sm">
                         Recevez un SMS/email dès que vos résultats sont prêts
                       </p>
                     </div>
                     <div className="text-center">
-                      <div className="w-12 h-12 bg-laboratory-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                      <div className="w-12 h-12 bg-vet-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                         3
                       </div>
-                      <h4 className="font-semibold text-laboratory-dark mb-2">Consultation</h4>
+                      <h4 className="font-semibold text-vet-dark mb-2">Consultation</h4>
                       <p className="text-gray-600 text-sm">
                         Consultez et téléchargez vos résultats en toute sécurité
                       </p>
@@ -285,26 +285,26 @@ const RapidResultsService = () => {
 
             {/* CTA */}
             <motion.div className="text-center" variants={itemVariants}>
-              <Card className="border-laboratory-primary bg-white">
+              <Card className="border-vet-primary bg-white">
                 <CardContent className="p-8">
-                  <h3 className="text-2xl font-bold text-laboratory-dark mb-4">
+                  <h3 className="text-2xl font-bold text-vet-dark mb-4">
                     Accédez à vos résultats maintenant
                   </h3>
                   <p className="text-gray-600 mb-6">
                     Connectez-vous à votre espace patient ou créez votre compte
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button className="bg-laboratory-primary hover:bg-laboratory-accent">
+                    <Button className="bg-vet-primary hover:bg-vet-accent">
                       <Smartphone className="w-4 h-4 mr-2" />
                       Mon Espace Patient
                     </Button>
-                    <Button variant="outline" className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light">
+                    <Button variant="outline" className="border-vet-primary text-vet-dark hover:bg-vet-light">
                       <Download className="w-4 h-4 mr-2" />
                       Télécharger l'App
                     </Button>
                   </div>
                   <p className="text-sm text-gray-500 mt-4">
-                    Besoin d'aide ? Contactez-nous au <span className="font-semibold text-laboratory-dark">01 23 45 67 89</span>
+                    Besoin d'aide ? Contactez-nous au <span className="font-semibold text-vet-dark">01 23 45 67 89</span>
                   </p>
                 </CardContent>
               </Card>

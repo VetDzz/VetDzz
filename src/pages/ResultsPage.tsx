@@ -63,10 +63,10 @@ const ResultsPage = () => {
           >
             {/* Header */}
             <motion.div className="text-center mb-12" variants={itemVariants}>
-              <div className="w-16 h-16 bg-laboratory-primary rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-vet-primary rounded-full flex items-center justify-center mx-auto mb-6">
                 <FileText className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-laboratory-dark mb-4">
+              <h1 className="text-4xl font-bold text-vet-dark mb-4">
                 Mes Résultats d'Analyses
               </h1>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -76,12 +76,12 @@ const ResultsPage = () => {
 
             {/* Authentication Required */}
             <motion.div variants={itemVariants}>
-              <Card className="border-laboratory-primary">
+              <Card className="border-vet-primary">
                 <CardHeader className="text-center">
-                  <div className="w-12 h-12 bg-laboratory-light rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Lock className="w-6 h-6 text-laboratory-primary" />
+                  <div className="w-12 h-12 bg-vet-light rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-6 h-6 text-vet-primary" />
                   </div>
-                  <CardTitle className="text-2xl text-laboratory-dark">
+                  <CardTitle className="text-2xl text-vet-dark">
                     Connexion Requise
                   </CardTitle>
                   <CardDescription className="text-gray-600">
@@ -92,44 +92,44 @@ const ResultsPage = () => {
                 <CardContent className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-laboratory-dark">Espace Client</h3>
+                      <h3 className="font-semibold text-vet-dark">Espace Client</h3>
                       <ul className="space-y-2 text-sm text-gray-600">
                         <li className="flex items-center">
-                          <ArrowRight className="w-4 h-4 mr-2 text-laboratory-primary" />
+                          <ArrowRight className="w-4 h-4 mr-2 text-vet-primary" />
                           Consultez vos résultats
                         </li>
                         <li className="flex items-center">
-                          <ArrowRight className="w-4 h-4 mr-2 text-laboratory-primary" />
+                          <ArrowRight className="w-4 h-4 mr-2 text-vet-primary" />
                           Téléchargez vos rapports
                         </li>
                         <li className="flex items-center">
-                          <ArrowRight className="w-4 h-4 mr-2 text-laboratory-primary" />
+                          <ArrowRight className="w-4 h-4 mr-2 text-vet-primary" />
                           Suivez vos rendez-vous
                         </li>
                         <li className="flex items-center">
-                          <ArrowRight className="w-4 h-4 mr-2 text-laboratory-primary" />
+                          <ArrowRight className="w-4 h-4 mr-2 text-vet-primary" />
                           Recevez des notifications
                         </li>
                       </ul>
                     </div>
                     
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-laboratory-dark">Espace Laboratoire</h3>
+                      <h3 className="font-semibold text-vet-dark">Espace Laboratoire</h3>
                       <ul className="space-y-2 text-sm text-gray-600">
                         <li className="flex items-center">
-                          <ArrowRight className="w-4 h-4 mr-2 text-laboratory-primary" />
+                          <ArrowRight className="w-4 h-4 mr-2 text-vet-primary" />
                           Gérez les demandes d'analyses
                         </li>
                         <li className="flex items-center">
-                          <ArrowRight className="w-4 h-4 mr-2 text-laboratory-primary" />
+                          <ArrowRight className="w-4 h-4 mr-2 text-vet-primary" />
                           Envoyez les résultats
                         </li>
                         <li className="flex items-center">
-                          <ArrowRight className="w-4 h-4 mr-2 text-laboratory-primary" />
+                          <ArrowRight className="w-4 h-4 mr-2 text-vet-primary" />
                           Planifiez les rendez-vous
                         </li>
                         <li className="flex items-center">
-                          <ArrowRight className="w-4 h-4 mr-2 text-laboratory-primary" />
+                          <ArrowRight className="w-4 h-4 mr-2 text-vet-primary" />
                           Suivez les statistiques
                         </li>
                       </ul>
@@ -139,7 +139,7 @@ const ResultsPage = () => {
                   <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
                     <Button
                       onClick={() => navigate('/auth')}
-                      className="bg-laboratory-primary hover:bg-laboratory-accent w-full sm:w-auto"
+                      className="bg-vet-primary hover:bg-vet-accent w-full sm:w-auto"
                       size="default"
                     >
                       Se Connecter
@@ -147,7 +147,7 @@ const ResultsPage = () => {
                     <Button
                       onClick={() => navigate('/auth')}
                       variant="outline"
-                      className="border-laboratory-primary text-laboratory-dark hover:bg-laboratory-light w-full sm:w-auto"
+                      className="border-vet-primary text-vet-dark hover:bg-vet-light w-full sm:w-auto"
                       size="default"
                     >
                       Créer un Compte
@@ -157,7 +157,7 @@ const ResultsPage = () => {
                   <div className="text-center pt-4 border-t">
                     <p className="text-sm text-gray-500">
                       Besoin d'aide ? Contactez-nous au{' '}
-                      <span className="font-semibold text-laboratory-dark">01 23 45 67 89</span>
+                      <span className="font-semibold text-vet-dark">01 23 45 67 89</span>
                     </p>
                   </div>
                 </CardContent>

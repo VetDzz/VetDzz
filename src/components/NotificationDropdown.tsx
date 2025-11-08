@@ -47,11 +47,11 @@ const NotificationDropdown = () => {
       if (user?.type === 'client') {
         navigate('/client-dashboard?tab=results');
       } else {
-        navigate('/laboratory-dashboard');
+        navigate('/vet-dashboard');
       }
     } else if (notification.related_entity_type === 'test_request') {
-      if (user?.type === 'laboratory') {
-        navigate('/laboratory-dashboard');
+      if (user?.type === 'vet') {
+        navigate('/vet-dashboard');
       } else {
         navigate('/client-dashboard?tab=results');
       }
@@ -59,8 +59,8 @@ const NotificationDropdown = () => {
       // Default navigation based on user type
       if (user?.type === 'client') {
         navigate('/client-dashboard?tab=notifications');
-      } else if (user?.type === 'laboratory') {
-        navigate('/laboratory-dashboard');
+      } else if (user?.type === 'vet') {
+        navigate('/vet-dashboard');
       } else {
         navigate('/auth');
       }
@@ -101,7 +101,7 @@ const NotificationDropdown = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="relative hover:bg-laboratory-light bg-white text-gray-700 hover:text-gray-900"
+          className="relative hover:bg-vet-light bg-white text-gray-700 hover:text-gray-900"
         >
           <Bell className="h-4 w-4 text-gray-700" />
           {unreadCount > 0 && (
@@ -141,7 +141,7 @@ const NotificationDropdown = () => {
               <div
                 key={notification.id}
                 className={`p-3 border-b border-gray-100 hover:bg-gray-50 ${
-                  !notification.is_read ? 'bg-laboratory-light/30' : ''
+                  !notification.is_read ? 'bg-vet-light/30' : ''
                 }`}
               >
                 <div className="flex items-start justify-between space-x-2">
@@ -149,12 +149,12 @@ const NotificationDropdown = () => {
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="text-sm">{getNotificationIcon(notification.type)}</span>
                       <h4 className={`text-sm font-medium truncate ${
-                        !notification.is_read ? 'text-laboratory-dark' : 'text-gray-700'
+                        !notification.is_read ? 'text-vet-dark' : 'text-gray-700'
                       }`}>
                         {notification.title}
                       </h4>
                       {!notification.is_read && (
-                        <div className="w-2 h-2 bg-laboratory-primary rounded-full flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-vet-primary rounded-full flex-shrink-0"></div>
                       )}
                     </div>
                     <p className="text-xs text-gray-600 mb-2 line-clamp-2">
@@ -168,7 +168,7 @@ const NotificationDropdown = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-xs text-laboratory-dark hover:text-laboratory-accent"
+                          className="text-xs text-vet-dark hover:text-vet-accent"
                           onClick={() => handleNotificationClick(notification)}
                         >
                           {t('notifications.view')}
@@ -212,7 +212,7 @@ const NotificationDropdown = () => {
             <div className="p-2">
               <Button
                 variant="ghost"
-                className="w-full text-sm text-laboratory-dark hover:bg-laboratory-light"
+                className="w-full text-sm text-vet-dark hover:bg-vet-light"
                 onClick={() => navigate('/client-dashboard?tab=notifications')}
               >
                 {t('notifications.viewAll')}

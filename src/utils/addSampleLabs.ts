@@ -1,9 +1,9 @@
 import { supabase } from '@/lib/supabase';
 
-// Sample laboratory data for testing
+// Sample vet data for testing
 const sampleLaboratories = [
   {
-    laboratory_name: 'Laboratoire Central Paris',
+    vet_name: 'Laboratoire Central Paris',
     address: '123 Rue de Rivoli',
     city: 'Paris',
     postal_code: '75001',
@@ -16,7 +16,7 @@ const sampleLaboratories = [
     is_verified: true
   },
   {
-    laboratory_name: 'Bio-Lab Montparnasse',
+    vet_name: 'Bio-Lab Montparnasse',
     address: '45 Boulevard du Montparnasse',
     city: 'Paris',
     postal_code: '75006',
@@ -29,7 +29,7 @@ const sampleLaboratories = [
     is_verified: true
   },
   {
-    laboratory_name: 'Laboratoire Saint-Germain',
+    vet_name: 'Laboratoire Saint-Germain',
     address: '78 Rue de Seine',
     city: 'Paris',
     postal_code: '75006',
@@ -42,7 +42,7 @@ const sampleLaboratories = [
     is_verified: true
   },
   {
-    laboratory_name: 'Laboratoire Bastille',
+    vet_name: 'Laboratoire Bastille',
     address: '15 Place de la Bastille',
     city: 'Paris',
     postal_code: '75011',
@@ -55,7 +55,7 @@ const sampleLaboratories = [
     is_verified: true
   },
   {
-    laboratory_name: 'Laboratoire Champs-Élysées',
+    vet_name: 'Laboratoire Champs-Élysées',
     address: '102 Avenue des Champs-Élysées',
     city: 'Paris',
     postal_code: '75008',
@@ -79,8 +79,8 @@ export const addSampleLaboratories = async () => {
         password: 'password123',
         options: {
           data: {
-            user_type: 'laboratory',
-            lab_name: lab.laboratory_name
+            user_type: 'vet',
+            clinic_name: lab.vet_name
           }
         }
       });
@@ -101,9 +101,9 @@ export const addSampleLaboratories = async () => {
       return;
     }
 
-    // Insert laboratory profiles
+    // Insert vet profiles
     const { data, error } = await supabase
-      .from('laboratory_profiles')
+      .from('vet_profiles')
       .insert(validLabs);
 
     if (error) {
@@ -121,7 +121,7 @@ export const addSampleLaboratories = async () => {
 export const checkExistingLaboratories = async () => {
   try {
     const { data, error } = await supabase
-      .from('laboratory_profiles')
+      .from('vet_profiles')
       .select('*')
       .eq('is_verified', true);
 
@@ -141,7 +141,7 @@ export const checkExistingLaboratories = async () => {
 export const deleteSampleLaboratories = async () => {
   try {
     const { error } = await supabase
-      .from('laboratory_profiles')
+      .from('vet_profiles')
       .delete()
       .in('email', sampleLaboratories.map((_, index) => `lab${index + 1}@example.com`));
 

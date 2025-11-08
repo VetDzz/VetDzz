@@ -215,15 +215,15 @@ const ResetPasswordPage = () => {
           title="Lien invalide - Laboratoire d'Analyses Médicales" 
           description="Le lien de réinitialisation du mot de passe est invalide ou a expiré."
         />
-        <div className="bg-laboratory-light">
+        <div className="bg-vet-light">
           <section className="py-16">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="max-w-md mx-auto">
-                  <Card className="border-laboratory-muted">
+                  <Card className="border-vet-muted">
                     <CardContent className="pt-6">
                       <div className="text-center space-y-4">
                         <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
-                        <h3 className="text-lg font-semibold text-laboratory-dark">
+                        <h3 className="text-lg font-semibold text-vet-dark">
                           Lien invalide
                         </h3>
                         <p className="text-gray-600">
@@ -231,7 +231,7 @@ const ResetPasswordPage = () => {
                         </p>
                         <Button
                           onClick={() => navigate('/forgot-password')}
-                          className="bg-laboratory-primary hover:bg-laboratory-accent"
+                          className="bg-vet-primary hover:bg-vet-accent"
                         >
                           Demander un nouveau lien
                         </Button>
@@ -253,7 +253,7 @@ const ResetPasswordPage = () => {
         description="Créez un nouveau mot de passe pour votre compte."
         keywords={['nouveau mot de passe', 'réinitialiser', 'reset password', 'sécurité']}
       />
-      <div className="bg-laboratory-light">
+      <div className="bg-vet-light">
         <section className="py-16">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <motion.div
@@ -263,7 +263,7 @@ const ResetPasswordPage = () => {
                 animate="visible"
               >
                 <motion.div className="text-center mb-8" variants={itemVariants}>
-                  <h2 className="text-3xl font-bold text-laboratory-dark mb-4">
+                  <h2 className="text-3xl font-bold text-vet-dark mb-4">
                     Nouveau mot de passe
                   </h2>
                   <p className="text-gray-600">
@@ -272,10 +272,10 @@ const ResetPasswordPage = () => {
                 </motion.div>
 
                 <motion.div variants={itemVariants}>
-                  <Card className="border-laboratory-muted">
+                  <Card className="border-vet-muted">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Lock className="w-5 h-5 text-laboratory-primary" />
+                        <Lock className="w-5 h-5 text-vet-primary" />
                         Réinitialisation du mot de passe
                       </CardTitle>
                       <CardDescription>
@@ -293,7 +293,7 @@ const ResetPasswordPage = () => {
                               placeholder="••••••••"
                               value={password}
                               onChange={(e) => handlePasswordChange(e.target.value)}
-                              className="border-laboratory-muted focus:border-laboratory-primary"
+                              className="border-vet-muted focus:border-vet-primary"
                               required
                             />
                           </div>
@@ -306,7 +306,7 @@ const ResetPasswordPage = () => {
                               placeholder="••••••••"
                               value={confirmPassword}
                               onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-                              className="border-laboratory-muted focus:border-laboratory-primary"
+                              className="border-vet-muted focus:border-vet-primary"
                               required
                             />
                           </div>
@@ -337,7 +337,7 @@ const ResetPasswordPage = () => {
                           
                           <Button
                             type="submit"
-                            className="w-full bg-laboratory-primary hover:bg-laboratory-accent"
+                            className="w-full bg-vet-primary hover:bg-vet-accent"
                             disabled={isLoading || !Object.values(passwordValidation).every(Boolean)}
                           >
                             {isLoading ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
@@ -349,7 +349,7 @@ const ResetPasswordPage = () => {
                             <CheckCircle className="w-16 h-16 text-green-500" />
                           </div>
                           <div>
-                            <h3 className="text-lg font-semibold text-laboratory-dark mb-2">
+                            <h3 className="text-lg font-semibold text-vet-dark mb-2">
                               Mot de passe mis à jour !
                             </h3>
                             <p className="text-gray-600 mb-4">

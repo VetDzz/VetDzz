@@ -32,19 +32,19 @@ interface Client {
 interface PADRequest {
   id: string;
   client_id: string;
-  laboratory_id: string;
+  vet_id: string;
   status: 'pending' | 'accepted' | 'rejected';
   message?: string;
   created_at: string;
   client?: Client;
 }
 
-const LaboratoryDashboard = () => {
+const vetDashboard = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
   const location = useLocation();
-  const [laboratoryLocation, setLaboratoryLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [vetLocation, setvetLocation] = useState<{lat: number, lng: number} | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -58,15 +58,15 @@ const LaboratoryDashboard = () => {
   useEffect(() => {
     fetchPADRequests();
     fetchAllClients(); // Load all clients on component mount
-    fetchLaboratoryLocation();
+    fetchvetLocation();
   }, []);
 
-  const fetchLaboratoryLocation = async () => {
+  const fetchvetLocation = async () => {
     if (!user) return;
 
     try {
       const { data, error } = await supabase
-        .from('laboratory_profiles')
+        .from('vet_profiles')
         .select('latitude, longitude')
         .eq('user_id', user.id)
         .single();
@@ -74,7 +74,7 @@ const LaboratoryDashboard = () => {
       if (error) {
 
       } else if (data && data.latitude && data.longitude) {
-        setLaboratoryLocation({ lat: data.latitude, lng: data.longitude });
+        setvetLocation({ lat: data.latitude, lng: data.longitude });
       }
     } catch (error) {
 
@@ -99,8 +99,8 @@ const LaboratoryDashboard = () => {
     const lng = request.client_location_lng || request.client?.longitude;
 
     if (lat && lng) {
-      const distance = laboratoryLocation ?
-        calculateDistance(laboratoryLocation.lat, laboratoryLocation.lng, lat, lng) :
+      const distance = vetLocation ?
+        calculateDistance(vetLocation.lat, vetLocation.lng, lat, lng) :
         null;
 
       const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
@@ -130,7 +130,7 @@ const LaboratoryDashboard = () => {
       const { data, error } = await supabase
         .from('pad_requests')
         .select('*')
-        .eq('laboratory_id', user.id)
+        .eq('vet_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -220,23 +220,23 @@ const LaboratoryDashboard = () => {
   };
 
   const handleLocationSelect = (lat: number, lng: number) => {
-    setLaboratoryLocation({ lat, lng });
+    setvetLocation({ lat, lng });
 
   };
 
   const handleApproveRequest = async (requestId: string) => {
     try {
 
-      // First get the current laboratory info
+      // First get the current vet info
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) {
         throw new Error('User not authenticated');
       }
       
-      // Get laboratory profile for notification
+      // Get vet profile for notification
       const { data: labProfile, error: labError } = await supabase
-        .from('laboratory_profiles')
-        .select('lab_name, email')
+        .from('vet_profiles')
+        .select('clinic_name, email')
         .eq('user_id', currentUser.id)
         .single();
         
@@ -267,7 +267,7 @@ const LaboratoryDashboard = () => {
 
       // Send notification to client with lab name
       if (updated?.client_id) {
-        const labName = labProfile?.lab_name || 'Un laboratoire';
+        const labName = labProfile?.clinic_name || 'Un laboratoire';
 
         const { error: notifError } = await supabase.from('notifications').insert([
           {
@@ -309,16 +309,16 @@ const LaboratoryDashboard = () => {
   const handleRejectRequest = async (requestId: string) => {
     try {
 
-      // First get the current laboratory info
+      // First get the current vet info
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) {
         throw new Error('User not authenticated');
       }
       
-      // Get laboratory profile for notification
+      // Get vet profile for notification
       const { data: labProfile, error: labError } = await supabase
-        .from('laboratory_profiles')
-        .select('lab_name, email')
+        .from('vet_profiles')
+        .select('clinic_name, email')
         .eq('user_id', currentUser.id)
         .single();
         
@@ -349,7 +349,7 @@ const LaboratoryDashboard = () => {
 
       // Send notification to client with lab name
       if (updated?.client_id) {
-        const labName = labProfile?.lab_name || 'Un laboratoire';
+        const labName = labProfile?.clinic_name || 'Un laboratoire';
 
         const { error: notifError } = await supabase.from('notifications').insert([
           {
@@ -398,7 +398,7 @@ const LaboratoryDashboard = () => {
           animate="visible"
         >
           <motion.div className="mb-8" variants={itemVariants}>
-            <h1 className="text-2xl sm:text-3xl font-bold text-laboratory-dark mb-3 leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-vet-dark mb-3 leading-tight">
               {t('lab.header')}
             </h1>
             <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
@@ -423,7 +423,7 @@ const LaboratoryDashboard = () => {
               <motion.div variants={itemVariants}>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-laboratory-dark">{t('lab.searchClients')}</CardTitle>
+                    <CardTitle className="text-vet-dark">{t('lab.searchClients')}</CardTitle>
                     <CardDescription>
                       {t('lab.searchClientsDesc')}
                     </CardDescription>
@@ -440,7 +440,7 @@ const LaboratoryDashboard = () => {
                       <Button
                         onClick={searchClients}
                         disabled={isSearching}
-                        className="bg-laboratory-primary hover:bg-laboratory-accent"
+                        className="bg-vet-primary hover:bg-vet-accent"
                         size="default"
                       >
                         {isSearching ? (
@@ -456,15 +456,15 @@ const LaboratoryDashboard = () => {
                         {clients.map((client) => (
                           <div
                             key={client.id}
-                            className="p-4 border border-laboratory-muted rounded-lg hover:border-laboratory-primary transition-colors"
+                            className="p-4 border border-vet-muted rounded-lg hover:border-vet-primary transition-colors"
                           >
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                               <div className="flex items-start space-x-3 flex-1">
-                                <div className="w-12 h-12 bg-laboratory-light rounded-full flex items-center justify-center flex-shrink-0">
-                                  <User className="w-6 h-6 text-laboratory-primary" />
+                                <div className="w-12 h-12 bg-vet-light rounded-full flex items-center justify-center flex-shrink-0">
+                                  <User className="w-6 h-6 text-vet-primary" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-medium text-laboratory-dark">{client.full_name}</h4>
+                                  <h4 className="font-medium text-vet-dark">{client.full_name}</h4>
                                   <p className="text-sm text-gray-600 break-words">{client.email}</p>
                                   {client.phone && (
                                     <p className="text-sm text-gray-500">📞 {client.phone}</p>
@@ -480,7 +480,7 @@ const LaboratoryDashboard = () => {
                               <Button
                                 size="sm"
                                 onClick={() => openUploadModal(client)}
-                                className="bg-laboratory-primary hover:bg-laboratory-accent text-laboratory-dark hover:text-laboratory-dark font-semibold w-full sm:w-auto sm:flex-shrink-0"
+                                className="bg-vet-primary hover:bg-vet-accent !text-white hover:!text-white font-semibold w-full sm:w-auto sm:flex-shrink-0"
                               >
                                 <Send className="w-4 h-4 mr-2" />
                                 {t('lab.sendResult')}
@@ -516,7 +516,7 @@ const LaboratoryDashboard = () => {
               <motion.div variants={itemVariants}>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-laboratory-dark">{t('lab.receivedPAD')}</CardTitle>
+                    <CardTitle className="text-vet-dark">{t('lab.receivedPAD')}</CardTitle>
                     <CardDescription>
                       {t('lab.receivedPADDesc')}
                     </CardDescription>
@@ -526,15 +526,15 @@ const LaboratoryDashboard = () => {
                       PADRequests.map((request) => (
                         <div
                           key={request.id}
-                          className="p-4 border border-laboratory-muted rounded-lg space-y-3"
+                          className="p-4 border border-vet-muted rounded-lg space-y-3"
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex items-start space-x-3">
-                              <div className="w-10 h-10 bg-laboratory-light rounded-full flex items-center justify-center">
-                                <User className="w-5 h-5 text-laboratory-primary" />
+                              <div className="w-10 h-10 bg-vet-light rounded-full flex items-center justify-center">
+                                <User className="w-5 h-5 text-vet-primary" />
                               </div>
                               <div>
-                                <h4 className="font-medium text-laboratory-dark">
+                                <h4 className="font-medium text-vet-dark">
                                   {request.client_name || request.client?.full_name || 'Client inconnu'}
                                 </h4>
                                 <p className="text-sm text-gray-600">{request.client?.email}</p>
@@ -582,7 +582,7 @@ const LaboratoryDashboard = () => {
                               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                                 <Button
                                   size="sm"
-                                  className="bg-laboratory-primary hover:bg-laboratory-accent w-full sm:w-auto"
+                                  className="bg-vet-primary hover:bg-vet-accent w-full sm:w-auto"
                                   onClick={() => handleApproveRequest(request.id)}
                                 >
                                   {t('lab.accept')}
@@ -628,4 +628,4 @@ const LaboratoryDashboard = () => {
   );
 };
 
-export default LaboratoryDashboard;
+export default vetDashboard;

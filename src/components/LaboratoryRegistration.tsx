@@ -14,8 +14,8 @@ import 'leaflet/dist/leaflet.css';
 // Fix for default markers in React-Leaflet - disable default external images
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
-interface LaboratoryData {
-  laboratory_name: string;
+interface vetData {
+  vet_name: string;
   address: string;
   phone: string;
   email: string;
@@ -26,7 +26,7 @@ interface LaboratoryData {
   longitude: number | null;
 }
 
-// Custom laboratory marker (identical to AccurateMapComponent marker)
+// Custom vet marker (identical to AccurateMapComponent marker)
 const labIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64,' + btoa(`
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,12 +57,12 @@ const LocationSelector: React.FC<{
   ) : null;
 };
 
-const LaboratoryRegistration: React.FC = () => {
+const vetRegistration: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [formData, setFormData] = useState<LaboratoryData>({
-    laboratory_name: '',
+  const [formData, setFormData] = useState<vetData>({
+    vet_name: '',
     address: '',
     phone: '',
     email: '',
@@ -84,7 +84,7 @@ const LaboratoryRegistration: React.FC = () => {
     }));
   };
 
-  const handleInputChange = (field: keyof LaboratoryData, value: string) => {
+  const handleInputChange = (field: keyof vetData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -99,7 +99,7 @@ const LaboratoryRegistration: React.FC = () => {
       return;
     }
 
-    if (!formData.laboratory_name || !formData.address || !formData.phone) {
+    if (!formData.vet_name || !formData.address || !formData.phone) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
@@ -115,13 +115,13 @@ const LaboratoryRegistration: React.FC = () => {
         return;
       }
 
-      // Create laboratory profile
+      // Create vet profile
       const { data, error } = await supabase
-        .from('laboratory_profiles')
+        .from('vet_profiles')
         .insert([
           {
             user_id: user.id,
-            laboratory_name: formData.laboratory_name,
+            vet_name: formData.vet_name,
             address: formData.address,
             phone: formData.phone,
             email: formData.email || user.email,
@@ -143,8 +143,8 @@ const LaboratoryRegistration: React.FC = () => {
       }
       alert('Profil de laboratoire créé avec succès! En attente de vérification.');
       
-      // Navigate to laboratory dashboard
-      navigate('/laboratory-dashboard');
+      // Navigate to vet dashboard
+      navigate('/vet-dashboard');
 
     } catch (error) {
       alert('Erreur lors de la création du profil');
@@ -157,7 +157,7 @@ const LaboratoryRegistration: React.FC = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-laboratory-dark mb-2">
+          <h1 className="text-3xl font-bold text-vet-dark mb-2">
             Créer un Profil de Laboratoire
           </h1>
           <p className="text-gray-600">
@@ -177,11 +177,11 @@ const LaboratoryRegistration: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="laboratory_name">Nom du Laboratoire *</Label>
+                  <Label htmlFor="vet_name">Nom du Laboratoire *</Label>
                   <Input
-                    id="laboratory_name"
-                    value={formData.laboratory_name}
-                    onChange={(e) => handleInputChange('laboratory_name', e.target.value)}
+                    id="vet_name"
+                    value={formData.vet_name}
+                    onChange={(e) => handleInputChange('vet_name', e.target.value)}
                     placeholder="Ex: Laboratoire Central Batna"
                     required
                   />
@@ -247,7 +247,7 @@ const LaboratoryRegistration: React.FC = () => {
                                 : [...prev.opening_days, day]
                             }))
                           }}
-                          className={`px-3 py-1 rounded-full border ${selected ? 'bg-laboratory-primary text-white border-laboratory-primary' : 'bg-white text-laboratory-dark border-laboratory-muted'} hover:shadow-sm`}
+                          className={`px-3 py-1 rounded-full border ${selected ? 'bg-vet-primary text-white border-vet-primary' : 'bg-white text-vet-dark border-vet-muted'} hover:shadow-sm`}
                         >
                           {day}
                         </button>
@@ -342,7 +342,7 @@ const LaboratoryRegistration: React.FC = () => {
             <Button
               type="submit"
               disabled={isSubmitting || !selectedLocation}
-              className="bg-laboratory-primary hover:bg-laboratory-accent px-8 py-3"
+              className="bg-vet-primary hover:bg-vet-accent px-8 py-3"
             >
               {isSubmitting ? (
                 <>
@@ -363,4 +363,4 @@ const LaboratoryRegistration: React.FC = () => {
   );
 };
 
-export default LaboratoryRegistration;
+export default vetRegistration;
