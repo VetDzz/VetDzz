@@ -69,7 +69,7 @@ const Navbar = () => {
               <img 
                 src="/images/Logo.jpeg" 
                 alt="VetDz Logo" 
-                className="h-10 w-10 rounded-full object-cover"
+                className="h-8 w-8 rounded-full object-cover"
               />
               <span className={cn("text-2xl font-bold", isScrolled ? "text-vet-primary" : "text-white")}>
                 VetDz
