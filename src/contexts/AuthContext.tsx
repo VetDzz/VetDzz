@@ -350,18 +350,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
 
-        } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-          // Handle both logout and user deletion
+        } else if (event === 'SIGNED_OUT') {
+          // Handle logout
           setUser(null);
           localStorage.removeItem('user');
           localStorage.removeItem('pendingUserData');
           sessionStorage.clear();
-
-          // If user was deleted, redirect to a special page
-          if (event === 'USER_DELETED') {
-
-            window.location.href = '/account-removed';
-          }
         } else if (event === 'TOKEN_REFRESHED' && !session) {
           // Handle case where token refresh fails (user might be deleted)
 
@@ -392,25 +386,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     // REAL-TIME MONITORING - Zero polling, instant notifications!
-    console.log('🔔 Setting up real-time monitoring for user:', user.id);
+    console.log('🔔 Setting up real-time ban monitoring for user:', user.id);
 
-    // Subscribe to auth.users table for deletion detection
-    const userSubscription = supabase
-      .channel(`user-status-${user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'auth',
-          table: 'users',
-          filter: `id=eq.${user.id}`
-        },
-        () => {
-          console.log('🗑️ User deleted in real-time!');
-          handleUserDeleted();
-        }
-      )
-      .subscribe();
+    // Note: We don't subscribe to auth.users because:
+    // 1. The auth schema doesn't support Realtime subscriptions
+    // 2. User deletion is already handled by onAuthStateChange listener above
     
     // First, check if user is already banned (on mount)
     const checkExistingBan = async () => {
@@ -513,7 +493,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     return () => {
       console.log('🔌 Disconnecting real-time ban monitoring');
-      userSubscription.unsubscribe();
       banSubscription.unsubscribe();
     };
   }, [user?.id]);

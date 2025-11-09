@@ -17,16 +17,16 @@ delete (L.Icon.Default.prototype as any)._getIconUrl;
 interface vet {
   id: number;
   vet_name?: string;
-  vet_name?: string;
+  clinic_name?: string;
   name: string; // computed field for display
-  type: 'vet' | 'vet';
+  type: 'vet';
   address: string;
   phone: string;
   latitude?: number | string | null;
   longitude?: number | string | null;
   city: string;
   services_offered?: string[];
-  specialities?: string[]; // for vets
+  specialities?: string[];
   opening_hours?: string;
   opening_days?: string[];
   rating?: number;
@@ -105,6 +105,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
   const [selectedLab, setSelectedLab] = useState<vet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [filterType, setFilterType] = useState<'all'>('all');
+  const [showAllVets, setShowAllVets] = useState(false);
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const { user } = useAuth();
@@ -125,12 +126,12 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     getCurrentLocation();
   }, []);
 
-  // Fetch vets when userLocation is available
+  // Fetch vets when userLocation is available or showAllVets changes
   useEffect(() => {
-    if (userLocation) {
+    if (userLocation || showAllVets) {
       fetchLaboratories();
     }
-  }, [userLocation]);
+  }, [userLocation, showAllVets]);
 
   const getCurrentLocation = async () => {
     setIsGettingLocation(true);
@@ -576,40 +577,90 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
 
   const fetchLaboratories = async () => {
     try {
-      // Use edge function to get only nearby vets (saves 85-90% data)
-      if (!userLocation) {
+      if (!userLocation && !showAllVets) {
+        console.log('❌ No user location available');
         setLaboratories([]);
         return;
       }
 
-      const { data: response, error: vetError } = await supabase.functions.invoke('get-nearby-vets', {
-        body: {
-          latitude: userLocation.lat,
-          longitude: userLocation.lng,
-          radius: 100 // 100km radius
-        }
-      });
-
-      const vetData = response?.data || [];
+      console.log('🔍 Fetching vets...', { showAllVets, userLocation });
 
       let allLocations: vet[] = [];
 
-      // Process veterinarians
-      if (vetData && !vetError) {
-        const vets = vetData.map((vet: any) => ({
-          ...vet,
-          name: vet.vet_name || vet.clinic_name,
-          type: 'vet' as const,
-          city: vet.city || vet.address?.split(',').pop()?.trim() || 'Alger'
-        }));
-        allLocations = [...allLocations, ...vets];
-      } else if (vetError) {
-        console.error('Error fetching veterinarians:', vetError);
+      if (showAllVets) {
+        // Show ALL vets in Algeria (no filtering)
+        console.log('🌍 Fetching ALL vets in Algeria...');
+        const { data: allVetsData, error: allVetsError } = await supabase
+          .from('vet_profiles')
+          .select('*')
+          .eq('is_verified', true);
+        
+        if (allVetsData && !allVetsError) {
+          console.log(`✅ Found ${allVetsData.length} vets in Algeria`);
+          const vets = allVetsData.map((vet: any) => ({
+            ...vet,
+            name: vet.vet_name || vet.clinic_name,
+            type: 'vet' as const,
+            city: vet.city || vet.address?.split(',').pop()?.trim() || 'Alger'
+          }));
+          allLocations = [...allLocations, ...vets];
+        } else {
+          console.error('❌ Error fetching all vets:', allVetsError);
+        }
+      } else {
+        // Use edge function with LARGE radius (500km = covers all of Algeria)
+        console.log('📍 Fetching nearby vets (500km radius)...');
+        const { data: response, error: vetError } = await supabase.functions.invoke('get-nearby-vets', {
+          body: {
+            latitude: userLocation.lat,
+            longitude: userLocation.lng,
+            radius: 500 // 500km radius - covers entire Algeria
+          }
+        });
+
+        console.log('📡 Edge function response:', { response, error: vetError });
+
+        const vetData = response?.data || [];
+
+        if (vetData && !vetError) {
+          console.log(`✅ Found ${vetData.length} vets within 500km`);
+          const vets = vetData.map((vet: any) => ({
+            ...vet,
+            name: vet.vet_name || vet.clinic_name,
+            type: 'vet' as const,
+            city: vet.city || vet.address?.split(',').pop()?.trim() || 'Alger'
+          }));
+          allLocations = [...allLocations, ...vets];
+        } else if (vetError) {
+          console.error('❌ Error with edge function:', vetError);
+          
+          // Fallback to direct query
+          console.log('🔄 Falling back to direct database query...');
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from('vet_profiles')
+            .select('*')
+            .eq('is_verified', true);
+          
+          if (fallbackData && !fallbackError) {
+            console.log(`✅ Fallback: Found ${fallbackData.length} vets`);
+            const vets = fallbackData.map((vet: any) => ({
+              ...vet,
+              name: vet.vet_name || vet.clinic_name,
+              type: 'vet' as const,
+              city: vet.city || vet.address?.split(',').pop()?.trim() || 'Alger'
+            }));
+            allLocations = [...allLocations, ...vets];
+          } else {
+            console.error('❌ Fallback also failed:', fallbackError);
+          }
+        }
       }
 
+      console.log(`📍 Setting ${allLocations.length} vets to state`);
       setLaboratories(allLocations);
       
     } catch (error) {
+      console.error('❌ Exception in fetchLaboratories:', error);
       setLaboratories([]);
     } finally {
       setIsLoading(false);
@@ -638,18 +689,18 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
     }
   };
 
-  const sendPADRequest = async (lab: vet) => {
+  const sendCVDRequest = async (lab: vet) => {
     if (!user) {
       toast({
         title: t('common.error'),
-        description: t('PAD.loginRequired'),
+        description: t('CVD.loginRequired'),
         variant: 'destructive'
       });
       return;
     }
 
     try {
-      // Check for existing PAD requests with improved logic
+      // Check for existing CVD requests with improved logic
       const { data: existing } = await supabase
         .from('pad_requests')
         .select('id,status,created_at,updated_at')
@@ -665,7 +716,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         if (lastRequest.status === 'pending') {
           toast({ 
             title: 'Demande en attente', 
-            description: 'Vous avez déjà une demande PAD en attente pour ce vétérinaire.', 
+            description: 'Vous avez déjà une demande CVD en attente pour ce vétérinaire.', 
             variant: 'default' 
           });
           return;
@@ -703,7 +754,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
             client_id: user.id,
             vet_id: (lab as any).user_id,
             status: 'pending',
-            message: t('PAD.requestMessage'),
+            message: t('CVD.requestMessage'),
             client_location_lat: userLocation?.lat || null,
             client_location_lng: userLocation?.lng || null,
             client_name: clientProfile?.full_name || 'Client',
@@ -715,21 +766,21 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
         .single();
 
       if (error) {
-        toast({ title: t('common.error'), description: t('PAD.sendError'), variant: 'destructive' });
+        toast({ title: t('common.error'), description: t('CVD.sendError'), variant: 'destructive' });
       } else {
         // Notify vet
         await supabase.from('notifications').insert([
           {
             user_id: (lab as any).user_id,
-            title: t('PAD.newRequest.title'),
-            message: `${clientProfile?.full_name || t('common.aClient')} ${t('PAD.newRequest.message')}`,
+            title: t('CVD.newRequest.title'),
+            message: `${clientProfile?.full_name || t('common.aClient')} ${t('CVD.newRequest.message')}`,
             type: 'info',
             is_read: false,
-            related_entity_type: 'PAD_request',
+            related_entity_type: 'CVD_request',
             related_entity_id: inserted.id
           }
         ]);
-        toast({ title: t('PAD.sentTitle'), description: `${t('PAD.sentDesc')} ${lab.vet_name}` });
+        toast({ title: t('CVD.sentTitle'), description: `${t('CVD.sentDesc')} ${lab.vet_name}` });
       }
     } catch (err) {
       toast({ title: 'Erreur', description: 'Une erreur est survenue.', variant: 'destructive' });
@@ -842,11 +893,29 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           {t('map.goToMyPlace')}
         </Button>
 
+        {/* Show All / Show Nearby Toggle */}
+        <Button
+          onClick={() => {
+            setShowAllVets(!showAllVets);
+            setIsLoading(true);
+          }}
+          variant={showAllVets ? "default" : "outline"}
+          className={showAllVets 
+            ? "bg-vet-primary text-white hover:bg-vet-accent" 
+            : "border-vet-primary text-vet-dark hover:bg-vet-light"
+          }
+        >
+          <MapPin className="w-4 h-4 mr-2" />
+          {showAllVets ? '📍 Afficher Proches' : '🌍 Afficher Tous'}
+        </Button>
+
         {/* Filter Controls */}
         <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md">
           <div className="flex items-center gap-2 bg-white border border-vet-muted rounded-md px-4 py-2">
             <span className="text-sm font-medium text-vet-dark">
               {laboratories.length} Vétérinaire{laboratories.length !== 1 ? 's' : ''} trouvé{laboratories.length !== 1 ? 's' : ''}
+              {showAllVets && ' (Toute l\'Algérie)'}
+              {!showAllVets && userLocation && ' (500km)'}
             </span>
           </div>
         </div>
@@ -893,7 +962,12 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                   className="rounded-lg"
                   zoomControl={true}
                   attributionControl={false}
-                  whenCreated={(map) => { setLeafletMap(map); mapRef.current = map; }}
+                  ref={(mapInstance) => {
+                    if (mapInstance) {
+                      setLeafletMap(mapInstance);
+                      mapRef.current = mapInstance;
+                    }
+                  }}
                 >
                   <MapUpdater center={mapCenter} />
                   <MapNavigator dest={navDest} zoom={17} />
@@ -1194,7 +1268,7 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          sendPADRequest(lab);
+                          sendCVDRequest(lab);
                         }}
                         className="bg-vet-primary hover:bg-vet-accent !text-white text-xs px-2 py-1"
                       >
