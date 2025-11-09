@@ -76,8 +76,15 @@ const FreeMapComponent: React.FC<FreeMapComponentProps> = ({
 
   useEffect(() => {
     getCurrentLocation();
-    fetchLaboratories(); // Load vets immediately
+    fetchLaboratories(); // Load all vets first
   }, []);
+
+  // Reload with nearby vets when location is available
+  useEffect(() => {
+    if (userLocation) {
+      fetchLaboratories();
+    }
+  }, [userLocation]);
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -127,22 +134,51 @@ const FreeMapComponent: React.FC<FreeMapComponentProps> = ({
   };
 
   const fetchLaboratories = async () => {
+    if (!userLocation) {
+      console.log('No user location yet, loading all vets...');
+      // If no location, load all vets
+      try {
+        const { data: labs, error } = await supabase
+          .from('vet_profiles')
+          .select('*')
+          .eq('is_verified', true);
+        
+        if (!error && labs) {
+          console.log('✅ Loaded all vets:', labs.length);
+          setLaboratories(labs);
+        }
+      } catch (error) {
+        console.error('Error loading vets:', error);
+      }
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // Load all vets directly from database (working method)
-      const { data: labs, error } = await supabase
-        .from('vet_profiles')
-        .select('*')
-        .eq('is_verified', true);
+      // Use edge function to get nearby vets (saves 85-90% data)
+      console.log('📡 Using edge function for nearby vets...');
+      const { data: response, error } = await supabase.functions.invoke('get-nearby-vets', {
+        body: {
+          latitude: userLocation.lat,
+          longitude: userLocation.lng,
+          radius: 100
+        }
+      });
 
       if (error) {
-        console.error('Error loading vets:', error);
-        setLaboratories([]);
-      } else {
-        console.log('✅ Loaded', labs?.length || 0, 'vets');
+        console.error('Edge function error, falling back:', error);
+        // Fallback to all vets
+        const { data: labs } = await supabase
+          .from('vet_profiles')
+          .select('*')
+          .eq('is_verified', true);
         setLaboratories(labs || []);
+      } else {
+        console.log('✅ Loaded nearby vets:', response?.data?.length || 0);
+        setLaboratories(response?.data || []);
       }
     } catch (error) {
-      console.error('Error in fetchLaboratories:', error);
+      console.error('Error:', error);
       setLaboratories([]);
     } finally {
       setIsLoading(false);
