@@ -133,13 +133,16 @@ const FreeMapComponent: React.FC<FreeMapComponentProps> = ({
   };
 
   const fetchLaboratories = async () => {
+    console.log('🗺️ fetchLaboratories called, userLocation:', userLocation);
+    
     if (!userLocation) {
-      console.log('No user location available yet');
+      console.log('❌ No user location available yet');
       setIsLoading(false);
       return;
     }
 
     try {
+      console.log('📡 Calling edge function get-nearby-vets...');
       // Use edge function to get only nearby vets (saves 85-90% data)
       const { data: response, error } = await supabase.functions.invoke('get-nearby-vets', {
         body: {
@@ -150,7 +153,8 @@ const FreeMapComponent: React.FC<FreeMapComponentProps> = ({
       });
 
       if (error) {
-        console.error('Error fetching nearby vets with edge function:', error);
+        console.error('❌ Error fetching nearby vets with edge function:', error);
+        console.log('🔄 Trying fallback method (load all vets)...');
         // Fallback: Load all vets if edge function fails
         const { data: allVets, error: fallbackError } = await supabase
           .from('vet_profiles')
@@ -158,17 +162,18 @@ const FreeMapComponent: React.FC<FreeMapComponentProps> = ({
           .eq('is_verified', true);
         
         if (!fallbackError && allVets) {
-          console.log('Loaded vets using fallback method:', allVets.length);
+          console.log('✅ Loaded vets using fallback method:', allVets.length, 'vets');
           setLaboratories(allVets);
         } else {
+          console.error('❌ Fallback also failed:', fallbackError);
           setLaboratories([]);
         }
       } else {
-        console.log('Loaded nearby vets:', response?.data?.length || 0);
+        console.log('✅ Loaded nearby vets:', response?.data?.length || 0, 'vets');
         setLaboratories(response?.data || []);
       }
     } catch (error) {
-      console.error('Error in fetchLaboratories:', error);
+      console.error('❌ Error in fetchLaboratories:', error);
       setLaboratories([]);
     } finally {
       setIsLoading(false);
