@@ -150,9 +150,21 @@ const FreeMapComponent: React.FC<FreeMapComponentProps> = ({
       });
 
       if (error) {
-        console.error('Error fetching nearby vets:', error);
-        setLaboratories([]);
+        console.error('Error fetching nearby vets with edge function:', error);
+        // Fallback: Load all vets if edge function fails
+        const { data: allVets, error: fallbackError } = await supabase
+          .from('vet_profiles')
+          .select('*')
+          .eq('is_verified', true);
+        
+        if (!fallbackError && allVets) {
+          console.log('Loaded vets using fallback method:', allVets.length);
+          setLaboratories(allVets);
+        } else {
+          setLaboratories([]);
+        }
       } else {
+        console.log('Loaded nearby vets:', response?.data?.length || 0);
         setLaboratories(response?.data || []);
       }
     } catch (error) {
