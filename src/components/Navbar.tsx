@@ -65,7 +65,12 @@ const Navbar = () => {
       <div className="w-full px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center">
+            <Link to="/" className="flex items-center gap-2">
+              <img 
+                src="/images/Logo.jpeg" 
+                alt="VetDz Logo" 
+                className="h-10 w-10 rounded-full object-cover"
+              />
               <span className={cn("text-2xl font-bold", isScrolled ? "text-vet-primary" : "text-white")}>
                 VetDz
               </span>
