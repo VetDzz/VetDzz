@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VetDz</string>
+    <string name="title_activity_main">VetDz</string>
+    <string name="package_name">dz.vet.vetdz</string>
+    <string name="custom_url_scheme">dz.vet.vetdz</string>
+</resources>

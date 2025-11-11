@@ -87,9 +87,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 pb-10 border-b border-vet-muted">
           <div className="lg:col-span-2">
             <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-vet-primary rounded-full flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-xl">L</span>
-              </div>
+              <img 
+                src="/images/Logo.jpeg" 
+                alt="VetDz Logo" 
+                className="w-12 h-12 rounded-full object-cover mr-3"
+              />
               <div>
                 <h3 className="text-xl font-bold text-vet-dark"> VetDz</h3>
                 <p className="text-sm text-gray-600">{t('footer.subtitle')}</p>
