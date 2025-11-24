@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,6 +8,7 @@ const AuthCallback = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -26,18 +27,63 @@ const AuthCallback = () => {
         }
 
         if (data.session) {
-          toast({
-            title: "Email confirmé",
-            description: "Votre compte a été confirmé avec succès. Bienvenue !",
-          });
+          const supabaseUser = data.session.user;
           
-          // Navigate based on user type
-          if (user?.type === 'client') {
-            navigate('/client-dashboard');
-          } else if (user?.type === 'vet') {
-            navigate('/vet-dashboard');
-          } else {
+          // Check if this is an OAuth login (Google/Facebook)
+          const isOAuthLogin = supabaseUser.app_metadata.provider !== 'email';
+          
+          if (isOAuthLogin) {
+            // Check if user profile already exists
+            const { data: existingProfile } = await supabase
+              .from('client_profiles')
+              .select('*')
+              .eq('user_id', supabaseUser.id)
+              .single();
+            
+            if (!existingProfile) {
+              // Create client profile for OAuth user
+              const fullName = supabaseUser.user_metadata?.full_name || 
+                              supabaseUser.user_metadata?.name || 
+                              supabaseUser.email?.split('@')[0] || 
+                              'User';
+              
+              const { error: profileError } = await supabase
+                .from('client_profiles')
+                .insert({
+                  user_id: supabaseUser.id,
+                  full_name: fullName,
+                  email: supabaseUser.email,
+                  phone: supabaseUser.user_metadata?.phone || '',
+                  is_verified: true
+                });
+              
+              if (profileError) {
+                console.error('Error creating OAuth profile:', profileError);
+              }
+            }
+            
+            toast({
+              title: "Connexion réussie",
+              description: "Bienvenue sur VetDZ !",
+            });
+            
+            // OAuth users are always clients, redirect to home
             navigate('/');
+          } else {
+            // Regular email confirmation
+            toast({
+              title: "Email confirmé",
+              description: "Votre compte a été confirmé avec succès. Bienvenue !",
+            });
+            
+            // Navigate based on user type
+            if (user?.type === 'client') {
+              navigate('/');
+            } else if (user?.type === 'vet') {
+              navigate('/vet-home');
+            } else {
+              navigate('/');
+            }
           }
         } else {
           navigate('/auth');
@@ -45,6 +91,8 @@ const AuthCallback = () => {
       } catch (error) {
         console.error('Unexpected error in auth callback:', error);
         navigate('/auth');
+      } finally {
+        setIsProcessing(false);
       }
     };
 
