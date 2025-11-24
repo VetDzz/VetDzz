@@ -219,7 +219,7 @@ const AuthSection = () => {
   };
 
   return (
-    <section id="login" className="py-16 bg-vet-light">
+    <section id="login" className="py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="max-w-md mx-auto"
@@ -241,13 +241,13 @@ const AuthSection = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="border-vet-muted">
+            <Card className="border-gray-200 shadow-2xl">
               <CardHeader>
                 <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mb-4">
                   <Button
                     variant={isLogin ? "default" : "outline"}
                     onClick={() => setIsLogin(true)}
-                    className={`w-full sm:w-auto ${isLogin ? "bg-vet-primary hover:bg-vet-accent" : ""}`}
+                    className={`w-full sm:w-auto ${isLogin ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" : "border-gray-300"}`}
                     size="default"
                   >
                     <LogIn className="w-4 h-4 mr-2" />
@@ -256,7 +256,7 @@ const AuthSection = () => {
                   <Button
                     variant={!isLogin ? "default" : "outline"}
                     onClick={() => setIsLogin(false)}
-                    className={`w-full sm:w-auto ${!isLogin ? "bg-vet-primary hover:bg-vet-accent" : ""}`}
+                    className={`w-full sm:w-auto ${!isLogin ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" : "border-gray-300"}`}
                     size="default"
                   >
                     <UserPlus className="w-4 h-4 mr-2" />
@@ -291,7 +291,7 @@ const AuthSection = () => {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full bg-vet-primary hover:bg-vet-accent"
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold"
                       disabled={isLoading}
                       size="default"
                     >
@@ -301,7 +301,7 @@ const AuthSection = () => {
                       <button
                         type="button"
                         onClick={() => navigate('/forgot-password')}
-                        className="text-sm text-vet-dark hover:underline"
+                        className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
                       >
                         {t('auth.forgotPassword')}
                       </button>
@@ -578,7 +578,7 @@ const AuthSection = () => {
 
                     <Button
                       type="submit"
-                      className="w-full bg-vet-primary hover:bg-vet-accent"
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold"
                       disabled={
                         isLoading ||
                         (password && !Object.values(passwordValidation).every(Boolean)) ||

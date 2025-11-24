@@ -9,7 +9,7 @@ const AuthPage = () => {
         description="Connectez-vous à votre espace client ou laboratoire pour accéder à vos analyses et services."
         keywords={['connexion', 'login', 'espace client', 'espace laboratoire', 'authentification']}
       />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="pt-20">
           <AuthSection />
         </div>

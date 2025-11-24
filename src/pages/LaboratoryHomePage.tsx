@@ -68,17 +68,24 @@ const vetHomePage = () => {
       <div className="min-h-screen">
         {/* Hero Section with Background Image */}
         <section className="relative w-full">
-          <div className="banner-container relative overflow-hidden h-[50vh] sm:h-[60vh] md:h-[500px] lg:h-[550px] xl:h-[600px] w-full">
+          <div className="banner-container relative overflow-hidden h-[50vh] sm:h-[60vh] md:h-[500px] lg:h-[550px] xl:h-[600px] w-full rounded-2xl mx-auto my-6 max-w-[1220px]">
             <div className="absolute inset-0 w-full">
-              {/* Background image */}
+              {/* Background Image with Blue Overlay */}
               <div
                 className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{
                   backgroundImage: `url('/images/analyse-795x478-1.jpg')`
                 }}
               ></div>
-              {/* Overlay for better text readability (reduced green tint) */}
-              <div className="absolute inset-0 bg-gradient-to-b from-vet-primary/70 via-vet-primary/50 to-white/90"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/90 via-indigo-700/85 to-purple-800/90"></div>
+              {/* Grid overlay */}
+              <div className="absolute inset-0" style={{
+                backgroundImage: `
+                  linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+                  linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
+                `,
+                backgroundSize: '36px 36px'
+              }}></div>
             </div>
 
             <div className="banner-overlay bg-transparent pt-20 sm:pt-24 md:pt-32 w-full">
@@ -102,9 +109,10 @@ const vetHomePage = () => {
 
                   <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button
+                      variant="secondary"
                       size="lg"
                       onClick={() => navigate('/vet-dashboard')}
-                      className="bg-white text-vet-primary hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-lg w-full sm:w-auto"
+                      className="px-8 py-3 rounded-full font-medium text-base shadow-lg ring-1 ring-white/10 w-full sm:w-auto"
                     >
                       <Users className="w-5 h-5 mr-2" />
                       {t('labHome.ctaFindClients')}
@@ -112,7 +120,7 @@ const vetHomePage = () => {
                     <Button
                       size="lg"
                       onClick={() => navigate('/vet-dashboard')}
-                      className="bg-vet-primary text-white hover:bg-vet-accent px-8 py-4 text-lg font-semibold shadow-lg w-full sm:w-auto"
+                      className="px-8 py-3 rounded-full font-medium text-base bg-white/10 backdrop-blur-md text-white hover:bg-white/20 border border-white/20 shadow-lg w-full sm:w-auto"
                     >
                       <FileText className="w-5 h-5 mr-2" />
                       {t('labHome.ctaManageRequests')}
@@ -182,7 +190,7 @@ const vetHomePage = () => {
                       <CardContent className="text-center">
                         <Button
                           onClick={feature.action}
-                          className="bg-vet-primary hover:bg-vet-accent w-full"
+                          className="w-full"
                         >
                           {feature.buttonText}
                         </Button>
@@ -271,9 +279,10 @@ const vetHomePage = () => {
                   {t('labHome.cta.subtitle')}
                 </p>
                 <Button
+                  variant="secondary"
                   size="lg"
                   onClick={() => navigate('/vet-dashboard')}
-                  className="bg-white text-vet-primary hover:bg-gray-100 px-8 py-4 text-lg w-full sm:w-auto"
+                  className="px-8 py-3 rounded-full font-medium text-base shadow-lg ring-1 ring-white/10 w-full sm:w-auto"
                 >
                   <Users className="w-5 h-5 mr-2" />
                   {t('labHome.cta.button')}

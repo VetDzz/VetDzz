@@ -5,25 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 touch-manipulation",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-lg ring-1 ring-white/10",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground ring-0",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-white text-blue-600 hover:bg-gray-50",
+        ghost: "hover:bg-accent hover:text-accent-foreground shadow-none ring-0 rounded-md",
+        link: "text-primary underline-offset-4 hover:underline shadow-none ring-0 rounded-md",
       },
       size: {
-        default: "min-h-[44px] h-10 sm:h-10 px-3 sm:px-4 py-2 text-sm sm:text-sm [&_svg]:size-4",
-        sm: "min-h-[40px] h-9 px-2 sm:px-3 rounded-md text-xs sm:text-sm [&_svg]:size-3 sm:[&_svg]:size-4",
-        lg: "min-h-[48px] h-11 sm:h-12 rounded-md px-6 sm:px-8 text-sm sm:text-base [&_svg]:size-4 sm:[&_svg]:size-5",
-        icon: "min-h-[44px] min-w-[44px] h-10 w-10 sm:h-10 sm:w-10 [&_svg]:size-4",
+        default: "h-10 px-6 py-2",
+        sm: "h-9 rounded-full px-4",
+        lg: "h-11 rounded-full px-8",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {

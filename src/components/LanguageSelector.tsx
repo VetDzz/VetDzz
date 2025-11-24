@@ -24,9 +24,9 @@ const LanguageSelector = () => {
   }, []);
 
   const languages = [
-    { code: 'fr' as Language, name: 'Français', flag: '🇫🇷' },
-    { code: 'en' as Language, name: 'English', flag: '🇺🇸' },
-    { code: 'ar' as Language, name: 'العربية', flag: '🇸🇦' },
+    { code: 'fr' as Language, name: 'Français', short: 'FR', flag: '🇫🇷' },
+    { code: 'en' as Language, name: 'English', short: 'EN', flag: '🇺🇸' },
+    { code: 'ar' as Language, name: 'العربية', short: 'AR', flag: '🇸🇦' },
   ];
 
   const currentLanguage = languages.find(lang => lang.code === language);
@@ -37,14 +37,10 @@ const LanguageSelector = () => {
         <Button
           variant="ghost"
           size="sm"
-          className={cn(
-            "gap-2 hover:bg-vet-light bg-white",
-            isScrolled ? "text-gray-700 hover:text-gray-900" : "text-gray-700 hover:text-gray-900"
-          )}
+          className="gap-2 text-[#888888] hover:text-foreground hover:bg-transparent px-4 py-2 rounded-full font-medium"
         >
-          <Globe className="h-4 w-4 text-gray-700" />
-          <span className="hidden sm:inline text-gray-700">{currentLanguage?.flag}</span>
-          <span className="hidden md:inline text-gray-700">{currentLanguage?.name}</span>
+          <Globe className="h-4 w-4" />
+          <span>{currentLanguage?.short}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
