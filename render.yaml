@@ -4,6 +4,10 @@ services:
     env: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
     routes:
       - type: rewrite
         source: /*
