@@ -109,88 +109,15 @@ const AuthCallback = () => {
             const isNewUser = (now.getTime() - createdAt.getTime()) < 120000; // Created within last 2 minutes
             
             if (!clientProfile && !vetProfile) {
-              // No profile exists - check if this was a signup
-              if (oauthSignupData) {
-                // This is a signup - create the profile
-                const signupInfo = JSON.parse(oauthSignupData);
-                const fullName = supabaseUser.user_metadata?.full_name || 
-                                supabaseUser.user_metadata?.name || 
-                                supabaseUser.email?.split('@')[0] || 
-                                'User';
-                
-                if (signupInfo.userType === 'vet') {
-                  // Create basic vet profile
-                  const { error: profileError } = await supabase
-                    .from('vet_profiles')
-                    .insert({
-                      user_id: supabaseUser.id,
-                      vet_name: fullName,
-                      clinic_name: fullName,
-                      email: supabaseUser.email,
-                      phone: '',
-                      is_verified: true
-                    });
-                  
-                  if (profileError) {
-                    console.error('Error creating vet profile:', profileError);
-                  }
-                  
-                  // Store that this is a new vet needing location setup
-                  localStorage.setItem('newVetOAuth', 'true');
-                  
-                  setStatus('success');
-                  toast({
-                    title: "Compte créé",
-                    description: "Veuillez compléter les informations de votre clinique.",
-                  });
-                  
-                  // Redirect to vet registration to complete location/hours
-                  setTimeout(() => {
-                    window.location.href = '/#/vet-registration';
-                  }, 500);
-                  return;
-                } else {
-                  // Create client profile
-                  const { error: profileError } = await supabase
-                    .from('client_profiles')
-                    .insert({
-                      user_id: supabaseUser.id,
-                      full_name: fullName,
-                      email: supabaseUser.email,
-                      phone: supabaseUser.user_metadata?.phone || '',
-                      is_verified: true
-                    });
-                  
-                  if (profileError) {
-                    console.error('Error creating client profile:', profileError);
-                  }
-                  
-                  setStatus('success');
-                  toast({
-                    title: "Compte créé",
-                    description: "Bienvenue sur VetDZ !",
-                  });
-                  
-                  // Redirect to home
-                  setTimeout(() => {
-                    window.location.href = '/#/';
-                  }, 500);
-                  return;
-                }
-              } else if (isNewUser) {
-                // New user trying to login without signup - block them
-                await supabase.auth.signOut();
-                
-                if (isMounted) {
-                  setStatus('no-account');
-                  toast({
-                    title: "Compte non trouvé",
-                    description: "Veuillez d'abord créer un compte en cliquant sur 'S'inscrire'.",
-                    variant: "destructive"
-                  });
-                }
-                return;
-              }
+              // No profile exists - this is a new OAuth user
+              // Redirect to complete signup page to choose client/vet and accept terms
+              setStatus('success');
+              
+              // Redirect to OAuth complete signup page
+              setTimeout(() => {
+                window.location.href = '/#/oauth-complete';
+              }, 300);
+              return;
             }
             
             // Existing user - allow login

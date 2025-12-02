@@ -44,6 +44,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 import AdminPage from "./pages/AdminPage";
+import OAuthCompleteSignup from "./pages/OAuthCompleteSignup";
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient({
@@ -84,6 +85,7 @@ const App = () => {
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/oauth-complete" element={<OAuthCompleteSignup />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
                   <Route path="/account-removed" element={<UserRemovalNotice />} />

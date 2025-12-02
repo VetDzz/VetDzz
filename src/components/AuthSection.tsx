@@ -389,11 +389,6 @@ const AuthSection = () => {
                           type="button"
                           onClick={async () => {
                             setIsLoading(true);
-                            // Store signup info for OAuth callback
-                            localStorage.setItem('oauthSignup', JSON.stringify({ 
-                              isSignup: true, 
-                              userType: userType 
-                            }));
                             const { error } = await supabase.auth.signInWithOAuth({
                               provider: 'google',
                               options: {
@@ -401,7 +396,6 @@ const AuthSection = () => {
                               }
                             });
                             if (error) {
-                              localStorage.removeItem('oauthSignup');
                               toast({
                                 title: "Erreur",
                                 description: error.message,
@@ -427,11 +421,6 @@ const AuthSection = () => {
                           type="button"
                           onClick={async () => {
                             setIsLoading(true);
-                            // Store signup info for OAuth callback
-                            localStorage.setItem('oauthSignup', JSON.stringify({ 
-                              isSignup: true, 
-                              userType: userType 
-                            }));
                             const { error } = await supabase.auth.signInWithOAuth({
                               provider: 'facebook',
                               options: {
@@ -439,7 +428,6 @@ const AuthSection = () => {
                               }
                             });
                             if (error) {
-                              localStorage.removeItem('oauthSignup');
                               toast({
                                 title: "Erreur",
                                 description: error.message,
