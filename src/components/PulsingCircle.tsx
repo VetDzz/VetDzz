@@ -8,20 +8,7 @@ export default function PulsingCircle() {
         {/* Pulsing Border Circle */}
         <PulsingBorder
           colors={["#3b82f6", "#2563eb", "#1d4ed8", "#60a5fa", "#93c5fd", "#dbeafe", "#1e40af"]}
-          colorBack="#00000000"
           speed={1.5}
-          roundness={1}
-          thickness={0.1}
-          softness={0.2}
-          intensity={5}
-          spotsPerColor={5}
-          spotSize={0.1}
-          pulse={0.1}
-          smoke={0.5}
-          smokeSize={4}
-          scale={0.65}
-          rotation={0}
-          frame={9161408.251009725}
           style={{
             width: "60px",
             height: "60px",
