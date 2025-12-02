@@ -87,39 +87,110 @@ const AuthCallback = () => {
           
           if (isOAuthLogin) {
             // Check if user profile already exists in our database
-            // First check client_profiles
             const { data: clientProfile } = await supabase
               .from('client_profiles')
               .select('*')
               .eq('user_id', supabaseUser.id)
               .single();
             
-            // Also check vet_profiles
             const { data: vetProfile } = await supabase
               .from('vet_profiles')
               .select('*')
               .eq('user_id', supabaseUser.id)
               .single();
             
+            // Check if this was a signup (stored before OAuth redirect)
+            const oauthSignupData = localStorage.getItem('oauthSignup');
+            localStorage.removeItem('oauthSignup'); // Clean up
+            
             // Check if this is a NEW user (created just now via OAuth)
             const createdAt = new Date(supabaseUser.created_at);
             const now = new Date();
-            const isNewUser = (now.getTime() - createdAt.getTime()) < 60000; // Created within last minute
+            const isNewUser = (now.getTime() - createdAt.getTime()) < 120000; // Created within last 2 minutes
             
-            if (!clientProfile && !vetProfile && isNewUser) {
-              // This is a new OAuth user without an existing account
-              // Sign them out and show error
-              await supabase.auth.signOut();
-              
-              if (isMounted) {
-                setStatus('no-account');
-                toast({
-                  title: "Compte non trouvé",
-                  description: "Veuillez d'abord créer un compte avant de vous connecter avec Google/Facebook.",
-                  variant: "destructive"
-                });
+            if (!clientProfile && !vetProfile) {
+              // No profile exists - check if this was a signup
+              if (oauthSignupData) {
+                // This is a signup - create the profile
+                const signupInfo = JSON.parse(oauthSignupData);
+                const fullName = supabaseUser.user_metadata?.full_name || 
+                                supabaseUser.user_metadata?.name || 
+                                supabaseUser.email?.split('@')[0] || 
+                                'User';
+                
+                if (signupInfo.userType === 'vet') {
+                  // Create basic vet profile
+                  const { error: profileError } = await supabase
+                    .from('vet_profiles')
+                    .insert({
+                      user_id: supabaseUser.id,
+                      vet_name: fullName,
+                      clinic_name: fullName,
+                      email: supabaseUser.email,
+                      phone: '',
+                      is_verified: true
+                    });
+                  
+                  if (profileError) {
+                    console.error('Error creating vet profile:', profileError);
+                  }
+                  
+                  // Store that this is a new vet needing location setup
+                  localStorage.setItem('newVetOAuth', 'true');
+                  
+                  setStatus('success');
+                  toast({
+                    title: "Compte créé",
+                    description: "Veuillez compléter les informations de votre clinique.",
+                  });
+                  
+                  // Redirect to vet registration to complete location/hours
+                  setTimeout(() => {
+                    window.location.href = '/#/vet-registration';
+                  }, 500);
+                  return;
+                } else {
+                  // Create client profile
+                  const { error: profileError } = await supabase
+                    .from('client_profiles')
+                    .insert({
+                      user_id: supabaseUser.id,
+                      full_name: fullName,
+                      email: supabaseUser.email,
+                      phone: supabaseUser.user_metadata?.phone || '',
+                      is_verified: true
+                    });
+                  
+                  if (profileError) {
+                    console.error('Error creating client profile:', profileError);
+                  }
+                  
+                  setStatus('success');
+                  toast({
+                    title: "Compte créé",
+                    description: "Bienvenue sur VetDZ !",
+                  });
+                  
+                  // Redirect to home
+                  setTimeout(() => {
+                    window.location.href = '/#/';
+                  }, 500);
+                  return;
+                }
+              } else if (isNewUser) {
+                // New user trying to login without signup - block them
+                await supabase.auth.signOut();
+                
+                if (isMounted) {
+                  setStatus('no-account');
+                  toast({
+                    title: "Compte non trouvé",
+                    description: "Veuillez d'abord créer un compte en cliquant sur 'S'inscrire'.",
+                    variant: "destructive"
+                  });
+                }
+                return;
               }
-              return;
             }
             
             // Existing user - allow login

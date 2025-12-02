@@ -60,6 +60,7 @@ const LocationSelector: React.FC<{
 const vetRegistration: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [formData, setFormData] = useState<vetData>({
     vet_name: '',
@@ -74,6 +75,59 @@ const vetRegistration: React.FC = () => {
   });
 
   const allDays = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+
+  // Pre-fill form for OAuth users who already have basic profile
+  useEffect(() => {
+    const loadExistingProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate('/auth');
+          return;
+        }
+
+        // Check if there's an existing vet profile (from OAuth signup)
+        const { data: existingProfile } = await supabase
+          .from('vet_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (existingProfile) {
+          setFormData({
+            vet_name: existingProfile.vet_name || existingProfile.clinic_name || '',
+            address: existingProfile.address || '',
+            phone: existingProfile.phone || '',
+            email: existingProfile.email || user.email || '',
+            description: existingProfile.description || '',
+            opening_hours: existingProfile.opening_hours || '8h00 - 18h00',
+            opening_days: existingProfile.opening_days || [],
+            latitude: existingProfile.latitude,
+            longitude: existingProfile.longitude,
+          });
+          
+          if (existingProfile.latitude && existingProfile.longitude) {
+            setSelectedLocation({
+              lat: existingProfile.latitude,
+              lng: existingProfile.longitude
+            });
+          }
+        } else {
+          // Pre-fill email from user
+          setFormData(prev => ({
+            ...prev,
+            email: user.email || ''
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadExistingProfile();
+  }, [navigate]);
 
   const handleLocationSelect = (lat: number, lng: number) => {
     setSelectedLocation({ lat, lng });
@@ -115,13 +169,14 @@ const vetRegistration: React.FC = () => {
         return;
       }
 
-      // Create vet profile
+      // Create or update vet profile (upsert for OAuth users who already have basic profile)
       const { data, error } = await supabase
         .from('vet_profiles')
-        .insert([
+        .upsert([
           {
             user_id: user.id,
             vet_name: formData.vet_name,
+            clinic_name: formData.vet_name,
             address: formData.address,
             phone: formData.phone,
             email: formData.email || user.email,
@@ -130,18 +185,22 @@ const vetRegistration: React.FC = () => {
             opening_days: formData.opening_days,
             latitude: selectedLocation.lat,
             longitude: selectedLocation.lng,
-            is_verified: true, // Auto-verified for professional use
-            created_at: new Date().toISOString(),
+            is_verified: true,
             updated_at: new Date().toISOString()
           }
-        ])
+        ], { onConflict: 'user_id' })
         .select();
 
       if (error) {
-        alert('Erreur lors de la création du profil');
+        console.error('Profile error:', error);
+        alert('Erreur lors de la création du profil: ' + error.message);
         return;
       }
-      alert('Profil de laboratoire créé avec succès! En attente de vérification.');
+      
+      // Clear OAuth flag if exists
+      localStorage.removeItem('newVetOAuth');
+      
+      alert('Profil créé avec succès!');
       
       // Navigate to vet dashboard
       navigate('/vet-dashboard');
