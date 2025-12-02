@@ -1,8 +1,9 @@
-import { Search, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import ShaderBackground from "@/components/ShaderBackground";
+import PulsingCircle from "@/components/PulsingCircle";
 
 const Hero = () => {
   const { t } = useLanguage();
@@ -17,61 +18,82 @@ const Hero = () => {
       navigate('/auth');
     }
   };
-
-  const handleLogin = (e: React.MouseEvent) => {
-    e.preventDefault();
-    navigate('/auth');
-  };
   
   return (
-    <section className="flex flex-col items-center text-center relative mx-auto rounded-2xl overflow-hidden my-6 py-0 px-4 w-full h-[400px] md:w-[1220px] md:h-[600px] lg:h-[810px] md:px-0">
-      {/* Background Image with Blue Overlay */}
-      <div className="absolute inset-0 z-0">
-        <div
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('/images/analyse-795x478-1.jpg')`
-          }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/90 via-indigo-700/85 to-purple-800/90"></div>
-        {/* Grid overlay */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '36px 36px'
-        }}></div>
-      </div>
+    <section className="relative mx-auto rounded-2xl overflow-hidden my-6 w-full h-[400px] md:w-[1220px] md:h-[600px] lg:h-[810px]">
+      <ShaderBackground backgroundImage="/images/analyse-795x478-1.jpg">
+        {/* Content */}
+        <div className="absolute bottom-8 left-8 z-20 max-w-lg">
+          <div className="text-left">
+            <div
+              className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 backdrop-blur-sm mb-4 relative"
+              style={{
+                filter: "url(#glass-effect)",
+              }}
+            >
+              <div className="absolute top-0 left-1 right-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full" />
+              <span className="text-white/90 text-xs font-light relative z-10">
+                {isAuthenticated ? (
+                  user?.type === 'client' ? 'Votre partenaire santé animale' : 'Plateforme professionnelle'
+                ) : (
+                  'Votre partenaire santé animale'
+                )}
+              </span>
+            </div>
 
-      {/* Content */}
-      <div className="relative z-10 space-y-4 md:space-y-5 lg:space-y-6 mb-6 md:mb-7 lg:mb-9 max-w-md md:max-w-[500px] lg:max-w-[588px] mt-16 md:mt-[120px] lg:mt-[160px] px-4">
-        <h1 className="text-white text-3xl md:text-4xl lg:text-6xl font-semibold leading-tight">
-          {isAuthenticated ? (
-            user?.type === 'client' ? 
-              'Trouvez votre Vétérinaire' : 
-              'Gérez vos Clients'
-          ) : (
-            'Soins pour Vos Animaux'
-          )}
-        </h1>
-        <p className="text-white/80 text-base md:text-base lg:text-lg font-medium leading-relaxed max-w-lg mx-auto">
-          {isAuthenticated
-            ? (user?.type === 'client'
-                ? t('hero.auth.clientSubtitle')
-                : t('hero.auth.labSubtitle'))
-            : t('hero.subtitle')
-          }
-        </p>
-      </div>
+            <h1 className="text-5xl md:text-6xl md:leading-16 tracking-tight font-light text-white mb-4">
+              {isAuthenticated ? (
+                user?.type === 'client' ? (
+                  <>
+                    <span className="font-medium italic">VetDz</span> Care
+                    <br />
+                    <span className="font-light tracking-tight text-white">for Your Pets</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-medium italic">VetDz</span> Pro
+                    <br />
+                    <span className="font-light tracking-tight text-white">Gérez vos Clients</span>
+                  </>
+                )
+              ) : (
+                <>
+                  <span className="font-medium italic">VetDz</span> Care
+                  <br />
+                  <span className="font-light tracking-tight text-white">for Your Pets</span>
+                </>
+              )}
+            </h1>
 
-      <Button 
-        onClick={handleFindvet}
-        variant="secondary" 
-        className="relative z-10 px-8 py-3 rounded-full font-medium text-base shadow-lg ring-1 ring-white/10"
-      >
-        {t('hero.findLab')}
-      </Button>
+            <p className="text-xs font-light text-white/70 mb-4 leading-relaxed">
+              {isAuthenticated
+                ? (user?.type === 'client'
+                    ? t('hero.auth.clientSubtitle')
+                    : t('hero.auth.labSubtitle'))
+                : t('hero.subtitle')
+              }
+            </p>
+
+            <div className="flex items-center gap-4 flex-wrap">
+              <button 
+                onClick={() => navigate('/#features')}
+                className="px-8 py-3 rounded-full bg-transparent border border-white/30 text-white font-normal text-xs transition-all duration-200 hover:bg-white/10 hover:border-white/50 cursor-pointer"
+              >
+                Nos Services
+              </button>
+              <Button 
+                onClick={handleFindvet}
+                className="px-8 py-3 rounded-full bg-white text-black font-normal text-xs transition-all duration-200 hover:bg-white/90 cursor-pointer"
+              >
+                {t('hero.findLab')}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Pulsing Circle Logo */}
+        <PulsingCircle />
+      </ShaderBackground>
     </section>
   );
 };
