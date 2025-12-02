@@ -18,9 +18,9 @@ const PageLayout = ({ children, showFooter = true }: PageLayoutProps) => {
   }, [location]);
 
   return (
-    <div className="min-h-screen bg-white w-full max-w-[100vw] overflow-x-hidden">
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden">
       <Navbar />
-      <main className="min-h-[calc(100vh-4rem)] pt-16 pb-24">
+      <main>
         {children}
       </main>
       {showFooter && <Footer />}

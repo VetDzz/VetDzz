@@ -101,9 +101,9 @@ const NotificationDropdown = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="relative hover:bg-vet-light bg-white text-gray-700 hover:text-gray-900"
+          className="relative hover:bg-white/10 bg-transparent text-white hover:text-white"
         >
-          <Bell className="h-4 w-4 text-gray-700" />
+          <Bell className="h-4 w-4 text-white" />
           {unreadCount > 0 && (
             <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs min-w-[1.25rem] h-5 flex items-center justify-center rounded-full">
               {unreadCount > 9 ? '9+' : unreadCount}

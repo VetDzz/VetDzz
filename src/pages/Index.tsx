@@ -26,7 +26,7 @@ const Index = () => {
   }, [isAuthenticated, user, navigate]);
 
   return (
-    <PageLayout>
+    <PageLayout showFooter={false}>
       <SEO
         title="VetDz - Plateforme Vétérinaire en Algérie"
         description="Trouvez le vétérinaire le plus proche de chez vous. Soins pour vos animaux, consultations à domicile et suivi médical."
@@ -34,8 +34,6 @@ const Index = () => {
         keywords={['vétérinaire', 'soins animaux', 'clinique vétérinaire', 'consultation domicile', 'vétérinaire proche', 'soins chiens', 'soins chats']}
       />
       <Hero />
-      <Features />
-      <ContactForm />
     </PageLayout>
   );
 };

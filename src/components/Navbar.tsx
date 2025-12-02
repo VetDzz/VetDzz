@@ -42,15 +42,15 @@ const Navbar = () => {
   };
 
   return (
-    <header className="w-full py-2 px-6 bg-transparent">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-3">
+    <header className="w-full py-6 px-4 bg-transparent absolute top-0 left-0 right-0 z-50">
+      <div className="w-full flex items-center justify-between">
+        <div className="flex items-center gap-2 ml-2">
           <img 
             src="/images/Logo.jpeg" 
             alt="VetDz Logo" 
             className="h-8 w-8 rounded-full object-cover"
           />
-          <Link to="/" className="text-foreground text-xl font-semibold">
+          <Link to="/" className="text-white text-xl font-semibold">
             VetDz
           </Link>
         </div>
@@ -59,26 +59,26 @@ const Navbar = () => {
         <nav className="hidden md:flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
             <Link
               to="/"
-              className="text-[#888888] hover:text-foreground px-4 py-2 rounded-full font-medium transition-colors"
+              className="text-white/80 hover:text-white px-4 py-2 rounded-full font-medium transition-colors"
             >
               {t('nav.home')}
             </Link>
             <button
               onClick={handleFindvet}
-              className="text-[#888888] hover:text-foreground px-4 py-2 rounded-full font-medium transition-colors"
+              className="text-white/80 hover:text-white px-4 py-2 rounded-full font-medium transition-colors"
             >
               {user?.type === 'vet' ? t('nav.findClient') : t('nav.findLab')}
             </button>
             <Link
               to="/results"
-              className="text-[#888888] hover:text-foreground px-4 py-2 rounded-full font-medium transition-colors"
+              className="text-white/80 hover:text-white px-4 py-2 rounded-full font-medium transition-colors"
             >
               {t('nav.results')}
             </Link>
             {user?.type === 'vet' && (
               <Link
                 to="/vet-dashboard?tab=requests"
-                className="text-[#888888] hover:text-foreground px-4 py-2 rounded-full font-medium transition-colors"
+                className="text-white/80 hover:text-white px-4 py-2 rounded-full font-medium transition-colors"
               >
                 {t('nav.PADRequests')}
               </Link>
@@ -92,7 +92,7 @@ const Navbar = () => {
           </div>
           {!isAuthenticated ? (
             <Link to="/auth" className="hidden md:block">
-              <Button variant="secondary" className="px-6 py-2 rounded-full font-medium shadow-sm">
+              <Button variant="ghost" className="px-6 py-2 rounded-full font-medium text-white hover:bg-white/10 hover:text-white">
                 {t('nav.login')}
               </Button>
             </Link>
@@ -106,7 +106,7 @@ const Navbar = () => {
           )}
           <button
             onClick={toggleMenu}
-            className="md:hidden focus:outline-none p-2 text-foreground"
+            className="md:hidden focus:outline-none p-2 text-white"
             aria-label="Toggle menu"
           >
             {isMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}

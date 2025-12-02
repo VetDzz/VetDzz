@@ -4,6 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ShaderBackground from "@/components/ShaderBackground";
 import PulsingCircle from "@/components/PulsingCircle";
+import ContactForm from "@/components/ContactForm";
+import Footer from "@/components/Footer";
 
 const Hero = () => {
   const { t } = useLanguage();
@@ -20,10 +22,12 @@ const Hero = () => {
   };
   
   return (
-    <section className="relative mx-auto rounded-2xl overflow-hidden my-6 w-full h-[400px] md:w-[1220px] md:h-[600px] lg:h-[810px]">
+    <div className="-mt-16">
       <ShaderBackground backgroundImage="/images/analyse-795x478-1.jpg">
+        {/* Hero Section */}
+        <section className="relative w-full min-h-screen flex items-end pb-20 pt-24">
         {/* Content */}
-        <div className="absolute bottom-8 left-8 z-20 max-w-lg">
+        <div className="ml-8 z-20 max-w-lg">
           <div className="text-left">
             <div
               className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 backdrop-blur-sm mb-4 relative"
@@ -76,14 +80,14 @@ const Hero = () => {
 
             <div className="flex items-center gap-4 flex-wrap">
               <button 
-                onClick={() => navigate('/#features')}
+                onClick={() => navigate('/#contact')}
                 className="px-8 py-3 rounded-full bg-transparent border border-white/30 text-white font-normal text-xs transition-all duration-200 hover:bg-white/10 hover:border-white/50 cursor-pointer"
               >
-                Nos Services
+                Nous Contacter
               </button>
               <Button 
                 onClick={handleFindvet}
-                className="px-8 py-3 rounded-full bg-white text-black font-normal text-xs transition-all duration-200 hover:bg-white/90 cursor-pointer"
+                className="px-8 py-3 rounded-full bg-transparent border border-white/30 text-white font-normal text-xs transition-all duration-200 hover:bg-white/10 hover:border-white/50 cursor-pointer"
               >
                 {t('hero.findLab')}
               </Button>
@@ -93,8 +97,19 @@ const Hero = () => {
 
         {/* Pulsing Circle Logo */}
         <PulsingCircle />
+      </section>
+      
+      {/* Contact Form Section */}
+      <div id="contact" className="relative z-10">
+        <ContactForm />
+      </div>
+      
+      {/* Footer */}
+      <div className="relative z-10">
+        <Footer />
+      </div>
       </ShaderBackground>
-    </section>
+    </div>
   );
 };
 

@@ -37,7 +37,7 @@ const LanguageSelector = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="gap-2 text-[#888888] hover:text-foreground hover:bg-transparent px-4 py-2 rounded-full font-medium"
+          className="gap-2 text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-full font-medium"
         >
           <Globe className="h-4 w-4" />
           <span>{currentLanguage?.short}</span>
