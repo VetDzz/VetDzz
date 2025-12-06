@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import ShaderBackground from "@/components/ShaderBackground";
+import { MeshGradient } from "@paper-design/shaders-react";
 import PulsingCircle from "@/components/PulsingCircle";
 import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
@@ -23,17 +23,34 @@ const Hero = () => {
   
   return (
     <div className="-mt-16">
-      <ShaderBackground backgroundImage="/images/WhatsApp Image 2025-12-04 at 3.15.17 PM.jpeg">
-        {/* Hero Section */}
-        <section className="relative w-full min-h-screen flex items-end pb-20 pt-24">
+      {/* Hero Section with Image and Shader */}
+      <section className="relative w-full min-h-screen flex items-end pb-20 pt-24 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/images/WhatsApp Image 2025-12-04 at 3.15.17 PM.jpeg"
+            alt="Hero Background"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        {/* Shader Overlay */}
+        <div className="absolute inset-0 z-[1]" style={{ mixBlendMode: 'overlay', opacity: 0.7 }}>
+          <MeshGradient
+            className="w-full h-full"
+            colors={["#1e40af", "#3b82f6", "#60a5fa", "#2563eb", "#1d4ed8"]}
+            speed={0.3}
+          />
+        </div>
+        
+        {/* Dark gradient for text readability */}
+        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+        
         {/* Content */}
-        <div className="ml-8 z-20 max-w-lg">
+        <div className="ml-8 z-20 max-w-lg relative">
           <div className="text-left">
             <div
               className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 backdrop-blur-sm mb-4 relative"
-              style={{
-                filter: "url(#glass-effect)",
-              }}
             >
               <div className="absolute top-0 left-1 right-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full" />
               <span className="text-white/90 text-xs font-light relative z-10">
@@ -99,16 +116,13 @@ const Hero = () => {
         <PulsingCircle />
       </section>
       
-      {/* Contact Form Section */}
-      <div id="contact" className="relative z-10">
+      {/* Contact Form Section - Outside hero, with its own background */}
+      <div id="contact" className="bg-gradient-to-b from-blue-600 to-blue-700">
         <ContactForm />
       </div>
       
       {/* Footer */}
-      <div className="relative z-10">
-        <Footer />
-      </div>
-      </ShaderBackground>
+      <Footer />
     </div>
   );
 };
