@@ -24,13 +24,13 @@ const Hero = () => {
   return (
     <div>
       {/* Hero Section with Image and Shader */}
-      <section className="relative w-full h-[calc(100vh-80px)] flex items-end pb-20 overflow-hidden">
+      <section className="relative w-full h-[66vh] sm:h-[70vh] md:h-[calc(100vh-80px)] flex items-end pb-12 sm:pb-16 md:pb-20 overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
             src="/images/WhatsApp Image 2025-12-04 at 3.15.17 PM.jpeg"
             alt="Hero Background"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center scale-110"
           />
         </div>
         
