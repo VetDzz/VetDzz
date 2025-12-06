@@ -23,7 +23,7 @@ const Hero = () => {
   
   return (
     <div className="-mt-16">
-      <ShaderBackground backgroundImage="/images/analyse-795x478-1.jpg">
+      <ShaderBackground backgroundImage="/images/WhatsApp Image 2025-12-04 at 3.15.17 PM.jpeg">
         {/* Hero Section */}
         <section className="relative w-full min-h-screen flex items-end pb-20 pt-24">
         {/* Content */}
