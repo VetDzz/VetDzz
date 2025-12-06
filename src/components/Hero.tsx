@@ -34,8 +34,8 @@ const Hero = () => {
           />
         </div>
         
-        {/* Shader Animation Overlay - visible on top of image */}
-        <div className="absolute inset-0 z-[1]" style={{ opacity: 0.75 }}>
+        {/* Shader Animation Overlay - subtle on top of image */}
+        <div className="absolute inset-0 z-[1]" style={{ opacity: 0.3, mixBlendMode: 'overlay' }}>
           <MeshGradient
             className="w-full h-full"
             colors={["#1e40af", "#3b82f6", "#60a5fa", "#2563eb", "#1d4ed8"]}
@@ -44,7 +44,7 @@ const Hero = () => {
         </div>
         
         {/* Dark gradient for text readability */}
-        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/20 via-transparent to-transparent" />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
         
         {/* Content */}
         <div className="ml-8 z-[10] max-w-lg relative">
