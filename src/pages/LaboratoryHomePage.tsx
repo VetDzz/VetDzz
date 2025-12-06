@@ -21,9 +21,9 @@ const VetHomePage = () => {
         keywords={[t('labHome.keyword1'), t('labHome.keyword2'), t('labHome.keyword3'), t('labHome.keyword4')]}
       />
       
-      <div className="-mt-16">
-        {/* Hero Section with Image and Shader */}
-        <section className="relative w-full min-h-screen flex items-end pb-20 pt-24 overflow-hidden">
+      <div>
+        {/* Hero Section with Image and Shader - starts below navbar */}
+        <section className="relative w-full h-[calc(100vh-64px)] flex items-end pb-20 overflow-hidden">
           {/* Background Image */}
           <div className="absolute inset-0 z-0">
             <img
