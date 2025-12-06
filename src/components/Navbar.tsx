@@ -42,7 +42,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="w-full py-6 px-4 bg-transparent absolute top-0 left-0 right-0 z-50">
+    <header className="w-full py-6 px-4 bg-blue-600 sticky top-0 left-0 right-0 z-50">
       <div className="w-full flex items-center justify-between">
         <div className="flex items-center gap-2 ml-2">
           <img 

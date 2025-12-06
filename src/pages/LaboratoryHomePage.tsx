@@ -22,8 +22,8 @@ const VetHomePage = () => {
       />
       
       <div>
-        {/* Hero Section with Image and Shader - starts below navbar */}
-        <section className="relative w-full h-[calc(100vh-64px)] flex items-end pb-20 overflow-hidden">
+        {/* Hero Section with Image and Shader */}
+        <section className="relative w-full h-[calc(100vh-80px)] flex items-end pb-20 overflow-hidden">
           {/* Background Image */}
           <div className="absolute inset-0 z-0">
             <img
@@ -33,8 +33,11 @@ const VetHomePage = () => {
             />
           </div>
           
+          {/* Blue transparent overlay to blend with shader */}
+          <div className="absolute inset-0 z-[1] bg-blue-600/60" />
+          
           {/* Shader Overlay */}
-          <div className="absolute inset-0 z-[1]" style={{ mixBlendMode: 'overlay', opacity: 0.7 }}>
+          <div className="absolute inset-0 z-[2]" style={{ mixBlendMode: 'soft-light', opacity: 0.8 }}>
             <MeshGradient
               className="w-full h-full"
               colors={["#1e40af", "#3b82f6", "#60a5fa", "#2563eb", "#1d4ed8"]}
@@ -43,10 +46,10 @@ const VetHomePage = () => {
           </div>
           
           {/* Dark gradient for text readability */}
-          <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+          <div className="absolute inset-0 z-[3] bg-gradient-to-r from-black/30 via-transparent to-transparent" />
           
           {/* Content */}
-          <div className="ml-8 z-20 max-w-lg relative">
+          <div className="ml-8 z-[10] max-w-lg relative">
             <div className="text-left">
               <div
                 className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 backdrop-blur-sm mb-4 relative"
