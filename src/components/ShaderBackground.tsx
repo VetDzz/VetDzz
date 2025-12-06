@@ -65,17 +65,22 @@ export default function ShaderBackground({ children, backgroundImage }: ShaderBa
           <img
             src={backgroundImage}
             alt="Background"
-            className="w-full h-full object-cover opacity-30"
+            className="w-full h-full object-cover"
           />
         </div>
       )}
 
-      {/* Shader Gradients */}
-      <MeshGradient
-        className="absolute inset-0 w-full h-full"
-        colors={["#1e40af", "#3b82f6", "#60a5fa", "#2563eb", "#1d4ed8"]}
-        speed={0.3}
-      />
+      {/* Shader Gradients - as overlay on top of image */}
+      <div className="absolute inset-0 z-[1]" style={{ mixBlendMode: 'overlay', opacity: 0.7 }}>
+        <MeshGradient
+          className="w-full h-full"
+          colors={["#1e40af", "#3b82f6", "#60a5fa", "#2563eb", "#1d4ed8"]}
+          speed={0.3}
+        />
+      </div>
+      
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/40 via-transparent to-transparent" />
 
       {children}
     </div>
