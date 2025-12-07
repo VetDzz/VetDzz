@@ -87,26 +87,38 @@ const AuthCallback = () => {
           
           if (isOAuthLogin) {
             // Check if user profile already exists in our database
-            const { data: clientProfile } = await supabase
+            const { data: clientProfile, error: clientError } = await supabase
               .from('client_profiles')
               .select('*')
               .eq('user_id', supabaseUser.id)
               .single();
             
-            const { data: vetProfile } = await supabase
+            const { data: vetProfile, error: vetError } = await supabase
               .from('vet_profiles')
               .select('*')
               .eq('user_id', supabaseUser.id)
               .single();
             
-            if (!clientProfile && !vetProfile) {
+            // Log for debugging
+            console.log('OAuth User ID:', supabaseUser.id);
+            console.log('Client Profile:', clientProfile, 'Error:', clientError);
+            console.log('Vet Profile:', vetProfile, 'Error:', vetError);
+            
+            // Check if profile exists (ignore "not found" errors)
+            const hasClientProfile = clientProfile && !clientError;
+            const hasVetProfile = vetProfile && !vetError;
+            
+            if (!hasClientProfile && !hasVetProfile) {
               // No profile exists - redirect to complete signup
+              console.log('No profile found - redirecting to oauth-complete');
               setStatus('success');
               setTimeout(() => {
                 window.location.href = '/#/oauth-complete';
               }, 300);
               return;
             }
+            
+            console.log('Profile found - logging in');
             
             // Existing user - allow login
             setStatus('success');
