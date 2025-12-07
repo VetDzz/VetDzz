@@ -99,37 +99,13 @@ const AuthCallback = () => {
               .eq('user_id', supabaseUser.id)
               .single();
             
-            // Check the user's intent (login vs signup)
-            const oauthIntent = localStorage.getItem('oauthIntent');
-            localStorage.removeItem('oauthIntent'); // Clean up
-            
-            // Check if this is a NEW user (created just now via OAuth)
-            const createdAt = new Date(supabaseUser.created_at);
-            const now = new Date();
-            const isNewUser = (now.getTime() - createdAt.getTime()) < 120000; // Created within last 2 minutes
-            
             if (!clientProfile && !vetProfile) {
-              // No profile exists
-              if (oauthIntent === 'login') {
-                // User tried to login but has no account - redirect to signup
-                setStatus('no-account');
-                toast({
-                  title: "Compte non trouvé",
-                  description: "Veuillez d'abord créer un compte.",
-                  variant: "destructive"
-                });
-                setTimeout(() => {
-                  window.location.href = '/#/auth';
-                }, 2000);
-                return;
-              } else {
-                // User is signing up - redirect to complete signup page
-                setStatus('success');
-                setTimeout(() => {
-                  window.location.href = '/#/oauth-complete';
-                }, 300);
-                return;
-              }
+              // No profile exists - redirect to complete signup
+              setStatus('success');
+              setTimeout(() => {
+                window.location.href = '/#/oauth-complete';
+              }, 300);
+              return;
             }
             
             // Existing user - allow login

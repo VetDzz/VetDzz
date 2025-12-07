@@ -274,8 +274,6 @@ const AuthSection = () => {
                           type="button"
                           onClick={async () => {
                             setIsLoading(true);
-                            // Store that this is a login attempt
-                            localStorage.setItem('oauthIntent', 'login');
                             const { error } = await supabase.auth.signInWithOAuth({
                               provider: 'google',
                               options: {
@@ -308,8 +306,6 @@ const AuthSection = () => {
                           type="button"
                           onClick={async () => {
                             setIsLoading(true);
-                            // Store that this is a login attempt
-                            localStorage.setItem('oauthIntent', 'login');
                             const { error } = await supabase.auth.signInWithOAuth({
                               provider: 'facebook',
                               options: {
@@ -393,8 +389,6 @@ const AuthSection = () => {
                           type="button"
                           onClick={async () => {
                             setIsLoading(true);
-                            // Store that this is a signup attempt
-                            localStorage.setItem('oauthIntent', 'signup');
                             const { error } = await supabase.auth.signInWithOAuth({
                               provider: 'google',
                               options: {
@@ -427,8 +421,6 @@ const AuthSection = () => {
                           type="button"
                           onClick={async () => {
                             setIsLoading(true);
-                            // Store that this is a signup attempt
-                            localStorage.setItem('oauthIntent', 'signup');
                             const { error } = await supabase.auth.signInWithOAuth({
                               provider: 'facebook',
                               options: {
