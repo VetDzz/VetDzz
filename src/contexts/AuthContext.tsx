@@ -25,6 +25,42 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to get user type from database
+const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
+  console.log('[getUserTypeFromDatabase] Checking user type for:', userId);
+  
+  // Check if user has a vet profile
+  const { data: vetProfile, error: vetError } = await supabase
+    .from('vet_profiles')
+    .select('user_id')
+    .eq('user_id', userId)
+    .single();
+  
+  console.log('[getUserTypeFromDatabase] Vet profile:', vetProfile, 'Error:', vetError);
+  
+  if (vetProfile) {
+    console.log('[getUserTypeFromDatabase] User is VET');
+    return 'vet';
+  }
+  
+  // Check if user has a client profile
+  const { data: clientProfile, error: clientError } = await supabase
+    .from('client_profiles')
+    .select('user_id')
+    .eq('user_id', userId)
+    .single();
+  
+  console.log('[getUserTypeFromDatabase] Client profile:', clientProfile, 'Error:', clientError);
+  
+  if (clientProfile) {
+    console.log('[getUserTypeFromDatabase] User is CLIENT');
+    return 'client';
+  }
+  
+  console.log('[getUserTypeFromDatabase] No profile found, defaulting to client');
+  return 'client';
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
@@ -167,32 +203,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         // Check database to determine actual user type
-        let actualUserType: UserType = userType;
-        
-        // Check if user has a vet profile
-        const { data: vetProfile } = await supabase
-          .from('vet_profiles')
-          .select('user_id')
-          .eq('user_id', data.user.id)
-          .single();
-        
-        if (vetProfile) {
-          actualUserType = 'vet';
-        } else {
-          // Check if user has a client profile
-          const { data: clientProfile } = await supabase
-            .from('client_profiles')
-            .select('user_id')
-            .eq('user_id', data.user.id)
-            .single();
-          
-          if (clientProfile) {
-            actualUserType = 'client';
-          } else {
-            // Fallback to user_metadata or provided userType
-            actualUserType = data.user.user_metadata?.user_type || userType;
-          }
-        }
+        const actualUserType = await getUserTypeFromDatabase(data.user.id);
         
         const userData: User = {
           id: data.user.id,
@@ -327,32 +338,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (session?.user) {
 
           // Check database to determine actual user type
-          let userType: UserType = 'client';
-          
-          // Check if user has a vet profile
-          const { data: vetProfile } = await supabase
-            .from('vet_profiles')
-            .select('user_id')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          if (vetProfile) {
-            userType = 'vet';
-          } else {
-            // Check if user has a client profile
-            const { data: clientProfile } = await supabase
-              .from('client_profiles')
-              .select('user_id')
-              .eq('user_id', session.user.id)
-              .single();
-            
-            if (clientProfile) {
-              userType = 'client';
-            } else {
-              // Fallback to user_metadata
-              userType = session.user.user_metadata?.user_type || 'client';
-            }
-          }
+          const userType = await getUserTypeFromDatabase(session.user.id);
 
           const userData: User = {
             id: session.user.id,
@@ -395,32 +381,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
 
           // Check database to determine actual user type
-          let userType: UserType = 'client';
-          
-          // Check if user has a vet profile
-          const { data: vetProfile } = await supabase
-            .from('vet_profiles')
-            .select('user_id')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          if (vetProfile) {
-            userType = 'vet';
-          } else {
-            // Check if user has a client profile
-            const { data: clientProfile } = await supabase
-              .from('client_profiles')
-              .select('user_id')
-              .eq('user_id', session.user.id)
-              .single();
-            
-            if (clientProfile) {
-              userType = 'client';
-            } else {
-              // Fallback to user_metadata
-              userType = session.user.user_metadata?.user_type || 'client';
-            }
-          }
+          const userType = await getUserTypeFromDatabase(session.user.id);
 
           const userData: User = {
             id: session.user.id,
