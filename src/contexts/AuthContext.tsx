@@ -29,36 +29,41 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
   console.log('[getUserTypeFromDatabase] Checking user type for:', userId);
   
-  // Check if user has a vet profile
-  const { data: vetProfile, error: vetError } = await supabase
-    .from('vet_profiles')
-    .select('user_id')
-    .eq('user_id', userId)
-    .single();
-  
-  console.log('[getUserTypeFromDatabase] Vet profile:', vetProfile, 'Error:', vetError);
-  
-  if (vetProfile) {
-    console.log('[getUserTypeFromDatabase] User is VET');
-    return 'vet';
-  }
-  
-  // Check if user has a client profile
-  const { data: clientProfile, error: clientError } = await supabase
-    .from('client_profiles')
-    .select('user_id')
-    .eq('user_id', userId)
-    .single();
-  
-  console.log('[getUserTypeFromDatabase] Client profile:', clientProfile, 'Error:', clientError);
-  
-  if (clientProfile) {
-    console.log('[getUserTypeFromDatabase] User is CLIENT');
+  try {
+    // Check if user has a vet profile (use maybeSingle to avoid errors)
+    const { data: vetProfile, error: vetError } = await supabase
+      .from('vet_profiles')
+      .select('user_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+    
+    console.log('[getUserTypeFromDatabase] Vet profile:', vetProfile, 'Error:', vetError);
+    
+    if (vetProfile && !vetError) {
+      console.log('[getUserTypeFromDatabase] User is VET');
+      return 'vet';
+    }
+    
+    // Check if user has a client profile (use maybeSingle to avoid errors)
+    const { data: clientProfile, error: clientError } = await supabase
+      .from('client_profiles')
+      .select('user_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+    
+    console.log('[getUserTypeFromDatabase] Client profile:', clientProfile, 'Error:', clientError);
+    
+    if (clientProfile && !clientError) {
+      console.log('[getUserTypeFromDatabase] User is CLIENT');
+      return 'client';
+    }
+    
+    console.log('[getUserTypeFromDatabase] No profile found, defaulting to client');
+    return 'client';
+  } catch (error) {
+    console.error('[getUserTypeFromDatabase] Error checking profiles:', error);
     return 'client';
   }
-  
-  console.log('[getUserTypeFromDatabase] No profile found, defaulting to client');
-  return 'client';
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

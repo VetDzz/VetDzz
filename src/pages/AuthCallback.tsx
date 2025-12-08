@@ -13,6 +13,8 @@ const AuthCallback = () => {
     let isMounted = true;
     
     const handleAuthCallback = async () => {
+      console.log('[AuthCallback] Starting auth callback handler');
+      
       try {
         // Check for OAuth tokens in URL hash or query params
         // Supabase might return tokens in different formats
@@ -59,8 +61,12 @@ const AuthCallback = () => {
         // Small delay to ensure session is set
         await new Promise(resolve => setTimeout(resolve, 200));
         
+        console.log('[AuthCallback] Getting session...');
+        
         // Get session
         const { data, error } = await supabase.auth.getSession();
+        
+        console.log('[AuthCallback] Session data:', data, 'Error:', error);
         
         if (error) {
           console.error('Auth callback error:', error);
@@ -181,10 +187,25 @@ const AuthCallback = () => {
 
     handleAuthCallback();
     
+    // Add a timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (isMounted && status === 'loading') {
+        console.error('[AuthCallback] Timeout - redirecting to auth page');
+        setStatus('error');
+        toast({
+          title: "Délai d'attente dépassé",
+          description: "La connexion prend trop de temps. Veuillez réessayer.",
+          variant: "destructive"
+        });
+        setTimeout(() => navigate('/auth'), 2000);
+      }
+    }, 10000); // 10 second timeout
+    
     return () => {
       isMounted = false;
+      clearTimeout(timeout);
     };
-  }, [navigate, toast]);
+  }, [navigate, toast, status]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
