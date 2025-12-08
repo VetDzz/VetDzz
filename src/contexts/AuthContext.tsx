@@ -369,8 +369,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
 
-          // Check database to determine actual user type
-          const userType = await getUserTypeFromDatabase(session.user.id);
+          // Try to get user type from localStorage first (fast)
+          const cachedUser = localStorage.getItem('user');
+          let userType: UserType = 'client';
+          
+          if (cachedUser) {
+            try {
+              const parsed = JSON.parse(cachedUser);
+              if (parsed.id === session.user.id && (parsed.type === 'vet' || parsed.type === 'client')) {
+                userType = parsed.type;
+                console.log('[AuthContext] Using cached user type:', userType);
+              }
+            } catch (e) {
+              console.error('[AuthContext] Error parsing cached user:', e);
+            }
+          }
+          
+          // If no cache, use metadata or default
+          if (!cachedUser) {
+            userType = session.user.user_metadata?.user_type || 'client';
+          }
 
           const userData: User = {
             id: session.user.id,
@@ -382,6 +400,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           };
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
+          
+          // Check database in background to update if needed (non-blocking)
+          getUserTypeFromDatabase(session.user.id).then(dbType => {
+            if (dbType !== userType) {
+              console.log('[AuthContext] Updating user type from database:', dbType);
+              const updatedUser = { ...userData, type: dbType };
+              setUser(updatedUser);
+              localStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+          });
         } else {
 
         }
@@ -412,8 +440,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
           }
 
-          // Check database to determine actual user type
-          const userType = await getUserTypeFromDatabase(session.user.id);
+          // Try to get user type from cache first (fast)
+          let userType: UserType = session.user.user_metadata?.user_type || 'client';
+          const cachedType = localStorage.getItem(`userType_${session.user.id}`);
+          if (cachedType === 'vet' || cachedType === 'client') {
+            userType = cachedType;
+          }
 
           const userData: User = {
             id: session.user.id,
@@ -425,6 +457,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           };
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
+          
+          // Check database in background to update if needed (non-blocking)
+          getUserTypeFromDatabase(session.user.id).then(dbType => {
+            if (dbType !== userType) {
+              console.log('[AuthContext] Updating user type from database:', dbType);
+              const updatedUser = { ...userData, type: dbType };
+              setUser(updatedUser);
+              localStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+          });
 
         } else if (event === 'SIGNED_OUT') {
           // Handle logout
