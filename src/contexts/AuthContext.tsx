@@ -25,43 +25,59 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to get user type from database
+// Helper function to get user type from database with timeout
 const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
   console.log('[getUserTypeFromDatabase] Checking user type for:', userId);
   
   try {
-    // Check if user has a vet profile (use maybeSingle to avoid errors)
-    const { data: vetProfile, error: vetError } = await supabase
-      .from('vet_profiles')
-      .select('user_id')
-      .eq('user_id', userId)
-      .maybeSingle();
+    // Create a promise that rejects after 3 seconds
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Database query timeout')), 3000);
+    });
     
-    console.log('[getUserTypeFromDatabase] Vet profile:', vetProfile, 'Error:', vetError);
+    // Race between the query and timeout
+    const result = await Promise.race([
+      (async () => {
+        console.log('[getUserTypeFromDatabase] Querying vet_profiles...');
+        // Check if user has a vet profile (use maybeSingle to avoid errors)
+        const { data: vetProfile, error: vetError } = await supabase
+          .from('vet_profiles')
+          .select('user_id')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        console.log('[getUserTypeFromDatabase] Vet profile result:', vetProfile, 'Error:', vetError);
+        
+        if (vetProfile && !vetError) {
+          console.log('[getUserTypeFromDatabase] User is VET');
+          return 'vet';
+        }
+        
+        console.log('[getUserTypeFromDatabase] Querying client_profiles...');
+        // Check if user has a client profile (use maybeSingle to avoid errors)
+        const { data: clientProfile, error: clientError } = await supabase
+          .from('client_profiles')
+          .select('user_id')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        console.log('[getUserTypeFromDatabase] Client profile result:', clientProfile, 'Error:', clientError);
+        
+        if (clientProfile && !clientError) {
+          console.log('[getUserTypeFromDatabase] User is CLIENT');
+          return 'client';
+        }
+        
+        console.log('[getUserTypeFromDatabase] No profile found, defaulting to client');
+        return 'client';
+      })(),
+      timeoutPromise
+    ]);
     
-    if (vetProfile && !vetError) {
-      console.log('[getUserTypeFromDatabase] User is VET');
-      return 'vet';
-    }
-    
-    // Check if user has a client profile (use maybeSingle to avoid errors)
-    const { data: clientProfile, error: clientError } = await supabase
-      .from('client_profiles')
-      .select('user_id')
-      .eq('user_id', userId)
-      .maybeSingle();
-    
-    console.log('[getUserTypeFromDatabase] Client profile:', clientProfile, 'Error:', clientError);
-    
-    if (clientProfile && !clientError) {
-      console.log('[getUserTypeFromDatabase] User is CLIENT');
-      return 'client';
-    }
-    
-    console.log('[getUserTypeFromDatabase] No profile found, defaulting to client');
-    return 'client';
+    return result;
   } catch (error) {
-    console.error('[getUserTypeFromDatabase] Error checking profiles:', error);
+    console.error('[getUserTypeFromDatabase] Error or timeout:', error);
+    // If timeout or error, default to client
     return 'client';
   }
 };
