@@ -166,7 +166,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           return { success: true, userType: 'admin' as any };
         }
 
-        const actualUserType = data.user.user_metadata?.user_type || userType;
+        // Check database to determine actual user type
+        let actualUserType: UserType = userType;
+        
+        // Check if user has a vet profile
+        const { data: vetProfile } = await supabase
+          .from('vet_profiles')
+          .select('user_id')
+          .eq('user_id', data.user.id)
+          .single();
+        
+        if (vetProfile) {
+          actualUserType = 'vet';
+        } else {
+          // Check if user has a client profile
+          const { data: clientProfile } = await supabase
+            .from('client_profiles')
+            .select('user_id')
+            .eq('user_id', data.user.id)
+            .single();
+          
+          if (clientProfile) {
+            actualUserType = 'client';
+          } else {
+            // Fallback to user_metadata or provided userType
+            actualUserType = data.user.user_metadata?.user_type || userType;
+          }
+        }
+        
         const userData: User = {
           id: data.user.id,
           email: data.user.email || '',
