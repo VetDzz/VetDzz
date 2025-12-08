@@ -326,11 +326,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
 
+          // Check database to determine actual user type
+          let userType: UserType = 'client';
+          
+          // Check if user has a vet profile
+          const { data: vetProfile } = await supabase
+            .from('vet_profiles')
+            .select('user_id')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          if (vetProfile) {
+            userType = 'vet';
+          } else {
+            // Check if user has a client profile
+            const { data: clientProfile } = await supabase
+              .from('client_profiles')
+              .select('user_id')
+              .eq('user_id', session.user.id)
+              .single();
+            
+            if (clientProfile) {
+              userType = 'client';
+            } else {
+              // Fallback to user_metadata
+              userType = session.user.user_metadata?.user_type || 'client';
+            }
+          }
+
           const userData: User = {
             id: session.user.id,
             email: session.user.email || '',
             name: session.user.user_metadata?.first_name || session.user.user_metadata?.clinic_name || 'User',
-            type: session.user.user_metadata?.user_type || 'client',
+            type: userType,
             isAuthenticated: true,
             supabaseUser: session.user
           };
@@ -366,11 +394,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
           }
 
+          // Check database to determine actual user type
+          let userType: UserType = 'client';
+          
+          // Check if user has a vet profile
+          const { data: vetProfile } = await supabase
+            .from('vet_profiles')
+            .select('user_id')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          if (vetProfile) {
+            userType = 'vet';
+          } else {
+            // Check if user has a client profile
+            const { data: clientProfile } = await supabase
+              .from('client_profiles')
+              .select('user_id')
+              .eq('user_id', session.user.id)
+              .single();
+            
+            if (clientProfile) {
+              userType = 'client';
+            } else {
+              // Fallback to user_metadata
+              userType = session.user.user_metadata?.user_type || 'client';
+            }
+          }
+
           const userData: User = {
             id: session.user.id,
             email: session.user.email || '',
             name: session.user.user_metadata?.first_name || session.user.user_metadata?.clinic_name || 'User',
-            type: session.user.user_metadata?.user_type || 'client',
+            type: userType,
             isAuthenticated: true,
             supabaseUser: session.user
           };
