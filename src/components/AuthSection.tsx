@@ -148,9 +148,7 @@ const AuthSection = () => {
         const actualUserType = result.userType || 'client';
 
         // Navigate to appropriate dashboard based on user type
-        if (actualUserType === 'vet') {
-          navigate('/vet-home');
-        } else if (actualUserType === 'vet') {
+        if (actualUserType === 'vet' || actualUserType === 'laboratory') {
           navigate('/vet-home');
         } else {
           navigate('/');
