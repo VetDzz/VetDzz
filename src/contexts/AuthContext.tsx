@@ -29,11 +29,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
   console.log('[getUserTypeFromDatabase] Checking user type for:', userId);
   
-  // Check cache first
-  const cachedType = localStorage.getItem(`userType_${userId}`);
+  // Check cache first (but only if it's recent - within 1 hour)
+  const cacheKey = `userType_${userId}`;
+  const cacheTimeKey = `userTypeTime_${userId}`;
+  const cachedType = localStorage.getItem(cacheKey);
+  const cacheTime = localStorage.getItem(cacheTimeKey);
+  
   if (cachedType === 'vet' || cachedType === 'client') {
-    console.log('[getUserTypeFromDatabase] Using cached type:', cachedType);
-    return cachedType as UserType;
+    const now = Date.now();
+    const cached = cacheTime ? parseInt(cacheTime) : 0;
+    const oneHour = 60 * 60 * 1000;
+    
+    if (now - cached < oneHour) {
+      console.log('[getUserTypeFromDatabase] Using cached type:', cachedType);
+      return cachedType as UserType;
+    } else {
+      console.log('[getUserTypeFromDatabase] Cache expired, checking database');
+      localStorage.removeItem(cacheKey);
+      localStorage.removeItem(cacheTimeKey);
+    }
   }
   
   try {
@@ -58,6 +72,7 @@ const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
         if (vetProfile && !vetError) {
           console.log('[getUserTypeFromDatabase] User is VET');
           localStorage.setItem(`userType_${userId}`, 'vet');
+          localStorage.setItem(`userTypeTime_${userId}`, Date.now().toString());
           return 'vet';
         }
         
@@ -74,11 +89,13 @@ const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
         if (clientProfile && !clientError) {
           console.log('[getUserTypeFromDatabase] User is CLIENT');
           localStorage.setItem(`userType_${userId}`, 'client');
+          localStorage.setItem(`userTypeTime_${userId}`, Date.now().toString());
           return 'client';
         }
         
         console.log('[getUserTypeFromDatabase] No profile found, defaulting to client');
         localStorage.setItem(`userType_${userId}`, 'client');
+        localStorage.setItem(`userTypeTime_${userId}`, Date.now().toString());
         return 'client';
       })(),
       timeoutPromise
@@ -87,8 +104,7 @@ const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
     return result;
   } catch (error) {
     console.error('[getUserTypeFromDatabase] Error or timeout:', error);
-    // If timeout or error, default to client
-    localStorage.setItem(`userType_${userId}`, 'client');
+    // If timeout or error, don't cache (let it retry next time)
     return 'client';
   }
 };
@@ -369,24 +385,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
 
-          // Try to get user type from localStorage first (fast)
-          const cachedUser = localStorage.getItem('user');
+          // Check database first for OAuth users (they don't have metadata)
+          const provider = session.user.app_metadata?.provider;
+          const isOAuthUser = provider === 'google' || provider === 'facebook';
+          
           let userType: UserType = 'client';
           
-          if (cachedUser) {
-            try {
-              const parsed = JSON.parse(cachedUser);
-              if (parsed.id === session.user.id && (parsed.type === 'vet' || parsed.type === 'client')) {
-                userType = parsed.type;
-                console.log('[AuthContext] Using cached user type:', userType);
-              }
-            } catch (e) {
-              console.error('[AuthContext] Error parsing cached user:', e);
-            }
-          }
-          
-          // If no cache, use metadata or default
-          if (!cachedUser) {
+          if (isOAuthUser) {
+            // For OAuth users, MUST check database (but use cache if available)
+            console.log('[AuthContext] OAuth user detected, checking database...');
+            userType = await getUserTypeFromDatabase(session.user.id);
+          } else {
+            // For email users, use metadata
             userType = session.user.user_metadata?.user_type || 'client';
           }
 
@@ -400,16 +410,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           };
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
-          
-          // Check database in background to update if needed (non-blocking)
-          getUserTypeFromDatabase(session.user.id).then(dbType => {
-            if (dbType !== userType) {
-              console.log('[AuthContext] Updating user type from database:', dbType);
-              const updatedUser = { ...userData, type: dbType };
-              setUser(updatedUser);
-              localStorage.setItem('user', JSON.stringify(updatedUser));
-            }
-          });
         } else {
 
         }
@@ -440,11 +440,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
           }
 
-          // Try to get user type from cache first (fast)
-          let userType: UserType = session.user.user_metadata?.user_type || 'client';
-          const cachedType = localStorage.getItem(`userType_${session.user.id}`);
-          if (cachedType === 'vet' || cachedType === 'client') {
-            userType = cachedType;
+          // Check database first for OAuth users (they don't have metadata)
+          const provider = session.user.app_metadata?.provider;
+          const isOAuthUser = provider === 'google' || provider === 'facebook';
+          
+          let userType: UserType = 'client';
+          
+          if (isOAuthUser) {
+            // For OAuth users, MUST check database (but use cache if available)
+            console.log('[AuthContext] OAuth user detected in state change, checking database...');
+            userType = await getUserTypeFromDatabase(session.user.id);
+          } else {
+            // For email users, use metadata
+            userType = session.user.user_metadata?.user_type || 'client';
           }
 
           const userData: User = {
@@ -457,16 +465,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           };
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
-          
-          // Check database in background to update if needed (non-blocking)
-          getUserTypeFromDatabase(session.user.id).then(dbType => {
-            if (dbType !== userType) {
-              console.log('[AuthContext] Updating user type from database:', dbType);
-              const updatedUser = { ...userData, type: dbType };
-              setUser(updatedUser);
-              localStorage.setItem('user', JSON.stringify(updatedUser));
-            }
-          });
 
         } else if (event === 'SIGNED_OUT') {
           // Handle logout
