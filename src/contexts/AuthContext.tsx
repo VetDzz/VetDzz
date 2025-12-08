@@ -25,9 +25,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to get user type from database with timeout
+// Helper function to get user type from database with timeout and caching
 const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
   console.log('[getUserTypeFromDatabase] Checking user type for:', userId);
+  
+  // Check cache first
+  const cachedType = localStorage.getItem(`userType_${userId}`);
+  if (cachedType === 'vet' || cachedType === 'client') {
+    console.log('[getUserTypeFromDatabase] Using cached type:', cachedType);
+    return cachedType as UserType;
+  }
   
   try {
     // Create a promise that rejects after 3 seconds
@@ -50,6 +57,7 @@ const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
         
         if (vetProfile && !vetError) {
           console.log('[getUserTypeFromDatabase] User is VET');
+          localStorage.setItem(`userType_${userId}`, 'vet');
           return 'vet';
         }
         
@@ -65,10 +73,12 @@ const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
         
         if (clientProfile && !clientError) {
           console.log('[getUserTypeFromDatabase] User is CLIENT');
+          localStorage.setItem(`userType_${userId}`, 'client');
           return 'client';
         }
         
         console.log('[getUserTypeFromDatabase] No profile found, defaulting to client');
+        localStorage.setItem(`userType_${userId}`, 'client');
         return 'client';
       })(),
       timeoutPromise
@@ -78,6 +88,7 @@ const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
   } catch (error) {
     console.error('[getUserTypeFromDatabase] Error or timeout:', error);
     // If timeout or error, default to client
+    localStorage.setItem(`userType_${userId}`, 'client');
     return 'client';
   }
 };
