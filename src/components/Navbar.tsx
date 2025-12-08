@@ -58,7 +58,7 @@ const Navbar = () => {
         {/* Centered Navigation */}
         <nav className="hidden md:flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
             <Link
-              to="/"
+              to={user?.type === 'vet' || user?.type === 'laboratory' ? '/vet-home' : '/'}
               className="text-white/80 hover:text-white px-4 py-2 rounded-full font-medium transition-colors"
             >
               {t('nav.home')}
@@ -67,7 +67,7 @@ const Navbar = () => {
               onClick={handleFindvet}
               className="text-white/80 hover:text-white px-4 py-2 rounded-full font-medium transition-colors"
             >
-              {user?.type === 'vet' ? t('nav.findClient') : t('nav.findLab')}
+              {user?.type === 'vet' || user?.type === 'laboratory' ? t('nav.findClient') : t('nav.findLab')}
             </button>
             <Link
               to="/results"
@@ -75,7 +75,7 @@ const Navbar = () => {
             >
               {t('nav.results')}
             </Link>
-            {user?.type === 'vet' && (
+            {(user?.type === 'vet' || user?.type === 'laboratory') && (
               <Link
                 to="/vet-dashboard?tab=requests"
                 className="text-white/80 hover:text-white px-4 py-2 rounded-full font-medium transition-colors"
@@ -119,7 +119,7 @@ const Navbar = () => {
         <div className="md:hidden mt-4 bg-white border-t border-border">
           <nav className="flex flex-col gap-4 p-6">
             <Link
-              to="/"
+              to={user?.type === 'vet' || user?.type === 'laboratory' ? '/vet-home' : '/'}
               onClick={() => setIsMenuOpen(false)}
               className="text-[#888888] hover:text-foreground text-lg py-2"
             >
@@ -129,7 +129,7 @@ const Navbar = () => {
               onClick={handleFindvet}
               className="text-[#888888] hover:text-foreground text-lg py-2 text-left"
             >
-              {t('nav.findLab')}
+              {user?.type === 'vet' || user?.type === 'laboratory' ? t('nav.findClient') : t('nav.findLab')}
             </button>
             <Link
               to="/results"
@@ -138,7 +138,7 @@ const Navbar = () => {
             >
               {t('nav.results')}
             </Link>
-            {user?.type === 'vet' && (
+            {(user?.type === 'vet' || user?.type === 'laboratory') && (
               <Link
                 to="/vet-dashboard?tab=requests"
                 onClick={() => setIsMenuOpen(false)}
