@@ -63,6 +63,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('🚀🚀🚀 FORM SUBMITTED - NEW CODE DEPLOYED! 🚀🚀🚀');
     console.log('🚀 [UploadResultModal] Starting result upload for client:', clientId);
     
     if (!title.trim()) {
@@ -171,6 +172,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
 
       // Send push notification to client (for Android app users)
       try {
+        console.log('🔥🔥🔥 PUSH NOTIFICATION CODE IS RUNNING! 🔥🔥🔥');
         console.log('📤 Sending result notification to client:', clientId);
         
         // Get client's push token
