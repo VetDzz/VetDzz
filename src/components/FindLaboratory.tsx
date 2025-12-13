@@ -363,6 +363,46 @@ const Findvet = () => {
           activeLab: vet.user_id,
           requestId: inserted?.[0]?.id || ''
         });
+        
+        // Send push notification to vet
+        try {
+          console.log('📤 Sending CVD notification to vet:', vet.user_id);
+          
+          // Get vet's push token
+          const { data: vetProfile } = await supabase
+            .from('vet_profiles')
+            .select('push_token')
+            .eq('user_id', vet.user_id)
+            .single();
+          
+          if (vetProfile?.push_token) {
+            console.log('✅ Vet has push token, sending notification...');
+            
+            const { data: notifData, error: notifError } = await supabase.functions.invoke('send-push-notification', {
+              body: {
+                token: vetProfile.push_token,
+                title: 'Nouvelle demande CVD',
+                body: `${clientProfile?.full_name || 'Un client'} a demandé une consultation à domicile`,
+                data: {
+                  type: 'cvd_request',
+                  request_id: inserted?.[0]?.id || '',
+                  client_id: user.id
+                }
+              }
+            });
+            
+            if (notifError) {
+              console.error('❌ Error sending notification:', notifError);
+            } else {
+              console.log('✅ Notification sent successfully:', notifData);
+            }
+          } else {
+            console.log('⚠️ Vet has no push token, skipping notification');
+          }
+        } catch (notifError) {
+          console.error('❌ Error in notification flow:', notifError);
+        }
+        
         toast({
           title: t('PAD.sendSuccess'),
           description: t('PAD.sendSuccessDesc', { labName: vet.clinic_name || vet.vet_name }),
