@@ -149,9 +149,9 @@ const AuthSection = () => {
 
         // Navigate to appropriate dashboard based on user type
         if (actualUserType === 'vet' || actualUserType === 'laboratory') {
-          navigate('/vet-home');
+          navigate('/'); // Vet goes to home page
         } else {
-          navigate('/');
+          navigate('/'); // Client goes to home page
         }
       } else {
         toast({

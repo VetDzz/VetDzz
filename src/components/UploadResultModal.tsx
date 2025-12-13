@@ -63,6 +63,8 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('🚀 [UploadResultModal] Starting result upload for client:', clientId);
+    
     if (!title.trim()) {
       toast({
         title: "Titre requis",
@@ -166,6 +168,45 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
             related_entity_type: 'medical_result'
           }
         ]);
+
+      // Send push notification to client (for Android app users)
+      try {
+        console.log('📤 Sending result notification to client:', clientId);
+        
+        // Get client's push token
+        const { data: clientProfile } = await supabase
+          .from('client_profiles')
+          .select('push_token')
+          .eq('user_id', clientId)
+          .single();
+        
+        if (clientProfile?.push_token) {
+          console.log('✅ Client has push token, sending notification...');
+          
+          // Call Edge Function to send notification
+          const { data: notifData, error: notifError } = await supabase.functions.invoke('send-push-notification', {
+            body: {
+              token: clientProfile.push_token,
+              title: 'Nouveau résultat disponible',
+              body: `${title || file.name} est maintenant disponible`,
+              data: {
+                type: 'medical_result',
+                client_id: clientId
+              }
+            }
+          });
+          
+          if (notifError) {
+            console.error('❌ Error sending notification:', notifError);
+          } else {
+            console.log('✅ Notification sent successfully:', notifData);
+          }
+        } else {
+          console.log('⚠️ Client has no push token, skipping notification');
+        }
+      } catch (notifError) {
+        console.error('❌ Error in notification flow:', notifError);
+      }
 
       toast({
         title: "Résultat envoyé",

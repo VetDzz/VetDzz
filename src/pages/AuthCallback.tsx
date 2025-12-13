@@ -133,13 +133,9 @@ const AuthCallback = () => {
               description: "Bienvenue sur VetDZ !",
             });
             
-            // Redirect based on profile type
+            // Redirect based on profile type - both go to home
             setTimeout(() => {
-              if (vetProfile) {
-                window.location.href = '/#/vet-home';
-              } else {
-                window.location.href = '/#/';
-              }
+              window.location.href = '/#/';
             }, 500);
             return;
           } else {
@@ -150,14 +146,9 @@ const AuthCallback = () => {
               description: "Votre compte a été confirmé avec succès. Bienvenue !",
             });
             
-            // Navigate based on user type from metadata
-            const userType = supabaseUser.user_metadata?.user_type;
+            // Navigate to home page for all users
             setTimeout(() => {
-              if (userType === 'vet') {
-                window.location.href = '/#/vet-home';
-              } else {
-                window.location.href = '/#/';
-              }
+              window.location.href = '/#/';
             }, 500);
             return;
           }
