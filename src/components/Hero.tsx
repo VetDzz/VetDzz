@@ -28,7 +28,7 @@ const Hero = () => {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/WhatsApp Image 2025-12-04 at 3.15.17 PM.jpeg"
+            src="/telechargement.jpg"
             alt="Hero Background"
             className="w-full h-full object-cover object-center scale-110"
           />
