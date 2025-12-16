@@ -59,8 +59,8 @@ const App = () => {
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
         // Refetch data when window regains focus (for real-time updates)
         refetchOnWindowFocus: true,
-        // Background refetch interval for critical data (every 2 minutes)
-        refetchInterval: 2 * 60 * 1000,
+        // Disabled polling - use real-time subscriptions instead
+        refetchInterval: false,
         // Don't refetch on reconnect to reduce server load
         refetchOnReconnect: false,
       },
