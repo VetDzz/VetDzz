@@ -42,27 +42,38 @@ const ForgotPasswordPage = () => {
     setIsLoading(true);
 
     try {
-      // Check if email exists by looking in your existing profile tables
-      const { data: clientProfile } = await supabase
-        .from('client_profiles')
-        .select('email')
-        .eq('email', email)
-        .single();
+      // Check if email exists in auth.users table first
+      const { data: authUsers, error: authError } = await supabase.rpc('check_user_exists', { 
+        user_email: email 
+      });
 
-      const { data: labProfile } = await supabase
-        .from('vet_profiles')
-        .select('email')
-        .eq('email', email)
-        .single();
+      // If RPC function doesn't exist, fallback to profile tables check
+      if (authError) {
+        console.log('RPC function not available, checking profile tables...');
+        
+        // Check if email exists by looking in profile tables
+        const { data: clientProfile } = await supabase
+          .from('client_profiles')
+          .select('email')
+          .eq('email', email)
+          .maybeSingle();
 
-      const { data: VetProfile } = await supabase
-        .from('vet_profiles')
-        .select('email')
-        .eq('email', email)
-        .single();
+        const { data: vetProfile } = await supabase
+          .from('vet_profiles')
+          .select('email')
+          .eq('email', email)
+          .maybeSingle();
 
-      // If email doesn't exist in any profile table
-      if (!clientProfile && !labProfile && !VetProfile) {
+        // If email doesn't exist in any profile table
+        if (!clientProfile && !vetProfile) {
+          toast({
+            title: "Email introuvable",
+            description: "Aucun compte n'est associé à cette adresse email.",
+            variant: "destructive"
+          });
+          return;
+        }
+      } else if (!authUsers || authUsers.length === 0) {
         toast({
           title: "Email introuvable",
           description: "Aucun compte n'est associé à cette adresse email.",
