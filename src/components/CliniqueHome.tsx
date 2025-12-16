@@ -74,7 +74,7 @@ const vetHome = () => {
               <div
                 className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{
-                  backgroundImage: `url('/images/analyse-795x478-1.jpg')`
+                  backgroundImage: `url('/images/téléchargement.jpg')`
                 }}
               ></div>
               {/* Overlay for better text readability (reduced green tint) */}
