@@ -366,8 +366,7 @@ const Findvet = () => {
         
         // Send push notification to vet
         try {
-          console.log('📤 Sending CVD notification to vet:', vet.user_id);
-          
+
           // Get vet's push token
           const { data: vetProfile } = await supabase
             .from('vet_profiles')
@@ -376,8 +375,7 @@ const Findvet = () => {
             .single();
           
           if (vetProfile?.push_token) {
-            console.log('✅ Vet has push token, sending notification...');
-            
+
             const { data: notifData, error: notifError } = await supabase.functions.invoke('send-push-notification', {
               body: {
                 token: vetProfile.push_token,
@@ -392,15 +390,15 @@ const Findvet = () => {
             });
             
             if (notifError) {
-              console.error('❌ Error sending notification:', notifError);
+
             } else {
-              console.log('✅ Notification sent successfully:', notifData);
+
             }
           } else {
-            console.log('⚠️ Vet has no push token, skipping notification');
+
           }
         } catch (notifError) {
-          console.error('❌ Error in notification flow:', notifError);
+
         }
         
         toast({

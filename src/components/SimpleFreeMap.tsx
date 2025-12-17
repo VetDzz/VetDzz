@@ -86,7 +86,7 @@ const SimpleFreeMap: React.FC<SimpleFreeMapProps> = ({
       });
 
       if (error) {
-        console.error('Error fetching nearby vets:', error);
+
         setLaboratories([]);
       } else {
         setLaboratories(response?.data || []);

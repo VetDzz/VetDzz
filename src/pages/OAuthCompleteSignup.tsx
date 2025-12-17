@@ -76,7 +76,6 @@ const OAuthCompleteSignup = () => {
         }, { onConflict: 'user_id' });
 
       if (error) {
-        console.error('Error creating profile:', error);
         toast({
           title: "Erreur",
           description: "Impossible de créer le profil.",
@@ -95,7 +94,6 @@ const OAuthCompleteSignup = () => {
 
       window.location.href = '/#/';
     } catch (error) {
-      console.error('Error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -127,7 +125,6 @@ const OAuthCompleteSignup = () => {
         }, { onConflict: 'user_id' });
 
       if (error) {
-        console.error('Error creating vet profile:', error);
         toast({
           title: "Erreur",
           description: "Impossible de créer le profil.",
@@ -146,7 +143,6 @@ const OAuthCompleteSignup = () => {
 
       window.location.href = '/#/vet-home';
     } catch (error) {
-      console.error('Error:', error);
     } finally {
       setIsLoading(false);
     }

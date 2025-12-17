@@ -120,7 +120,6 @@ const vetRegistration: React.FC = () => {
           }));
         }
       } catch (error) {
-        console.error('Error loading profile:', error);
       } finally {
         setIsLoading(false);
       }
@@ -192,7 +191,6 @@ const vetRegistration: React.FC = () => {
         .select();
 
       if (error) {
-        console.error('Profile error:', error);
         alert('Erreur lors de la création du profil: ' + error.message);
         return;
       }

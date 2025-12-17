@@ -136,7 +136,7 @@ const AdminPanel: React.FC = () => {
       // Use profiles method directly (more reliable)
       await fetchUsersFromProfiles();
     } catch (error) {
-      console.error('Error fetching users:', error);
+
       setUsers([]);
     }
   };

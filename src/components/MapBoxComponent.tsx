@@ -208,7 +208,7 @@ const MapBoxComponent: React.FC<MapBoxComponentProps> = ({
       });
 
       if (error) {
-        console.error('Error fetching nearby vets:', error);
+
         setLaboratories([]);
       } else {
         setLaboratories(response?.data || []);

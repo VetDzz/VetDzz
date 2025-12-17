@@ -578,25 +578,23 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
   const fetchLaboratories = async () => {
     try {
       if (!userLocation && !showAllVets) {
-        console.log('❌ No user location available');
+
         setLaboratories([]);
         return;
       }
-
-      console.log('🔍 Fetching vets...', { showAllVets, userLocation });
 
       let allLocations: vet[] = [];
 
       if (showAllVets) {
         // Show ALL vets in Algeria (no filtering)
-        console.log('🌍 Fetching ALL vets in Algeria...');
+
         const { data: allVetsData, error: allVetsError } = await supabase
           .from('vet_profiles')
           .select('*')
           .eq('is_verified', true);
         
         if (allVetsData && !allVetsError) {
-          console.log(`✅ Found ${allVetsData.length} vets in Algeria`);
+
           const vets = allVetsData.map((vet: any) => ({
             ...vet,
             name: vet.vet_name || vet.clinic_name,
@@ -605,11 +603,11 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           }));
           allLocations = [...allLocations, ...vets];
         } else {
-          console.error('❌ Error fetching all vets:', allVetsError);
+
         }
       } else {
         // Use edge function with LARGE radius (500km = covers all of Algeria)
-        console.log('📍 Fetching nearby vets (500km radius)...');
+
         const { data: response, error: vetError } = await supabase.functions.invoke('get-nearby-vets', {
           body: {
             latitude: userLocation.lat,
@@ -618,12 +616,10 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           }
         });
 
-        console.log('📡 Edge function response:', { response, error: vetError });
-
         const vetData = response?.data || [];
 
         if (vetData && !vetError) {
-          console.log(`✅ Found ${vetData.length} vets within 500km`);
+
           const vets = vetData.map((vet: any) => ({
             ...vet,
             name: vet.vet_name || vet.clinic_name,
@@ -632,17 +628,16 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
           }));
           allLocations = [...allLocations, ...vets];
         } else if (vetError) {
-          console.error('❌ Error with edge function:', vetError);
-          
+
           // Fallback to direct query
-          console.log('🔄 Falling back to direct database query...');
+
           const { data: fallbackData, error: fallbackError } = await supabase
             .from('vet_profiles')
             .select('*')
             .eq('is_verified', true);
           
           if (fallbackData && !fallbackError) {
-            console.log(`✅ Fallback: Found ${fallbackData.length} vets`);
+
             const vets = fallbackData.map((vet: any) => ({
               ...vet,
               name: vet.vet_name || vet.clinic_name,
@@ -651,16 +646,15 @@ const AccurateMapComponent: React.FC<AccurateMapComponentProps> = ({
             }));
             allLocations = [...allLocations, ...vets];
           } else {
-            console.error('❌ Fallback also failed:', fallbackError);
+
           }
         }
       }
 
-      console.log(`📍 Setting ${allLocations.length} vets to state`);
       setLaboratories(allLocations);
       
     } catch (error) {
-      console.error('❌ Exception in fetchLaboratories:', error);
+
       setLaboratories([]);
     } finally {
       setIsLoading(false);

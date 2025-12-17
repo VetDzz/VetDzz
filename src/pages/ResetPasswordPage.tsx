@@ -81,9 +81,6 @@ const ResetPasswordPage = () => {
         const accessToken = hashParams.get('access_token');
         const refreshToken = hashParams.get('refresh_token');
         const type = hashParams.get('type');
-
-        console.log('Reset password page - URL params:', { type, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken });
-
         if (type === 'recovery' && accessToken && refreshToken) {
           // This is a password reset from email link
           const { data, error } = await supabase.auth.setSession({
@@ -92,7 +89,6 @@ const ResetPasswordPage = () => {
           });
 
           if (error) {
-            console.error('Session error:', error);
             setIsValidToken(false);
             toast({
               title: "Lien invalide",
@@ -100,7 +96,6 @@ const ResetPasswordPage = () => {
               variant: "destructive"
             });
           } else {
-            console.log('Session set successfully for password reset');
             setIsValidToken(true);
           }
         } else {
@@ -117,7 +112,6 @@ const ResetPasswordPage = () => {
             });
 
             if (error) {
-              console.error('Session error:', error);
               setIsValidToken(false);
               toast({
                 title: "Lien invalide",
@@ -125,7 +119,6 @@ const ResetPasswordPage = () => {
                 variant: "destructive"
               });
             } else {
-              console.log('Session set successfully for password reset');
               setIsValidToken(true);
             }
           } else {
@@ -133,7 +126,6 @@ const ResetPasswordPage = () => {
             const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
             
             if (sessionError || !sessionData.session) {
-              console.log('No valid session found');
               setIsValidToken(false);
               toast({
                 title: "Lien invalide",
@@ -141,13 +133,11 @@ const ResetPasswordPage = () => {
                 variant: "destructive"
               });
             } else {
-              console.log('Existing valid session found');
               setIsValidToken(true);
             }
           }
         }
       } catch (error) {
-        console.error('Error in handleAuthCallback:', error);
         setIsValidToken(false);
         toast({
           title: "Erreur",

@@ -289,8 +289,7 @@ const vetDashboard = () => {
         
         // Send push notification to client
         try {
-          console.log('📤 Sending CVD accepted notification to client:', updated.client_id);
-          
+
           // Get client's push token
           const { data: clientProfile } = await supabase
             .from('client_profiles')
@@ -299,8 +298,7 @@ const vetDashboard = () => {
             .single();
           
           if (clientProfile?.push_token) {
-            console.log('✅ Client has push token, sending notification...');
-            
+
             const { data: notifData, error: pushError } = await supabase.functions.invoke('send-push-notification', {
               body: {
                 token: clientProfile.push_token,
@@ -315,15 +313,15 @@ const vetDashboard = () => {
             });
             
             if (pushError) {
-              console.error('❌ Error sending push notification:', pushError);
+
             } else {
-              console.log('✅ Push notification sent successfully:', notifData);
+
             }
           } else {
-            console.log('⚠️ Client has no push token, skipping push notification');
+
           }
         } catch (pushError) {
-          console.error('❌ Error in push notification flow:', pushError);
+
         }
       }
       

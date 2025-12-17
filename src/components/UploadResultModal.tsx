@@ -62,10 +62,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log('🚀🚀🚀 FORM SUBMITTED - NEW CODE DEPLOYED! 🚀🚀🚀');
-    console.log('🚀 [UploadResultModal] Starting result upload for client:', clientId);
-    
+
     if (!title.trim()) {
       toast({
         title: "Titre requis",
@@ -172,9 +169,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
 
       // Send push notification to client (for Android app users)
       try {
-        console.log('🔥🔥🔥 PUSH NOTIFICATION CODE IS RUNNING! 🔥🔥🔥');
-        console.log('📤 Sending result notification to client:', clientId);
-        
+
         // Get client's push token
         const { data: clientProfile } = await supabase
           .from('client_profiles')
@@ -183,8 +178,7 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
           .single();
         
         if (clientProfile?.push_token) {
-          console.log('✅ Client has push token, sending notification...');
-          
+
           // Call Edge Function to send notification
           const { data: notifData, error: notifError } = await supabase.functions.invoke('send-push-notification', {
             body: {
@@ -199,15 +193,15 @@ const UploadResultModal: React.FC<UploadResultModalProps> = ({
           });
           
           if (notifError) {
-            console.error('❌ Error sending notification:', notifError);
+
           } else {
-            console.log('✅ Notification sent successfully:', notifData);
+
           }
         } else {
-          console.log('⚠️ Client has no push token, skipping notification');
+
         }
       } catch (notifError) {
-        console.error('❌ Error in notification flow:', notifError);
+
       }
 
       toast({

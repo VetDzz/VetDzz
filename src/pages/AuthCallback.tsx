@@ -13,8 +13,7 @@ const AuthCallback = () => {
     let isMounted = true;
     
     const handleAuthCallback = async () => {
-      console.log('[AuthCallback] Starting auth callback handler');
-      
+
       try {
         // Check for OAuth tokens in URL hash or query params
         // Supabase might return tokens in different formats
@@ -49,7 +48,7 @@ const AuthCallback = () => {
               });
               
               if (setError) {
-                console.error('Error setting session:', setError);
+
               }
               
               // Clean up the URL
@@ -60,16 +59,12 @@ const AuthCallback = () => {
         
         // Small delay to ensure session is set
         await new Promise(resolve => setTimeout(resolve, 200));
-        
-        console.log('[AuthCallback] Getting session...');
-        
+
         // Get session
         const { data, error } = await supabase.auth.getSession();
-        
-        console.log('[AuthCallback] Session data:', data, 'Error:', error);
-        
+
         if (error) {
-          console.error('Auth callback error:', error);
+
           if (isMounted) {
             setStatus('error');
             toast({
@@ -106,26 +101,21 @@ const AuthCallback = () => {
               .single();
             
             // Log for debugging
-            console.log('OAuth User ID:', supabaseUser.id);
-            console.log('Client Profile:', clientProfile, 'Error:', clientError);
-            console.log('Vet Profile:', vetProfile, 'Error:', vetError);
-            
+
             // Check if profile exists (ignore "not found" errors)
             const hasClientProfile = clientProfile && !clientError;
             const hasVetProfile = vetProfile && !vetError;
             
             if (!hasClientProfile && !hasVetProfile) {
               // No profile exists - redirect to complete signup
-              console.log('No profile found - redirecting to oauth-complete');
+
               setStatus('success');
               setTimeout(() => {
                 window.location.href = '/#/oauth-complete';
               }, 300);
               return;
             }
-            
-            console.log('Profile found - logging in');
-            
+
             // Existing user - allow login
             setStatus('success');
             toast({
@@ -163,7 +153,7 @@ const AuthCallback = () => {
           setTimeout(() => navigate('/auth'), 2000);
         }
       } catch (error) {
-        console.error('Unexpected error in auth callback:', error);
+
         if (isMounted) {
           setStatus('error');
           toast({
@@ -181,7 +171,7 @@ const AuthCallback = () => {
     // Add a timeout to prevent infinite loading
     const timeout = setTimeout(() => {
       if (isMounted && status === 'loading') {
-        console.error('[AuthCallback] Timeout - redirecting to auth page');
+
         setStatus('error');
         toast({
           title: "Délai d'attente dépassé",

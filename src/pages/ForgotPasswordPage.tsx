@@ -49,8 +49,6 @@ const ForgotPasswordPage = () => {
 
       // If RPC function doesn't exist, fallback to profile tables check
       if (authError) {
-        console.log('RPC function not available, checking profile tables...');
-        
         // Check if email exists by looking in profile tables
         const { data: clientProfile } = await supabase
           .from('client_profiles')

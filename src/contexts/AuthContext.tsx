@@ -27,8 +27,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Helper function to get user type from database with timeout and caching
 const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
-  console.log('[getUserTypeFromDatabase] Checking user type for:', userId);
-  
+
   // Check cache first (but only if it's recent - within 1 hour)
   const cacheKey = `userType_${userId}`;
   const cacheTimeKey = `userTypeTime_${userId}`;
@@ -41,10 +40,10 @@ const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
     const oneHour = 60 * 60 * 1000;
     
     if (now - cached < oneHour) {
-      console.log('[getUserTypeFromDatabase] Using cached type:', cachedType);
+
       return cachedType as UserType;
     } else {
-      console.log('[getUserTypeFromDatabase] Cache expired, checking database');
+
       localStorage.removeItem(cacheKey);
       localStorage.removeItem(cacheTimeKey);
     }
@@ -59,41 +58,35 @@ const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
     // Race between the query and timeout
     const result = await Promise.race([
       (async () => {
-        console.log('[getUserTypeFromDatabase] Querying vet_profiles...');
+
         // Check if user has a vet profile (use maybeSingle to avoid errors)
         const { data: vetProfile, error: vetError } = await supabase
           .from('vet_profiles')
           .select('user_id')
           .eq('user_id', userId)
           .maybeSingle();
-        
-        console.log('[getUserTypeFromDatabase] Vet profile result:', vetProfile, 'Error:', vetError);
-        
+
         if (vetProfile && !vetError) {
-          console.log('[getUserTypeFromDatabase] User is VET');
+
           localStorage.setItem(`userType_${userId}`, 'vet');
           localStorage.setItem(`userTypeTime_${userId}`, Date.now().toString());
           return 'vet';
         }
-        
-        console.log('[getUserTypeFromDatabase] Querying client_profiles...');
+
         // Check if user has a client profile (use maybeSingle to avoid errors)
         const { data: clientProfile, error: clientError } = await supabase
           .from('client_profiles')
           .select('user_id')
           .eq('user_id', userId)
           .maybeSingle();
-        
-        console.log('[getUserTypeFromDatabase] Client profile result:', clientProfile, 'Error:', clientError);
-        
+
         if (clientProfile && !clientError) {
-          console.log('[getUserTypeFromDatabase] User is CLIENT');
+
           localStorage.setItem(`userType_${userId}`, 'client');
           localStorage.setItem(`userTypeTime_${userId}`, Date.now().toString());
           return 'client';
         }
-        
-        console.log('[getUserTypeFromDatabase] No profile found, defaulting to client');
+
         localStorage.setItem(`userType_${userId}`, 'client');
         localStorage.setItem(`userTypeTime_${userId}`, Date.now().toString());
         return 'client';
@@ -103,7 +96,7 @@ const getUserTypeFromDatabase = async (userId: string): Promise<UserType> => {
     
     return result;
   } catch (error) {
-    console.error('[getUserTypeFromDatabase] Error or timeout:', error);
+
     // If timeout or error, don't cache (let it retry next time)
     return 'client';
   }
@@ -393,7 +386,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           
           if (isOAuthUser) {
             // For OAuth users, MUST check database (but use cache if available)
-            console.log('[AuthContext] OAuth user detected, checking database...');
+
             userType = await getUserTypeFromDatabase(session.user.id);
           } else {
             // For email users, use metadata
@@ -448,7 +441,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           
           if (isOAuthUser) {
             // For OAuth users, MUST check database (but use cache if available)
-            console.log('[AuthContext] OAuth user detected in state change, checking database...');
+
             userType = await getUserTypeFromDatabase(session.user.id);
           } else {
             // For email users, use metadata
@@ -502,7 +495,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     // REAL-TIME MONITORING - Zero polling, instant notifications!
-    console.log('🔔 Setting up real-time ban monitoring for user:', user.id);
 
     // Note: We don't subscribe to auth.users because:
     // 1. The auth schema doesn't support Realtime subscriptions
@@ -516,8 +508,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         });
 
         if (!error && banInfo?.banned) {
-          console.log('🚫 User is already banned, redirecting...');
-          
+
           // Clear everything
           setUser(null);
           localStorage.removeItem('user');
@@ -534,7 +525,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           window.location.href = '/banned';
         }
       } catch (error) {
-        console.error('Error checking existing ban:', error);
+
       }
     };
 
@@ -552,8 +543,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           filter: `user_id=eq.${user.id}`
         },
         async (payload) => {
-          console.log('🚫 User banned in real-time!', payload);
-          
+
           // User was just banned - handle immediately
           const banInfo = payload.new;
           
@@ -582,8 +572,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           filter: `user_id=eq.${user.id}`
         },
         async (payload) => {
-          console.log('🚫 Ban status updated in real-time!', payload);
-          
+
           // Check if still banned
           const banInfo = payload.new;
           if (banInfo.banned_until && new Date(banInfo.banned_until) > new Date()) {
@@ -599,16 +588,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       )
       .subscribe((status) => {
-        console.log('📡 Realtime subscription status:', status);
+
         if (status === 'SUBSCRIBED') {
-          console.log('✅ Real-time ban monitoring active for user:', user.id);
+
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('❌ Realtime subscription error - check if Realtime is enabled in Supabase');
+
         }
       });
 
     return () => {
-      console.log('🔌 Disconnecting real-time ban monitoring');
+
       banSubscription.unsubscribe();
     };
   }, [user?.id]);

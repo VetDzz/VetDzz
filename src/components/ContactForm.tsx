@@ -96,7 +96,6 @@ const ContactForm = () => {
           </div>
         </motion.div>
 
-
       </div>
     </section>
   );
