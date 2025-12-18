@@ -283,32 +283,7 @@ const RapidResultsService = () => {
               </Card>
             </motion.div>
 
-            {/* CTA */}
-            <motion.div className="text-center" variants={itemVariants}>
-              <Card className="border-vet-primary bg-white">
-                <CardContent className="p-8">
-                  <h3 className="text-2xl font-bold text-vet-dark mb-4">
-                    Accédez à vos résultats maintenant
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Connectez-vous à votre espace patient ou créez votre compte
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button className="bg-vet-primary hover:bg-vet-accent">
-                      <Smartphone className="w-4 h-4 mr-2" />
-                      Mon Espace Patient
-                    </Button>
-                    <Button variant="outline" className="border-vet-primary text-vet-dark hover:bg-vet-light">
-                      <Download className="w-4 h-4 mr-2" />
-                      Télécharger l'App
-                    </Button>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-4">
-                    Besoin d'aide ? Contactez-nous au <span className="font-semibold text-vet-dark">01 23 45 67 89</span>
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
+
           </motion.div>
         </div>
       </div>
