@@ -21,7 +21,7 @@ const Footer = () => {
   };
 
   const handleWhatsAppContact = () => {
-    const phoneNumber = '213797495568';
+    const phoneNumber = '213549702788';
     const message = 'Bonjour, je souhaite obtenir des informations sur vos services de laboratoire d\'analyses médicales. Merci.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -82,7 +82,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-white/90 backdrop-blur-sm pt-16 pb-8 w-full border-t border-white/20">
+    <footer id="contact-info" className="bg-white/90 backdrop-blur-sm pt-16 pb-8 w-full border-t border-white/20">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 pb-10 border-b border-vet-muted">
           <div className="lg:col-span-2">
@@ -110,7 +110,7 @@ const Footer = () => {
                 className="flex items-center text-gray-600 hover:text-green-600 transition-colors cursor-pointer"
               >
                 <Phone className="w-4 h-4 mr-2 text-vet-primary" />
-                <span className="text-sm">+213 797 49 55 68</span>
+                <span className="text-sm">+213 549 70 27 88</span>
               </button>
               <button 
                 onClick={handleGmailContact}
@@ -132,7 +132,6 @@ const Footer = () => {
               <Button
                 onClick={handleWhatsAppContact}
                 className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 flex items-center justify-center text-white transition-colors p-2 shadow-lg"
-                size="icon"
                 title="Contactez-nous sur WhatsApp"
               >
                 <MessageSquare className="w-6 h-6" />

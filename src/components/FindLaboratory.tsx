@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { searchLaboratories, supabase } from '@/lib/supabase';
 import AccurateMapComponent from '@/components/AccurateMapComponent';
 import { useRef } from 'react';
+import Footer from '@/components/Footer';
 
 const Findvet = () => {
   const [location, setLocation] = useState('');
@@ -661,6 +662,9 @@ const Findvet = () => {
           </motion.div>
         </motion.div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </section>
   );
 };

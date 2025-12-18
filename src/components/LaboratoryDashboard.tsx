@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import MapComponent from '@/components/MapComponent';
 import UploadResultModal from '@/components/UploadResultModal';
+import Footer from '@/components/Footer';
 
 interface Client {
   id: string;
@@ -661,6 +662,9 @@ const vetDashboard = () => {
           clientName={selectedClient.full_name}
         />
       )}
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
