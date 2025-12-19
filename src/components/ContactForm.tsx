@@ -12,7 +12,7 @@ const ContactForm = () => {
   };
 
   const handleWhatsAppContact = () => {
-    const phoneNumber = '213797495568'; // +213 797 49 55 68 without + and spaces
+    const phoneNumber = '213549702788'; // +213 549 70 27 88 without + and spaces
     const message = 'Bonjour, je souhaite obtenir des informations sur vos services de laboratoire d\'analyses médicales. Merci.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
