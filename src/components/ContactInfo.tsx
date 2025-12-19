@@ -84,7 +84,7 @@ const ContactInfo = () => {
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-vet-dark mb-2">WhatsApp</h3>
-              <p className="text-gray-600 text-sm mb-4">+213 797 49 55 68</p>
+              <p className="text-gray-600 text-sm mb-4">+213 549 70 27 88</p>
               <Button 
                 onClick={handleWhatsAppContact}
                 className="w-full bg-[#25D366] hover:bg-[#20b858] text-white"

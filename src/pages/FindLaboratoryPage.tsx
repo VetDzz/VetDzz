@@ -6,7 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const FindvetPage = () => {
   const { t } = useLanguage();
   return (
-    <PageLayout showFooter={false}>
+    <PageLayout showFooter={true}>
       <SEO
         title={t('findLab.seoTitle')}
         description={t('findLab.seoDescription')}

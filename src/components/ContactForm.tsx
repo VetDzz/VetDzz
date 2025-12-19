@@ -81,7 +81,7 @@ const ContactForm = () => {
                 Discutez directement avec notre équipe
               </p>
               <p className="text-lg text-gray-900 font-semibold mb-8">
-                +213 797 49 55 68
+                +213 549 70 27 88
               </p>
               <Button 
                 onClick={handleWhatsAppContact}
